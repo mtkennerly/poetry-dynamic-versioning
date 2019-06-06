@@ -58,8 +58,8 @@ In your pyproject.toml file, you may configure the following options:
   * `style`: String. Default: unset. One of: `pep440`, `semver`, `pvp`.
     These are preconfigured output formats. If you set both a `style` and
     `format`, then the format will be validated against the style's rules.
-    If `style` is unset, then formats won't be validated, and the version
-    will conform to PEP 440.
+    If `style` is unset, the default output format will follow PEP 440,
+    but a custom `format` will only be validated if `style` is set explicitly.
   * `latest-tag`: Boolean. Default: false. If true, then only check the latest
     tag for a version, rather than looking through all the tags until a suitable
     one is found to match the `pattern`.
