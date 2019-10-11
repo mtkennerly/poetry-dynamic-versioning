@@ -1,4 +1,7 @@
 # Dynamic versioning plugin for Poetry
+[![Build status](https://travis-ci.org/mtkennerly/poetry-dynamic-versioning.svg?branch=master)](https://travis-ci.org/mtkennerly/poetry-dynamic-versioning)
+[![Version](https://img.shields.io/pypi/v/poetry-dynamic-versioning)](https://pypi.org/project/poetry-dynamic-versioning)
+[![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 This package is a plugin for [Poetry](https://github.com/sdispater/poetry)
 to enable dynamic versioning based on tags in your version control system,
@@ -11,7 +14,6 @@ liberties to make the functionality possible. As soon as official support
 lands, this plugin will be updated to do things the official way.
 
 ## Installation
-
 Python 3.5 or newer is required.
 
 * Run `pip install poetry-dynamic-versioning`
@@ -26,7 +28,6 @@ Note that you must install the plugin in your global Python installation,
 that Poetry creates cannot see Poetry itself and therefore cannot patch it.
 
 ## Configuration
-
 In your pyproject.toml file, you may configure the following options:
 
 * `[tool.poetry-dynamic-versioning]`: General options.
@@ -77,7 +78,6 @@ style = "semver"
 ```
 
 ## Implementation
-
 In order to side-load plugin functionality into Poetry, this package
 does the following:
 
@@ -95,27 +95,4 @@ does the following:
   from your pyproject.toml file with the dynamically generated version.
 
 ## Development
-
-This project is managed using [Poetry](https://poetry.eustace.io).
-Development requires Python 3.6+ because of [Black](https://github.com/ambv/black).
-
-* If you want to take advantage of the default VSCode integration, then first
-  configure Poetry to make its virtual environment in the repository:
-  ```
-  poetry config settings.virtualenvs.in-project true
-  ```
-* After cloning the repository, activate the tooling:
-  ```
-  poetry install
-  poetry run pre-commit install
-  ```
-* Run unit tests:
-  ```
-  poetry run pytest --cov
-  poetry run tox
-  ```
-* Run integration tests:
-  ```
-  ./tests/integration.sh
-  ```
-  [Git Bash](https://gitforwindows.org) is recommended for Windows.
+Please refer to [CONTRIBUTING.md](CONTRIBUTING.md).
