@@ -91,8 +91,10 @@ does the following:
   in which case there is a gap between when Python is fully loaded and when
   `~/.poetry/bin/poetry` adds the Poetry lib folder to the PYTHONPATH.
 * The patched version of `poetry.console.main` will then, when called,
-  additionally patch `poetry.poetry.Poetry.create` to replace the version
-  from your pyproject.toml file with the dynamically generated version.
+  additionally patch either `poetry.poetry.Poetry.create()` or
+  `poetry.factory.Factory.create_poetry()` (depending on your Poetry version)
+  to replace the version from your pyproject.toml file with the dynamically
+  generated version.
 
 ## Development
 Please refer to [CONTRIBUTING.md](CONTRIBUTING.md).

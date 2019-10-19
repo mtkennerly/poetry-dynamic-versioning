@@ -112,9 +112,8 @@ def _get_version() -> Tuple[Version, str]:
 
 
 def _patch_poetry_create() -> None:
-    has_factory_module = True
-
     try:
+        has_factory_module = True
         poetry_factory_module = _state.original_import_func("poetry.factory", fromlist=["Factory"])
         original_poetry_create = poetry_factory_module.Factory.create_poetry
     except ModuleNotFoundError:
