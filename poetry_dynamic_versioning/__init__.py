@@ -112,11 +112,19 @@ def _get_version() -> Tuple[Version, str]:
 
 
 def _patch_poetry_create() -> None:
-    poetry_module = _state.original_import_func("poetry.poetry", fromlist=["Poetry"])
+    has_factory_module = True
+
+    try:
+        poetry_factory_module = _state.original_import_func("poetry.factory", fromlist=["Factory"])
+        original_poetry_create = poetry_factory_module.Factory.create_poetry
+    except ModuleNotFoundError:
+        has_factory_module = False
+        poetry_factory_module = _state.original_import_func("poetry.poetry", fromlist=["Poetry"])
+        original_poetry_create = poetry_factory_module.Poetry.create
+
     poetry_version_module = _state.original_import_func(
         "poetry.semver.version", fromlist=["Version"]
     )
-    original_poetry_create = poetry_module.Poetry.create
 
     @functools.wraps(original_poetry_create)
     def alt_poetry_create(cls, *args, **kwargs):
@@ -126,8 +134,11 @@ def _patch_poetry_create() -> None:
         instance._package._pretty_version = dynamic_version
         return instance
 
-    poetry_module.Poetry.create = alt_poetry_create
-    sys.modules["poetry.poetry"] = poetry_module
+    if has_factory_module:
+        poetry_factory_module.Factory.create_poetry = alt_poetry_create
+    else:
+        poetry_factory_module.Poetry.create = alt_poetry_create
+    sys.modules["poetry.poetry"] = poetry_factory_module
 
 
 def _patch_poetry_console_main(module, name, fromlist):

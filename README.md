@@ -9,12 +9,12 @@ powered by [Dunamai](https://github.com/mtkennerly/dunamai).
 
 Since Poetry does not yet officially support plugins
 (refer to [this issue](https://github.com/sdispater/poetry/issues/693))
-as of the time of writing on 2019-06-04, this package takes some novel
+as of the time of writing on 2019-10-19, this package takes some novel
 liberties to make the functionality possible. As soon as official support
 lands, this plugin will be updated to do things the official way.
 
 ## Installation
-Python 3.5 or newer is required.
+Python 3.5 (or newer) and Poetry 0.12.1 (or newer) are required.
 
 * Run `pip install poetry-dynamic-versioning`
 * Add this to your pyproject.toml:

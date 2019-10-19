@@ -1,22 +1,45 @@
 language: python
 
-matrix:
-  fast_finish: true
-  include:
-    - python: '3.5'
-      script:
-        - poetry run pytest --verbose --cov
-        - ./tests/integration.sh
-    - python: '3.6'
-      script:
-        - poetry run pytest --verbose --cov
-        - ./tests/integration.sh
-    - python: '3.7'
-      script:
-        - poetry run pytest --verbose --cov
-        - ./tests/integration.sh
-        - poetry run pre-commit run --all-files --show-diff-on-failure
+python:
+  - '3.5'
+  - '3.6'
+  - '3.7'
+  - '3.8'
+
+env:
+  - POETRY_VER=0.12.1 INSTALL_METHOD=pip
+  - POETRY_VER=0.12.1 INSTALL_METHOD=script
+  - POETRY_VER=0.12.10 INSTALL_METHOD=pip
+  - POETRY_VER=0.12.10 INSTALL_METHOD=script
+  - POETRY_VER=0.12.17 INSTALL_METHOD=pip
+  - POETRY_VER=0.12.17 INSTALL_METHOD=script
+  - POETRY_VER=1.0.0b2 INSTALL_METHOD=pip
+  - POETRY_VER=1.0.0b2 INSTALL_METHOD=script
 
 install:
-  - pip install poetry
+  - curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py -o ./get-poetry.py
+  - if [ "$INSTALL_METHOD" = "pip" ]; then pip install poetry==${POETRY_VER}; fi
+  - if [ "$INSTALL_METHOD" = "script" ]; then python ./get-poetry.py --version ${POETRY_VER} --yes && source ~/.poetry/env; fi
   - poetry install
+
+script:
+  - poetry run pytest --verbose --cov
+  - ./tests/integration.sh
+
+matrix:
+  fast_finish: true
+  exclude:
+    - python: '3.8'
+      env: POETRY_VER=0.12.1 INSTALL_METHOD=script
+    - python: '3.8'
+      env: POETRY_VER=0.12.10 INSTALL_METHOD=script
+    - python: '3.8'
+      env: POETRY_VER=0.12.17 INSTALL_METHOD=script
+  include:
+    - python: '3.7'
+      env: []
+      install:
+        - pip install poetry
+        - poetry install
+      script:
+        - poetry run pre-commit run --all-files --show-diff-on-failure

@@ -25,7 +25,7 @@ include = ["zzz_poetry_dynamic_versioning.pth"]
 [tool.poetry.dependencies]
 python = "^3.5"
 dunamai = ">= 0.8.0, < 2"
-tomlkit = ">= 0.5"
+tomlkit = ">= 0.4"
 
 [tool.poetry.dev-dependencies]
 pytest = "^4.0"
@@ -35,7 +35,7 @@ tox = "^3.12"
 tox-venv = "^0.4.0"
 black = { version = "^19.3-alpha.0", allows-prereleases = true, python = "^3.6" }
 flake8 = "^3.7"
-mypy = "^0.701"
+mypy = "^0.740"
 pep8-naming = "^0.8.2"
 
 [tool.black]
