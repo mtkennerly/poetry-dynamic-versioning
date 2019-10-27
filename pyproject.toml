@@ -24,7 +24,7 @@ include = ["zzz_poetry_dynamic_versioning.pth"]
 
 [tool.poetry.dependencies]
 python = "^3.5"
-dunamai = ">= 0.8.1, < 2"
+dunamai = "^1.0"
 tomlkit = ">= 0.4"
 
 [tool.poetry.dev-dependencies]

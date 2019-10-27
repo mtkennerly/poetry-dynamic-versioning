@@ -11,6 +11,8 @@ from typing import Mapping, Optional, Tuple
 import tomlkit
 from dunamai import Style, Vcs, Version
 
+_VERSION_PATTERN = r"^v(?P<base>\d+\.\d+\.\d+)(-?((?P<stage>[a-zA-Z]+)\.?(?P<revision>\d+)?))?$"
+
 
 class _State:
     def __init__(
@@ -37,7 +39,7 @@ def _default_config() -> Mapping:
                 "enable": False,
                 "vcs": "any",
                 "dirty": False,
-                "pattern": r"v(?P<base>\d+\.\d+\.\d+)((?P<pre_type>[a-zA-Z]+)(?P<pre_number>\d+))?",
+                "pattern": _VERSION_PATTERN,
                 "latest-tag": False,
                 "subversion": {"tag-dir": "tags"},
             }

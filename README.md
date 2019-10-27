@@ -35,7 +35,8 @@ In your pyproject.toml file, you may configure the following options:
     globally, this setting is an opt-in per project. This setting will likely
     be removed once plugins are officially supported.
   * `vcs`: String. This is the version control system to check for a version.
-    One of: `any` (default), `git`, `mercurial`, `darcs`, `bazaar`, `subversion`.
+    One of: `any` (default), `git`, `mercurial`, `darcs`, `bazaar`,
+    `subversion`, `fossil`.
   * `metadata`: Boolean. Default: unset. If true, include the commit hash in
     the version, and also include a dirty flag if `dirty` is true. If unset,
     metadata will only be included if you are on a commit without a version tag.
@@ -44,16 +45,14 @@ In your pyproject.toml file, you may configure the following options:
   * `pattern`: String. This is a regular expression which will be used to find
     a tag representing a version. There must be a named capture group `base`
     with the main part of the version, and optionally you can also have groups
-    named `pre_type` and `pre_number` for prereleases. The default is
-    `v(?P<base>\d+\.\d+\.\d+)((?P<pre_type>[a-zA-Z]+)(?P<pre_number>\d+))?`.
+    named `stage` and `revision` for prereleases. The default is
+    `^v(?P<base>\d+\.\d+\.\d+)(-?((?P<stage>[a-zA-Z]+)\.?(?P<revision>\d+)?))?$`.
   * `format`: String. Default: unset. This defines a custom output format for
     the version. Available substitutions:
       * `{base}`
-      * `{epoch}`
-      * `{pre_type}`
-      * `{pre_number}`
-      * `{post}`
-      * `{dev}`
+      * `{stage}`
+      * `{revision}`
+      * `{distance}`
       * `{commit}`
       * `{dirty}`
   * `style`: String. Default: unset. One of: `pep440`, `semver`, `pvp`.
