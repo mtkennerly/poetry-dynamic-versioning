@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "poetry-dynamic-versioning"
-version = "0.2.0"
+version = "0.3.0"
 description = "Plugin for Poetry to enable dynamic versioning based on VCS tags"
 license = "MIT"
 authors = ["Matthew T. Kennerly <mtkennerly@gmail.com>"]

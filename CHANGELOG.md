@@ -1,5 +1,5 @@
 
-## Unreleased
+## v0.3.0 (2019-10-27)
 
 * Updated for Dunamai v1.0.0:
   * Added support for Fossil.
