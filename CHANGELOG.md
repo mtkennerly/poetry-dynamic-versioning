@@ -1,3 +1,9 @@
+## v0.3.1 (2019-11-28)
+
+* Fixed [#3](https://github.com/mtkennerly/poetry-dynamic-versioning/issues/3)
+  where the plugin would revert not only the dynamic version change in pyproject.toml,
+  but also any other changes, such as the addition of new dependencies.
+  (Contributed by [lmoretto](https://github.com/lmoretto))
 
 ## v0.3.0 (2019-10-27)
 
