@@ -19,12 +19,12 @@ class _State:
         self,
         patched_poetry_console_main: bool = False,
         patched_poetry_create: bool = False,
-        original_pyproject: str = None,
+        original_version: str = None,
         version: Tuple[Version, str] = None,
     ) -> None:
         self.patched_poetry_console_main = patched_poetry_console_main
         self.patched_poetry_create = patched_poetry_create
-        self.original_pyproject = original_pyproject
+        self.original_version = original_version
         self.version = version
         self.original_import_func = builtins.__import__
 
@@ -94,8 +94,8 @@ def _get_version() -> Tuple[Version, str]:
     if pyproject_path is None:
         raise RuntimeError("Unable to find pyproject.toml")
     pyproject = tomlkit.parse(pyproject_path.read_text())
-    if not _state.original_pyproject:
-        _state.original_pyproject = pyproject_path.read_text()
+    if not _state.original_version:
+        _state.original_version = pyproject["tool"]["poetry"]["version"]
 
     vcs = Vcs(config["vcs"])
     style = config["style"]
@@ -190,9 +190,11 @@ def activate() -> None:
 
 
 def deactivate() -> None:
-    if _state.original_pyproject:
+    if _state.original_version:
         pyproject_path = _get_pyproject_path()
         if pyproject_path is None:
             return
-        pyproject_path.write_text(_state.original_pyproject)
-        _state.original_pyproject = None
+        pyproject = tomlkit.parse(pyproject_path.read_text())
+        pyproject["tool"]["poetry"]["version"] = _state.original_version
+        pyproject_path.write_text(tomlkit.dumps(pyproject))
+        _state.original_version = None
