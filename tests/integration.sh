@@ -38,10 +38,19 @@ function test_invalid_config_for_vcs {
     fi
 }
 
+function test_keep_pyproject_modifications {
+    package="cachy"
+    # Using --optional to avoid actually installing the package
+    $do_poetry add --optional $package
+    # Make sure pyproject.toml contains the new package dependency
+    cat $dummy/pyproject.toml | grep $package
+}
+
 function run_test {
     cd $dummy
     git checkout -- $dummy
     rm -rf $dummy/dist/*
+    rm -f $dummy/poetry.lock
 
     name="$1"
     output=$(eval "$name 2>&1") && result=$? || result=$?
