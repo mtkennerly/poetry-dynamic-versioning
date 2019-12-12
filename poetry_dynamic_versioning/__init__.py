@@ -19,11 +19,13 @@ class _State:
         self,
         patched_poetry_console_main: bool = False,
         patched_poetry_create: bool = False,
+        patched_poetry_command_run: bool = False,
         original_version: str = None,
         version: Tuple[Version, str] = None,
     ) -> None:
         self.patched_poetry_console_main = patched_poetry_console_main
         self.patched_poetry_create = patched_poetry_create
+        self.patched_poetry_command_run = patched_poetry_command_run
         self.original_version = original_version
         self.version = version
         self.original_import_func = builtins.__import__
@@ -142,6 +144,26 @@ def _patch_poetry_create() -> None:
     sys.modules["poetry.poetry"] = poetry_factory_module
 
 
+def _patch_poetry_command_run() -> None:
+    poetry_command_run_module = _state.original_import_func(
+        "poetry.console.commands.run", fromlist=["RunCommand"]
+    )
+    original_poetry_command_run = poetry_command_run_module.RunCommand.handle
+
+    @functools.wraps(original_poetry_command_run)
+    def alt_poetry_command_run(self, *args, **kwargs):
+        # As of version 1.0.0b2, on Linux, the `poetry run` command
+        # uses `os.execvp` function instead of spawning a new process.
+        # This prevents the atexit `deactivte` hook to be invoked.
+        # For this reason, we immediately call `deactivate` before
+        # actually executing the run command.
+        deactivate()
+        return original_poetry_command_run(self, *args, **kwargs)
+
+    poetry_command_run_module.RunCommand.handle = alt_poetry_command_run
+    sys.modules["poetry.console.commands.run"] = poetry_command_run_module
+
+
 def _patch_poetry_console_main(module, name, fromlist):
     if name == "poetry.console" and fromlist:
         console = module
@@ -161,6 +183,11 @@ def _patch_poetry_console_main(module, name, fromlist):
         if not _state.patched_poetry_create:
             _patch_poetry_create()
             _state.patched_poetry_create = True
+
+        if not _state.patched_poetry_command_run:
+            _patch_poetry_command_run()
+            _state.patched_poetry_command_run = True
+
         original_console_main(*args, **kwargs)
 
     console.main = alt_poetry_console_main
