@@ -46,6 +46,13 @@ function test_keep_pyproject_modifications {
     cat $dummy/pyproject.toml | grep $package
 }
 
+function test_poetry_run {
+    $do_poetry run echo "Testing 'poetry run'"
+    # Make sure original version number is restored
+    # also when executing a 'poetry run' command
+    cat $dummy/pyproject.toml | grep "version = \"0.0.999\""
+}
+
 function run_test {
     cd $dummy
     git checkout -- $dummy
