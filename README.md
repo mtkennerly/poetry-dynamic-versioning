@@ -32,8 +32,9 @@ With the minimal configuration above, the plugin will automatically take effect
 when you run commands such as `poetry build`. It will update the version in
 pyproject.toml, then revert the change when the plugin deactivates. If you want
 to include a `__version__` variable in your code, just put a placeholder in the
-appropriate file and configure the plugin to update that file (see below).
-You are encouraged to use `__version__ = "0.0.0"` as a standard placeholder.
+appropriate file and configure the plugin to update it (see below) if it isn't
+one of the defaults. You are encouraged to use `__version__ = "0.0.0"` as a
+standard placeholder.
 
 ## Configuration
 In your pyproject.toml file, you may configure the following options:

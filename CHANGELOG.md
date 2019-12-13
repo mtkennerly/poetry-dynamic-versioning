@@ -1,3 +1,7 @@
+## v0.4.0 (2019-12-13)
+
+* Added the ability to update the version in other files than pyproject.toml.
+
 ## v0.3.2 (2019-12-13)
 
 * Fixed an issue with Poetry 1.0.0b2 and newer where the original version
