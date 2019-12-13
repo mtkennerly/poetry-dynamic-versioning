@@ -28,6 +28,13 @@ Note that you must install the plugin in your global Python installation,
 **not** as a dependency in pyroject.toml, because the virtual environment
 that Poetry creates cannot see Poetry itself and therefore cannot patch it.
 
+With the minimal configuration above, the plugin will automatically take effect
+when you run commands such as `poetry build`. It will update the version in
+pyproject.toml, then revert the change when the plugin deactivates. If you want
+to include a `__version__` variable in your code, just put a placeholder in the
+appropriate file and configure the plugin to update that file (see below).
+You are encouraged to use `__version__ = "0.0.0"` as a standard placeholder.
+
 ## Configuration
 In your pyproject.toml file, you may configure the following options:
 
@@ -67,6 +74,16 @@ In your pyproject.toml file, you may configure the following options:
 * `[tool.poetry-dynamic-versioning.subversion]`: Options specific to Subversion.
   * `tag-dir`: String. Default: `tags`. This is the location of tags relative
     to the root.
+* `[tool.poetry-dynamic-versioning.substitution]`: Insert the dynamic version
+  into additional files other than just pyproject.toml. These changes will be
+  reverted when the plugin deactivates.
+  * `files`: List of globs for any files that need substitutions. Default:
+    `["*.py", "*/__init__.py", "*/__version__.py", "*/_version.py"]`.
+    To disable substitution, set this to an empty list.
+  * `patterns`: List of regular expressions for the text to replace.
+    Each regular expression must have two capture groups, which are any
+    text to preserve before and after the replaced text. Default:
+    `["(^__version__\s*=\s*['\"])[^'\"]*(['\"])"]`.
 
 Simple example:
 

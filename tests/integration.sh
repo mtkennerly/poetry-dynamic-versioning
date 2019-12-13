@@ -53,6 +53,11 @@ function test_poetry_run {
     grep 'version = "0.0.999"' $dummy/pyproject.toml
 }
 
+function test_substitution {
+    ! $do_poetry run grep '__version__ = "0.0.0"' $dummy/project/__init__.py
+    grep '__version__ = "0.0.0"' $dummy/project/__init__.py
+}
+
 function run_test {
     cd $dummy
     git checkout -- $dummy

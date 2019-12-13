@@ -4,9 +4,10 @@ import atexit
 import builtins
 import copy
 import functools
+import re
 import sys
 from pathlib import Path
-from typing import Mapping, Optional, Tuple
+from typing import Mapping, MutableMapping, MutableSet, Optional, Sequence, Tuple
 
 import tomlkit
 from dunamai import Style, Vcs, Version
@@ -22,6 +23,7 @@ class _State:
         patched_poetry_command_run: bool = False,
         original_version: str = None,
         version: Tuple[Version, str] = None,
+        substitutions: MutableMapping[Path, str] = None,
     ) -> None:
         self.patched_poetry_console_main = patched_poetry_console_main
         self.patched_poetry_create = patched_poetry_create
@@ -29,6 +31,7 @@ class _State:
         self.original_version = original_version
         self.version = version
         self.original_import_func = builtins.__import__
+        self.substitutions = {} if substitutions is None else substitutions
 
 
 _state = _State()
@@ -44,6 +47,10 @@ def _default_config() -> Mapping:
                 "pattern": _VERSION_PATTERN,
                 "latest-tag": False,
                 "subversion": {"tag-dir": "tags"},
+                "substitution": {
+                    "files": ["*.py", "*/__init__.py", "*/__version__.py", "*/_version.py"],
+                    "patterns": [r"(^__version__\s*=\s*['\"])[^'\"]*(['\"])"],
+                },
             }
         }
     }
@@ -115,6 +122,21 @@ def _get_version() -> Tuple[Version, str]:
     return (version, serialized)
 
 
+def _substitute_version(
+    root: Path, file_globs: Sequence[str], patterns: Sequence[str], version: str
+) -> None:
+    files = set()  # type: MutableSet[Path]
+    for file_glob in file_globs:
+        for match in root.glob(file_glob):
+            files.add(match.resolve())
+    for file in files:
+        content = file.read_text()
+        _state.substitutions[file] = content
+        for pattern in patterns:
+            content = re.sub(pattern, r"\g<1>{}\g<2>".format(version), content, flags=re.MULTILINE)
+        file.write_text(content)
+
+
 def _patch_poetry_create() -> None:
     try:
         has_factory_module = True
@@ -129,12 +151,24 @@ def _patch_poetry_create() -> None:
         "poetry.semver.version", fromlist=["Version"]
     )
 
+    config = get_config()
+    pyproject_path = _get_pyproject_path()
+
     @functools.wraps(original_poetry_create)
     def alt_poetry_create(cls, *args, **kwargs):
         instance = original_poetry_create(cls, *args, **kwargs)
         dynamic_version = _get_version()[1]
         instance._package._version = poetry_version_module.Version.parse(dynamic_version)
         instance._package._pretty_version = dynamic_version
+
+        if pyproject_path is not None and not _state.substitutions:
+            _substitute_version(
+                pyproject_path.parent,
+                config["substitution"]["files"],
+                config["substitution"]["patterns"],
+                dynamic_version,
+            )
+
         return instance
 
     if has_factory_module:
@@ -225,3 +259,8 @@ def deactivate() -> None:
         pyproject["tool"]["poetry"]["version"] = _state.original_version
         pyproject_path.write_text(tomlkit.dumps(pyproject))
         _state.original_version = None
+
+    if _state.substitutions:
+        for file, content in _state.substitutions.items():
+            file.write_text(content)
+        _state.substitutions.clear()
