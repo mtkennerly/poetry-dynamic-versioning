@@ -14,7 +14,8 @@ liberties to make the functionality possible. As soon as official support
 lands, this plugin will be updated to do things the official way.
 
 ## Installation
-Python 3.5 (or newer) and Poetry 0.12.1 (or newer) are required.
+Python 3.5 or newer and Poetry 0.12.1 or newer are required.
+(Pyenv users will need Poetry 1.0.0b2 or newer.)
 
 * Run `pip install poetry-dynamic-versioning`
 * Add this to your pyproject.toml:
@@ -75,6 +76,10 @@ enable = true
 vcs = "git"
 style = "semver"
 ```
+
+## Caveats
+* The dynamic version is not available during `poetry run` because Poetry
+  uses [`os.execvp()`](https://docs.python.org/2/library/os.html#os.execvp).
 
 ## Implementation
 In order to side-load plugin functionality into Poetry, this package

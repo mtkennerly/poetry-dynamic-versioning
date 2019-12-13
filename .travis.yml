@@ -13,8 +13,8 @@ env:
   - POETRY_VER=0.12.10 INSTALL_METHOD=script
   - POETRY_VER=0.12.17 INSTALL_METHOD=pip
   - POETRY_VER=0.12.17 INSTALL_METHOD=script
-  - POETRY_VER=1.0.0b3 INSTALL_METHOD=pip
-  - POETRY_VER=1.0.0b3 INSTALL_METHOD=script
+  - POETRY_VER=1.0.0 INSTALL_METHOD=pip
+  - POETRY_VER=1.0.0 INSTALL_METHOD=script
 
 install:
   - curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py -o ./get-poetry.py

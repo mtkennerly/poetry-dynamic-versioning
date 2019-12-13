@@ -6,6 +6,7 @@ __pycache__/
 .mypy_cache/
 .pytest_cache/
 .tox/
+.vagrant/
 .venv/
 *.egg-info/
 /setup.py
@@ -13,3 +14,4 @@ build/
 dist/
 htmlcov/
 pip-wheel-metadata/
+*.log

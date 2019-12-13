@@ -20,7 +20,7 @@ function teardown {
 
 function test_plugin_enabled {
     $do_poetry build -v
-    ls $dummy/dist | grep -v 0.0.999
+    ! ls $dummy/dist | grep 0.0.999
 }
 
 function test_plugin_disabled {
@@ -43,14 +43,14 @@ function test_keep_pyproject_modifications {
     # Using --optional to avoid actually installing the package
     $do_poetry add --optional $package
     # Make sure pyproject.toml contains the new package dependency
-    cat $dummy/pyproject.toml | grep $package
+    grep $package $dummy/pyproject.toml
 }
 
 function test_poetry_run {
-    $do_poetry run echo "Testing 'poetry run'"
-    # Make sure original version number is restored
-    # also when executing a 'poetry run' command
-    cat $dummy/pyproject.toml | grep "version = \"0.0.999\""
+    # The original version is restored before the command runs:
+    $do_poetry run grep 'version = "0.0.999"' $dummy/pyproject.toml
+    # Make sure original version number is still in place:
+    grep 'version = "0.0.999"' $dummy/pyproject.toml
 }
 
 function run_test {

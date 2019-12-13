@@ -1,3 +1,9 @@
+## v0.3.2 (2019-12-13)
+
+* Fixed an issue with Poetry 1.0.0b2 and newer where the original version
+  would not be restored after `poetry run`.
+  (Contributed by [lmoretto](https://github.com/lmoretto))
+
 ## v0.3.1 (2019-11-28)
 
 * Fixed [#3](https://github.com/mtkennerly/poetry-dynamic-versioning/issues/3)
