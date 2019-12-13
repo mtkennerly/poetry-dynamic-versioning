@@ -94,14 +94,10 @@ def get_config(start: Path = None) -> Mapping:
     return result
 
 
-def _get_version() -> Tuple[Version, str]:
+def _get_version(config: Mapping, pyproject_path: Path) -> Tuple[Version, str]:
     if _state.version:
         return _state.version
 
-    config = get_config()
-    pyproject_path = _get_pyproject_path()
-    if pyproject_path is None:
-        raise RuntimeError("Unable to find pyproject.toml")
     pyproject = tomlkit.parse(pyproject_path.read_text())
     if not _state.original_version:
         _state.original_version = pyproject["tool"]["poetry"]["version"]
@@ -125,6 +121,10 @@ def _get_version() -> Tuple[Version, str]:
 def _substitute_version(
     root: Path, file_globs: Sequence[str], patterns: Sequence[str], version: str
 ) -> None:
+    if _state.substitutions:
+        # Already ran; don't need to repeat.
+        return
+
     files = set()  # type: MutableSet[Path]
     for file_glob in file_globs:
         for match in root.glob(file_glob):
@@ -141,40 +141,46 @@ def _patch_poetry_create() -> None:
     try:
         has_factory_module = True
         poetry_factory_module = _state.original_import_func("poetry.factory", fromlist=["Factory"])
-        original_poetry_create = poetry_factory_module.Factory.create_poetry
+        original_poetry_create = getattr(poetry_factory_module, "Factory").create_poetry
     except ModuleNotFoundError:
         has_factory_module = False
         poetry_factory_module = _state.original_import_func("poetry.poetry", fromlist=["Poetry"])
-        original_poetry_create = poetry_factory_module.Poetry.create
+        original_poetry_create = getattr(poetry_factory_module, "Poetry").create
 
     poetry_version_module = _state.original_import_func(
         "poetry.semver.version", fromlist=["Version"]
     )
 
-    config = get_config()
     pyproject_path = _get_pyproject_path()
+    if pyproject_path is None:
+        raise RuntimeError("Unable to find pyproject.toml")
+    config = get_config()
 
     @functools.wraps(original_poetry_create)
     def alt_poetry_create(cls, *args, **kwargs):
         instance = original_poetry_create(cls, *args, **kwargs)
-        dynamic_version = _get_version()[1]
+
+        dynamic_version = _get_version(config, pyproject_path)[1]
         instance._package._version = poetry_version_module.Version.parse(dynamic_version)
         instance._package._pretty_version = dynamic_version
 
-        if pyproject_path is not None and not _state.substitutions:
-            _substitute_version(
-                pyproject_path.parent,
-                config["substitution"]["files"],
-                config["substitution"]["patterns"],
-                dynamic_version,
-            )
+        pyproject = tomlkit.parse(pyproject_path.read_text())
+        pyproject["tool"]["poetry"]["version"] = dynamic_version
+        pyproject_path.write_text(tomlkit.dumps(pyproject))
+
+        _substitute_version(
+            pyproject_path.parent,
+            config["substitution"]["files"],
+            config["substitution"]["patterns"],
+            dynamic_version,
+        )
 
         return instance
 
     if has_factory_module:
-        poetry_factory_module.Factory.create_poetry = alt_poetry_create
+        getattr(poetry_factory_module, "Factory").create_poetry = alt_poetry_create
     else:
-        poetry_factory_module.Poetry.create = alt_poetry_create
+        getattr(poetry_factory_module, "Poetry").create = alt_poetry_create
     sys.modules["poetry.poetry"] = poetry_factory_module
 
 
@@ -182,19 +188,19 @@ def _patch_poetry_command_run() -> None:
     poetry_command_run_module = _state.original_import_func(
         "poetry.console.commands.run", fromlist=["RunCommand"]
     )
-    original_poetry_command_run = poetry_command_run_module.RunCommand.handle
+    original_poetry_command_run = getattr(poetry_command_run_module, "RunCommand").handle
 
     @functools.wraps(original_poetry_command_run)
     def alt_poetry_command_run(self, *args, **kwargs):
         # As of version 1.0.0b2, on Linux, the `poetry run` command
         # uses `os.execvp` function instead of spawning a new process.
-        # This prevents the atexit `deactivte` hook to be invoked.
+        # This prevents the atexit `deactivate` hook to be invoked.
         # For this reason, we immediately call `deactivate` before
         # actually executing the run command.
         deactivate()
         return original_poetry_command_run(self, *args, **kwargs)
 
-    poetry_command_run_module.RunCommand.handle = alt_poetry_command_run
+    getattr(poetry_command_run_module, "RunCommand").handle = alt_poetry_command_run
     sys.modules["poetry.console.commands.run"] = poetry_command_run_module
 
 
