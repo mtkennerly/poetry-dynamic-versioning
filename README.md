@@ -14,8 +14,7 @@ liberties to make the functionality possible. As soon as official support
 lands, this plugin will be updated to do things the official way.
 
 ## Installation
-Python 3.5 or newer and Poetry 0.12.1 or newer are required.
-(Pyenv users will need Poetry 1.0.0b2 or newer.)
+Python 3.5 or newer and Poetry 1.0.0 or newer are required.
 
 * Run `pip install poetry-dynamic-versioning`
 * Add this to your pyproject.toml:
