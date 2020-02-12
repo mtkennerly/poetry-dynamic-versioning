@@ -1,4 +1,4 @@
-## Unreleased
+## v0.5.0 (2020-02-12)
 
 * Added the `format-jinja` option.
 

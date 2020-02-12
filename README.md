@@ -78,10 +78,10 @@ In your pyproject.toml file, you may configure the following options:
     * `{{ dirty }}` (boolean)
     * `{{ env }}` (dictionary of environment variables)
 
-    Example: `{% if distance == 0 %}v{{ base }}{% else %}v{{ base }}+{{ distance }}.{{ commit }}{% endif %}`
+    Example: `{% if distance == 0 %}{{ base }}{% else %}{{ base }}+{{ distance }}.{{ commit }}{% endif %}`
   * `style`: String. Default: unset. One of: `pep440`, `semver`, `pvp`.
     These are preconfigured output formats. If you set both a `style` and
-    `format`, then the format will be validated against the style's rules.
+    a `format`, then the format will be validated against the style's rules.
     If `style` is unset, the default output format will follow PEP 440,
     but a custom `format` will only be validated if `style` is set explicitly.
   * `latest-tag`: Boolean. Default: false. If true, then only check the latest
