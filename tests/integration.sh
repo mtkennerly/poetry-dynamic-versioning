@@ -58,6 +58,18 @@ function test_substitution {
     grep '__version__ = "0.0.0"' $dummy/project/__init__.py
 }
 
+function test_format_jinja {
+    sed -i 's/style = .*/format-jinja = "{% if True %}{{ base }}+jinja.{{ env[\\"FOO\\"] }}{% endif %}"/' $dummy/pyproject.toml
+    FOO=bar $do_poetry build -v
+    ls $dummy/dist | grep jinja.bar
+}
+
+function test_format_jinja_with_enforced_style {
+    sed -i 's/vcs = .*/format-jinja = "{% if True %}{{ base }}+jinja{% endif %}"/' $dummy/pyproject.toml
+    sed -i 's/style = .*/style = "pvp"/' $dummy/pyproject.toml
+    ! $do_poetry build -v
+}
+
 function run_test {
     cd $dummy
     git checkout -- $dummy

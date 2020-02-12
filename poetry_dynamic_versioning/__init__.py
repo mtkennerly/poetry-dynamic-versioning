@@ -4,13 +4,15 @@ import atexit
 import builtins
 import copy
 import functools
+import jinja2
+import os
 import re
 import sys
 from pathlib import Path
 from typing import Mapping, MutableMapping, MutableSet, Optional, Sequence, Tuple
 
 import tomlkit
-from dunamai import Style, Vcs, Version
+from dunamai import check_version, Style, Vcs, Version
 
 _VERSION_PATTERN = r"^v(?P<base>\d+\.\d+\.\d+)(-?((?P<stage>[a-zA-Z]+)\.?(?P<revision>\d+)?))?$"
 
@@ -87,7 +89,7 @@ def get_config(start: Path = None) -> Mapping:
     pyproject = tomlkit.parse(pyproject_path.read_text())
     result = _deep_merge_dicts(_default_config(), pyproject)["tool"]["poetry-dynamic-versioning"]
 
-    for key in ["pattern", "style", "metadata", "format"]:
+    for key in ["pattern", "style", "metadata", "format", "format-jinja"]:
         if key not in result:
             result[key] = None
 
@@ -110,7 +112,20 @@ def _get_version(config: Mapping, pyproject_path: Path) -> Tuple[Version, str]:
     version = Version.from_vcs(
         vcs, config["pattern"], config["latest-tag"], config["subversion"]["tag-dir"]
     )
-    serialized = version.serialize(config["metadata"], config["dirty"], config["format"], style)
+    if config["format-jinja"]:
+        serialized = jinja2.Template(config["format-jinja"]).render(
+            base=version.base,
+            stage=version.stage,
+            revision=version.revision,
+            distance=version.distance,
+            commit=version.commit,
+            dirty=version.dirty,
+            env=os.environ,
+        )
+        if style is not None:
+            check_version(serialized, style)
+    else:
+        serialized = version.serialize(config["metadata"], config["dirty"], config["format"], style)
 
     pyproject["tool"]["poetry"]["version"] = serialized
     pyproject_path.write_text(tomlkit.dumps(pyproject))

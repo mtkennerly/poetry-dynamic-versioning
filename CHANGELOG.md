@@ -1,3 +1,7 @@
+## Unreleased
+
+* Added the `format-jinja` option.
+
 ## v0.4.0 (2019-12-13)
 
 * Added the ability to update the version in other files than pyproject.toml.

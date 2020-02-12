@@ -58,12 +58,28 @@ In your pyproject.toml file, you may configure the following options:
     `^v(?P<base>\d+\.\d+\.\d+)(-?((?P<stage>[a-zA-Z]+)\.?(?P<revision>\d+)?))?$`.
   * `format`: String. Default: unset. This defines a custom output format for
     the version. Available substitutions:
-      * `{base}`
-      * `{stage}`
-      * `{revision}`
-      * `{distance}`
-      * `{commit}`
-      * `{dirty}`
+
+    * `{base}`
+    * `{stage}`
+    * `{revision}`
+    * `{distance}`
+    * `{commit}`
+    * `{dirty}`
+
+    Example: `v{base}+{distance}.{commit}`
+  * `format-jinja`: String. Default: unset. This defines a custom output format
+    for the version, using a [Jinja](https://pypi.org/project/Jinja2) template.
+    When this is set, `format` is ignored. Available variables:
+
+    * `{{ base }}` (string)
+    * `{{ stage }}` (string or None)
+    * `{{ revision }}` (integer or None)
+    * `{{ distance }}` (integer)
+    * `{{ commit }}` (string)
+    * `{{ dirty }}` (boolean)
+    * `{{ env }}` (dictionary of environment variables)
+
+    Example: `{% if distance == 0 %}v{{ base }}{% else %}v{{ base }}+{{ distance }}.{{ commit }}{% endif %}`
   * `style`: String. Default: unset. One of: `pep440`, `semver`, `pvp`.
     These are preconfigured output formats. If you set both a `style` and
     `format`, then the format will be validated against the style's rules.
