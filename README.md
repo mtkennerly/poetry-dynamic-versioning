@@ -68,17 +68,44 @@ In your pyproject.toml file, you may configure the following options:
     Example: `v{base}+{distance}.{commit}`
   * `format-jinja`: String. Default: unset. This defines a custom output format
     for the version, using a [Jinja](https://pypi.org/project/Jinja2) template.
-    When this is set, `format` is ignored. Available variables:
+    When this is set, `format` is ignored.
 
-    * `{{ base }}` (string)
-    * `{{ stage }}` (string or None)
-    * `{{ revision }}` (integer or None)
-    * `{{ distance }}` (integer)
-    * `{{ commit }}` (string)
-    * `{{ dirty }}` (boolean)
-    * `{{ env }}` (dictionary of environment variables)
+    Available variables:
 
-    Example: `{% if distance == 0 %}{{ base }}{% else %}{{ base }}+{{ distance }}.{{ commit }}{% endif %}`
+    * `base` (string)
+    * `stage` (string or None)
+    * `revision` (integer or None)
+    * `distance` (integer)
+    * `commit` (string)
+    * `dirty` (boolean)
+    * `env` (dictionary of environment variables)
+
+    Available functions:
+
+    * `bump_version` ([from Dunamai](https://github.com/mtkennerly/dunamai/blob/dc2777cdcc5eeff61c10602e33b1a0dc0bb0357b/dunamai/__init__.py#L786-L797))
+    * `serialize_pep440` ([from Dunamai](https://github.com/mtkennerly/dunamai/blob/dc2777cdcc5eeff61c10602e33b1a0dc0bb0357b/dunamai/__init__.py#L687-L710))
+    * `serialize_semver` ([from Dunamai](https://github.com/mtkennerly/dunamai/blob/dc2777cdcc5eeff61c10602e33b1a0dc0bb0357b/dunamai/__init__.py#L740-L752))
+    * `serialize_pvp` ([from Dunamai](https://github.com/mtkennerly/dunamai/blob/dc2777cdcc5eeff61c10602e33b1a0dc0bb0357b/dunamai/__init__.py#L766-L775))
+
+    Simple example:
+
+    ```toml
+    format-jinja = "{% if distance == 0 %}{{ base }}{% else %}{{ base }}+{{ distance }}.{{ commit }}{% endif %}"
+    ```
+
+    Complex example:
+
+    ```toml
+    format-jinja = """
+        {%- if distance == 0 -%}
+            {{ serialize_pep440(base, stage, revision) }}
+        {%- elif revision is not None -%}
+            {{ serialize_pep440(base, stage, revision + 1, dev=distance, metadata=[commit]) }}
+        {%- else -%}
+            {{ serialize_pep440(bump_version(base), stage, revision, dev=distance, metadata=[commit]) }}
+        {%- endif -%}
+    """
+    ```
   * `style`: String. Default: unset. One of: `pep440`, `semver`, `pvp`.
     These are preconfigured output formats. If you set both a `style` and
     a `format`, then the format will be validated against the style's rules.

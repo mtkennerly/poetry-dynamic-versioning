@@ -1,3 +1,11 @@
+## Unreleased
+
+* Expose new Dunamai functions via `format-jinja`:
+  * `bump_version`
+  * `serialize_pep440`
+  * `serialize_pvp`
+  * `serialize_semver`
+
 ## v0.5.0 (2020-02-12)
 
 * Added the `format-jinja` option.

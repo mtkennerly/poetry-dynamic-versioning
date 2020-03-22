@@ -12,7 +12,16 @@ from pathlib import Path
 from typing import Mapping, MutableMapping, MutableSet, Optional, Sequence, Tuple
 
 import tomlkit
-from dunamai import check_version, Style, Vcs, Version
+from dunamai import (
+    bump_version,
+    check_version,
+    serialize_pep440,
+    serialize_pvp,
+    serialize_semver,
+    Style,
+    Vcs,
+    Version,
+)
 
 _VERSION_PATTERN = r"^v(?P<base>\d+\.\d+\.\d+)(-?((?P<stage>[a-zA-Z]+)\.?(?P<revision>\d+)?))?$"
 
@@ -121,6 +130,10 @@ def _get_version(config: Mapping, pyproject_path: Path) -> Tuple[Version, str]:
             commit=version.commit,
             dirty=version.dirty,
             env=os.environ,
+            bump_version=bump_version,
+            serialize_pep440=serialize_pep440,
+            serialize_pvp=serialize_pvp,
+            serialize_semver=serialize_semver,
         )
         if style is not None:
             check_version(serialized, style)
