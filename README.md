@@ -99,7 +99,7 @@ In your pyproject.toml file, you may configure the following options:
     format-jinja = """
         {%- if distance == 0 -%}
             {{ serialize_pep440(base, stage, revision) }}
-        {%- elif revision is not None -%}
+        {%- elif revision is not none -%}
             {{ serialize_pep440(base, stage, revision + 1, dev=distance, metadata=[commit]) }}
         {%- else -%}
             {{ serialize_pep440(bump_version(base), stage, revision, dev=distance, metadata=[commit]) }}
