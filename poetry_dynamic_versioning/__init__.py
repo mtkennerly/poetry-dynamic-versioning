@@ -35,6 +35,7 @@ class _State:
         original_version: str = None,
         version: Tuple[Version, str] = None,
         substitutions: MutableMapping[Path, str] = None,
+        cli_mode: bool = False,
     ) -> None:
         self.patched_poetry_console_main = patched_poetry_console_main
         self.patched_poetry_create = patched_poetry_create
@@ -43,6 +44,7 @@ class _State:
         self.version = version
         self.original_import_func = builtins.__import__
         self.substitutions = {} if substitutions is None else substitutions
+        self.cli_mode = cli_mode
 
 
 _state = _State()
@@ -165,6 +167,39 @@ def _substitute_version(
         file.write_text(content)
 
 
+def _apply_version(version: str, config: Mapping, pyproject_path: Path) -> None:
+    pyproject = tomlkit.parse(pyproject_path.read_text())
+    pyproject["tool"]["poetry"]["version"] = version
+    pyproject_path.write_text(tomlkit.dumps(pyproject))
+
+    _substitute_version(
+        pyproject_path.parent,
+        config["substitution"]["files"],
+        config["substitution"]["patterns"],
+        version,
+    )
+
+
+def _revert_version() -> None:
+    if _state.original_version:
+        pyproject_path = _get_pyproject_path()
+        if pyproject_path is None:
+            return
+        pyproject = tomlkit.parse(pyproject_path.read_text())
+        pyproject["tool"]["poetry"]["version"] = _state.original_version
+        pyproject_path.write_text(tomlkit.dumps(pyproject))
+        _state.original_version = None
+
+    if _state.substitutions:
+        for file, content in _state.substitutions.items():
+            file.write_text(content)
+        _state.substitutions.clear()
+
+
+def _enable_cli_mode() -> None:
+    _state.cli_mode = True
+
+
 def _patch_poetry_create() -> None:
     try:
         has_factory_module = True
@@ -188,20 +223,11 @@ def _patch_poetry_create() -> None:
     def alt_poetry_create(cls, *args, **kwargs):
         instance = original_poetry_create(cls, *args, **kwargs)
 
-        dynamic_version = _get_version(config, pyproject_path)[1]
-        instance._package._version = poetry_version_module.Version.parse(dynamic_version)
-        instance._package._pretty_version = dynamic_version
-
-        pyproject = tomlkit.parse(pyproject_path.read_text())
-        pyproject["tool"]["poetry"]["version"] = dynamic_version
-        pyproject_path.write_text(tomlkit.dumps(pyproject))
-
-        _substitute_version(
-            pyproject_path.parent,
-            config["substitution"]["files"],
-            config["substitution"]["patterns"],
-            dynamic_version,
-        )
+        if not _state.cli_mode:
+            dynamic_version = _get_version(config, pyproject_path)[1]
+            instance._package._version = poetry_version_module.Version.parse(dynamic_version)
+            instance._package._pretty_version = dynamic_version
+            _apply_version(version=dynamic_version, config=config, pyproject_path=pyproject_path)
 
         return instance
 
@@ -285,16 +311,5 @@ def activate() -> None:
 
 
 def deactivate() -> None:
-    if _state.original_version:
-        pyproject_path = _get_pyproject_path()
-        if pyproject_path is None:
-            return
-        pyproject = tomlkit.parse(pyproject_path.read_text())
-        pyproject["tool"]["poetry"]["version"] = _state.original_version
-        pyproject_path.write_text(tomlkit.dumps(pyproject))
-        _state.original_version = None
-
-    if _state.substitutions:
-        for file, content in _state.substitutions.items():
-            file.write_text(content)
-        _state.substitutions.clear()
+    if not _state.cli_mode:
+        _revert_version()

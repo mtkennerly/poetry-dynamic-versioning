@@ -1,3 +1,7 @@
+## Unreleased
+
+* Added a CLI mode.
+
 ## v0.6.0 (2020-03-22)
 
 * Expose new Dunamai functions via `format-jinja`:

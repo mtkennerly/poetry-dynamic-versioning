@@ -137,6 +137,16 @@ vcs = "git"
 style = "semver"
 ```
 
+## Command line mode
+The plugin also has a command line mode for execution on demand.
+This mode applies the dynamic version to all relevant files and leaves
+the changes in-place, allowing you to inspect the result.
+Your configuration will be detected from pyproject.toml as normal,
+but the `enable` option is not necessary.
+
+To activate this mode, run the `poetry-dynamic-versioning` command
+in your console.
+
 ## Caveats
 * The dynamic version is not available during `poetry run` because Poetry
   uses [`os.execvp()`](https://docs.python.org/2/library/os.html#os.execvp).

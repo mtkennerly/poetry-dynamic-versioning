@@ -39,6 +39,9 @@ flake8 = "^3.7"
 mypy = "^0.740"
 pep8-naming = "^0.8.2"
 
+[tool.poetry.scripts]
+poetry-dynamic-versioning = 'poetry_dynamic_versioning.__main__:main'
+
 [tool.black]
 line-length = 100
 

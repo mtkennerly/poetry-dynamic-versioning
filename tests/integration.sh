@@ -70,6 +70,13 @@ function test_format_jinja_with_enforced_style {
     ! $do_poetry build -v
 }
 
+function test_cli_mode {
+    $do_poetry run poetry-dynamic-versioning
+    # Changes persist after Poetry is done:
+    ! grep 'version = "0.0.999"' $dummy/pyproject.toml
+    ! $do_poetry run grep '__version__ = "0.0.0"' $dummy/project/__init__.py
+}
+
 function run_test {
     cd $dummy
     git checkout -- $dummy
