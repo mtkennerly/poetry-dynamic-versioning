@@ -1,4 +1,4 @@
-## Unreleased
+## v0.7.0 (2020-05-14)
 
 * Added a CLI mode.
 
