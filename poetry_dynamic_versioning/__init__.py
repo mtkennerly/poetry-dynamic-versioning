@@ -303,7 +303,7 @@ def _apply_patches() -> None:
 
             _patch_poetry_command_run(run_mod)
             _state.patched_poetry_command_run = True
-    except ModuleNotFoundError:
+    except ImportError:
         # Otherwise, wait until Poetry is available to be patched.
         _patch_builtins_import()
 
