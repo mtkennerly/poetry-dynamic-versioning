@@ -65,11 +65,17 @@ function test_cli_mode {
     ! $do_poetry run grep '__version__ = "0.0.0"' $dummy/project/__init__.py
 }
 
+function test_pip_pep_517_isolated_build {
+    $do_pip wheel --use-pep517 $dummy
+    ! ls $dummy | grep 0.0.999
+}
+
 function run_test {
     cd $dummy
     git checkout -- $dummy
     rm -rf $dummy/dist/*
     rm -f $dummy/poetry.lock
+    rm -f $dummy/*.whl
 
     name="$1"
     output=$(eval "$name 2>&1") && result=$? || result=$?
@@ -90,9 +96,13 @@ function run_tests {
 function main {
     echo "Starting..."
     setup > /dev/null 2>&1
-    run_tests
+    if [ -z "$1" ]; then
+        run_tests
+    else
+        run_test "$1"
+    fi
     teardown > /dev/null 2>&1
     echo "Done"
 }
 
-main
+main $1

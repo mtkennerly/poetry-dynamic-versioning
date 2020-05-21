@@ -7,7 +7,6 @@ import functools
 import jinja2
 import os
 import re
-import sys
 from importlib import import_module
 from pathlib import Path
 from typing import Mapping, MutableMapping, MutableSet, Optional, Sequence, Tuple
@@ -25,12 +24,12 @@ from dunamai import (
 )
 
 _VERSION_PATTERN = r"^v(?P<base>\d+\.\d+\.\d+)(-?((?P<stage>[a-zA-Z]+)\.?(?P<revision>\d+)?))?$"
+_PDV_START_DIR = "POETRY_DYNAMIC_VERSIONING_START_DIR"
 
 
 class _State:
     def __init__(
         self,
-        patched_poetry_console_main: bool = False,
         patched_poetry_create: bool = False,
         patched_poetry_command_run: bool = False,
         original_version: str = None,
@@ -38,7 +37,6 @@ class _State:
         substitutions: MutableMapping[Path, str] = None,
         cli_mode: bool = False,
     ) -> None:
-        self.patched_poetry_console_main = patched_poetry_console_main
         self.patched_poetry_create = patched_poetry_create
         self.patched_poetry_command_run = patched_poetry_command_run
         self.original_version = original_version
@@ -87,7 +85,7 @@ def _deep_merge_dicts(base: Mapping, addition: Mapping) -> Mapping:
 
 def _find_higher_file(*names: str, start: Path = None) -> Optional[Path]:
     if start is None:
-        start = Path().resolve()
+        start = Path.cwd()
     for level in [start, *start.parents]:
         for name in names:
             if (level / name).is_file():
@@ -202,15 +200,8 @@ def _enable_cli_mode() -> None:
     _state.cli_mode = True
 
 
-def _patch_poetry_create() -> None:
-    try:
-        has_factory_module = True
-        poetry_factory_module = _state.original_import_func("poetry.factory", fromlist=["Factory"])
-        original_poetry_create = getattr(poetry_factory_module, "Factory").create_poetry
-    except ModuleNotFoundError:
-        has_factory_module = False
-        poetry_factory_module = _state.original_import_func("poetry.poetry", fromlist=["Poetry"])
-        original_poetry_create = getattr(poetry_factory_module, "Poetry").create
+def _patch_poetry_create(factory_mod) -> None:
+    original_poetry_create = getattr(factory_mod, "Factory").create_poetry
 
     poetry_version_module = _state.original_import_func(
         "poetry.semver.version", fromlist=["Version"]
@@ -228,33 +219,30 @@ def _patch_poetry_create() -> None:
         if not _state.cli_mode:
             first_time = _state.version is None
             if first_time:
-                _state.version = _get_version(config)
+                current_dir = Path.cwd()
+                os.chdir(os.environ[_PDV_START_DIR])
+                try:
+                    _state.version = _get_version(config)
+                finally:
+                    os.chdir(current_dir)
 
             dynamic_version = _state.version[1]
             if first_time:
                 pyproject = tomlkit.parse(pyproject_path.read_text())
                 if not _state.original_version:
                     _state.original_version = pyproject["tool"]["poetry"]["version"]
-                pyproject["tool"]["poetry"]["version"] = dynamic_version
-                pyproject_path.write_text(tomlkit.dumps(pyproject))
+                _apply_version(dynamic_version, config, pyproject_path)
+
             instance._package._version = poetry_version_module.Version.parse(dynamic_version)
             instance._package._pretty_version = dynamic_version
-            _apply_version(version=dynamic_version, config=config, pyproject_path=pyproject_path)
 
         return instance
 
-    if has_factory_module:
-        getattr(poetry_factory_module, "Factory").create_poetry = alt_poetry_create
-    else:
-        getattr(poetry_factory_module, "Poetry").create = alt_poetry_create
-    sys.modules["poetry.poetry"] = poetry_factory_module
+    getattr(factory_mod, "Factory").create_poetry = alt_poetry_create
 
 
-def _patch_poetry_command_run() -> None:
-    poetry_command_run_module = _state.original_import_func(
-        "poetry.console.commands.run", fromlist=["RunCommand"]
-    )
-    original_poetry_command_run = getattr(poetry_command_run_module, "RunCommand").handle
+def _patch_poetry_command_run(run_mod) -> None:
+    original_poetry_command_run = getattr(run_mod, "RunCommand").handle
 
     @functools.wraps(original_poetry_command_run)
     def alt_poetry_command_run(self, *args, **kwargs):
@@ -266,59 +254,73 @@ def _patch_poetry_command_run() -> None:
         deactivate()
         return original_poetry_command_run(self, *args, **kwargs)
 
-    getattr(poetry_command_run_module, "RunCommand").handle = alt_poetry_command_run
-    sys.modules["poetry.console.commands.run"] = poetry_command_run_module
-
-
-def _patch_poetry_console_main(module, name, fromlist):
-    if name == "poetry.console" and fromlist:
-        console = module
-    elif name == "poetry" and "console" in fromlist:
-        console = module.console
-    else:
-        return False
-
-    # We want to patch Poetry's main console function and make it do the
-    # rest of the patching for us, to avoid an error when we try to do
-    # the rest of it directly here and ProjectPackage can't be found yet.
-
-    original_console_main = console.main
-
-    @functools.wraps(original_console_main)
-    def alt_poetry_console_main(*args, **kwargs):
-        if not _state.patched_poetry_create:
-            _patch_poetry_create()
-            _state.patched_poetry_create = True
-
-        if not _state.patched_poetry_command_run:
-            _patch_poetry_command_run()
-            _state.patched_poetry_command_run = True
-
-        original_console_main(*args, **kwargs)
-
-    console.main = alt_poetry_console_main
-    return True
+    getattr(run_mod, "RunCommand").handle = alt_poetry_command_run
 
 
 def _patch_builtins_import() -> None:
+    """
+    We patch the import mechanism to do the rest of the patching for us when
+    it sees the relevant imports for Poetry. This is necessary because,
+    depending on how Poetry was installed, it may not be available as soon as
+    Python starts.
+    """
+
     @functools.wraps(builtins.__import__)
     def alt_import(name, globals=None, locals=None, fromlist=(), level=0):
         module = _state.original_import_func(name, globals, locals, fromlist, level)
 
-        if not _state.patched_poetry_console_main:
-            patched = _patch_poetry_console_main(module, name, fromlist)
-            _state.patched_poetry_console_main = patched
+        if not _state.patched_poetry_create:
+            if name == "poetry.factory" and fromlist:
+                _patch_poetry_create(module)
+                _state.patched_poetry_create = True
+            elif name == "poetry" and "factory" in fromlist:
+                _patch_poetry_create(module.factory)
+                _state.patched_poetry_create = True
+
+        if not _state.patched_poetry_command_run:
+            if name == "poetry.console.commands.run" and fromlist:
+                _patch_poetry_command_run(module)
+                _state.patched_poetry_command_run = True
+            elif name == "poetry.console.commands" and "run" in fromlist:
+                _patch_poetry_command_run(module.run)
+                _state.patched_poetry_command_run = True
 
         return module
 
     builtins.__import__ = alt_import
 
 
+def _apply_patches() -> None:
+    try:
+        # Use the least invasive patching if possible.
+        if not _state.patched_poetry_create:
+            from poetry import factory as factory_mod
+
+            _patch_poetry_create(factory_mod)
+            _state.patched_poetry_create = True
+        if not _state.patched_poetry_command_run:
+            from poetry.console.commands import run as run_mod
+
+            _patch_poetry_command_run(run_mod)
+            _state.patched_poetry_command_run = True
+    except ModuleNotFoundError:
+        # Otherwise, wait until Poetry is available to be patched.
+        _patch_builtins_import()
+
+
 def activate() -> None:
     config = get_config()
     if not config["enable"]:
         return
-    _patch_builtins_import()
+
+    if _PDV_START_DIR not in os.environ:
+        # This is needed for Pip's PEP 517 isolated builds,
+        # so we can briefly switch back to the original directory.
+        # It builds in a temporary directory, and it also launches
+        # multiple processes, so we can't just put this in State.
+        os.environ[_PDV_START_DIR] = str(Path.cwd())
+
+    _apply_patches()
     atexit.register(deactivate)
 
 

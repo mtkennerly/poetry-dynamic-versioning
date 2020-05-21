@@ -179,16 +179,17 @@ does the following:
   file to your Python site-packages directory. This forces Python to
   automatically load the plugin after all other modules have been loaded
   (or at least those alphabetically prior to `zzz`).
-* It patches `builtins.__import__` so that, whenever the first import from
-  Poetry finishes, `poetry.console.main` will be patched. The reason we have
-  to wait for a Poetry import is in case you've used the get-poetry.py script,
-  in which case there is a gap between when Python is fully loaded and when
-  `~/.poetry/bin/poetry` adds the Poetry lib folder to the PYTHONPATH.
-* The patched version of `poetry.console.main` will then, when called,
-  additionally patch either `poetry.poetry.Poetry.create()` or
-  `poetry.factory.Factory.create_poetry()` (depending on your Poetry version)
-  to replace the version from your pyproject.toml file with the dynamically
-  generated version.
+* It first tries to patch `poetry.factory.Factory.create_poetry` and
+  `poetry.console.commands.run.RunCommand` directly. If they cannot be
+  imported, then it patches `builtins.__import__` so that, whenever those
+  classes are first imported, then they will be patched. The reason we may have
+  to wait for these to be imported is in case you've used the get-poetry.py
+  script, in which case there is a gap between when Python is fully loaded and
+  when `~/.poetry/bin/poetry` adds the Poetry lib folder to the PYTHONPATH.
+* The patched version of `Factory` will compute and apply the dynamic version.
+* The patched version of `RunCommand` will deactivate the plugin before
+  executing the passed command, because otherwise we will not be able to do
+  any cleanup afterwards.
 
 ## Development
 Please refer to [CONTRIBUTING.md](CONTRIBUTING.md).

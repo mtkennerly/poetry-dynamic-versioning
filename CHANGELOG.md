@@ -1,6 +1,8 @@
 ## Unreleased
 
 * Added the option `format-jinja-imports`.
+* Added support for Pip's PEP 517 isolated builds.
+* Removed handling for Poetry versions prior to 1.0.0.
 
 ## v0.7.0 (2020-05-14)
 
