@@ -106,6 +106,26 @@ In your pyproject.toml file, you may configure the following options:
         {%- endif -%}
     """
     ```
+  * `format-jinja-imports`: Array of tables. Default: empty. This defines
+    additional things to import and make available to the `format-jinja`
+    template. Each table must contain a `module` key and may also contain an
+    `item` key. Consider this example:
+
+    ```toml
+    format-jinja-imports = [
+        { module = "foo" },
+        { module = "bar", item = "baz" },
+    ]
+    ```
+
+    This is roughly equivalent to:
+
+    ```python
+    import foo
+    from bar import baz
+    ```
+
+    `foo` and `baz` would then become available in the Jinja formatting.
   * `style`: String. Default: unset. One of: `pep440`, `semver`, `pvp`.
     These are preconfigured output formats. If you set both a `style` and
     a `format`, then the format will be validated against the style's rules.

@@ -8,6 +8,7 @@ import jinja2
 import os
 import re
 import sys
+from importlib import import_module
 from pathlib import Path
 from typing import Mapping, MutableMapping, MutableSet, Optional, Sequence, Tuple
 
@@ -64,6 +65,11 @@ def _default_config() -> Mapping:
                     "files": ["*.py", "*/__init__.py", "*/__version__.py", "*/_version.py"],
                     "patterns": [r"(^__version__\s*=\s*['\"])[^'\"]*(['\"])"],
                 },
+                "style": None,
+                "metadata": None,
+                "format": None,
+                "format-jinja": None,
+                "format-jinja-imports": [],
             }
         }
     }
@@ -99,22 +105,10 @@ def get_config(start: Path = None) -> Mapping:
         return _default_config()["tool"]["poetry-dynamic-versioning"]
     pyproject = tomlkit.parse(pyproject_path.read_text())
     result = _deep_merge_dicts(_default_config(), pyproject)["tool"]["poetry-dynamic-versioning"]
-
-    for key in ["pattern", "style", "metadata", "format", "format-jinja"]:
-        if key not in result:
-            result[key] = None
-
     return result
 
 
-def _get_version(config: Mapping, pyproject_path: Path) -> Tuple[Version, str]:
-    if _state.version:
-        return _state.version
-
-    pyproject = tomlkit.parse(pyproject_path.read_text())
-    if not _state.original_version:
-        _state.original_version = pyproject["tool"]["poetry"]["version"]
-
+def _get_version(config: Mapping) -> Tuple[Version, str]:
     vcs = Vcs(config["vcs"])
     style = config["style"]
     if style is not None:
@@ -124,27 +118,35 @@ def _get_version(config: Mapping, pyproject_path: Path) -> Tuple[Version, str]:
         vcs, config["pattern"], config["latest-tag"], config["subversion"]["tag-dir"]
     )
     if config["format-jinja"]:
+        default_context = {
+            "base": version.base,
+            "stage": version.stage,
+            "revision": version.revision,
+            "distance": version.distance,
+            "commit": version.commit,
+            "dirty": version.dirty,
+            "env": os.environ,
+            "bump_version": bump_version,
+            "serialize_pep440": serialize_pep440,
+            "serialize_pvp": serialize_pvp,
+            "serialize_semver": serialize_semver,
+        }
+        custom_context = {}  # type: dict
+        for entry in config["format-jinja-imports"]:
+            if "module" in entry:
+                module = import_module(entry["module"])
+                if "item" in entry:
+                    custom_context[entry["item"]] = getattr(module, entry["item"])
+                else:
+                    custom_context[entry["module"]] = module
         serialized = jinja2.Template(config["format-jinja"]).render(
-            base=version.base,
-            stage=version.stage,
-            revision=version.revision,
-            distance=version.distance,
-            commit=version.commit,
-            dirty=version.dirty,
-            env=os.environ,
-            bump_version=bump_version,
-            serialize_pep440=serialize_pep440,
-            serialize_pvp=serialize_pvp,
-            serialize_semver=serialize_semver,
+            **default_context, **custom_context
         )
         if style is not None:
             check_version(serialized, style)
     else:
         serialized = version.serialize(config["metadata"], config["dirty"], config["format"], style)
 
-    pyproject["tool"]["poetry"]["version"] = serialized
-    pyproject_path.write_text(tomlkit.dumps(pyproject))
-    _state.version = (version, serialized)
     return (version, serialized)
 
 
@@ -224,7 +226,17 @@ def _patch_poetry_create() -> None:
         instance = original_poetry_create(cls, *args, **kwargs)
 
         if not _state.cli_mode:
-            dynamic_version = _get_version(config, pyproject_path)[1]
+            first_time = _state.version is None
+            if first_time:
+                _state.version = _get_version(config)
+
+            dynamic_version = _state.version[1]
+            if first_time:
+                pyproject = tomlkit.parse(pyproject_path.read_text())
+                if not _state.original_version:
+                    _state.original_version = pyproject["tool"]["poetry"]["version"]
+                pyproject["tool"]["poetry"]["version"] = dynamic_version
+                pyproject_path.write_text(tomlkit.dumps(pyproject))
             instance._package._version = poetry_version_module.Version.parse(dynamic_version)
             instance._package._pretty_version = dynamic_version
             _apply_version(version=dynamic_version, config=config, pyproject_path=pyproject_path)
