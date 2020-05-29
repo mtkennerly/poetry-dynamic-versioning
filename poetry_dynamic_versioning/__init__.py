@@ -172,8 +172,8 @@ def _substitute_version(
 
 
 def _apply_version(version: str, config: Mapping, pyproject_path: Path) -> None:
-    if _state.original_version and version != _state.original_version:
-        pyproject = tomlkit.parse(pyproject_path.read_text())
+    pyproject = tomlkit.parse(pyproject_path.read_text())
+    if pyproject["tool"]["poetry"]["version"] != version:
         pyproject["tool"]["poetry"]["version"] = version
         pyproject_path.write_text(tomlkit.dumps(pyproject))
 

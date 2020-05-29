@@ -18,9 +18,16 @@ function teardown {
     $do_pip uninstall -y poetry-dynamic-versioning
 }
 
+function should_fail {
+    if "$@"; then
+        echo Command did not fail: "$@"
+        exit 1
+    fi
+}
+
 function test_plugin_enabled {
     $do_poetry build -v
-    ! ls $dummy/dist | grep 0.0.999
+    ls $dummy/dist | should_fail grep 0.0.999
 }
 
 function test_plugin_disabled {
@@ -31,11 +38,7 @@ function test_plugin_disabled {
 
 function test_invalid_config_for_vcs {
     sed -i 's/vcs = .*/vcs = "invalid"/' $dummy/pyproject.toml
-    if $do_poetry build -v; then
-        return -1
-    else
-        return 0
-    fi
+    should_fail $do_poetry build -v
 }
 
 function test_keep_pyproject_modifications {
@@ -59,15 +62,15 @@ function test_substitution {
 }
 
 function test_cli_mode {
-    $do_poetry run poetry-dynamic-versioning
-    # Changes persist after Poetry is done:
-    ! grep 'version = "0.0.999"' $dummy/pyproject.toml
-    ! $do_poetry run grep '__version__ = "0.0.0"' $dummy/project/__init__.py
+    poetry-dynamic-versioning
+    # Changes persist after the command is done:
+    should_fail grep 'version = "0.0.999"' $dummy/pyproject.toml
+    should_fail grep '__version__ = "0.0.0"' $dummy/project/__init__.py
 }
 
 function test_pip_pep_517_isolated_build {
     $do_pip wheel --use-pep517 $dummy
-    ! ls $dummy | grep 0.0.999
+    ls $dummy | should_fail grep 0.0.999
 }
 
 function run_test {

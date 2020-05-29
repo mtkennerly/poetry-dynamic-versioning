@@ -1,3 +1,9 @@
+## v0.8.1 (2020-05-29)
+
+* Fixed an issue where CLI mode did not persist the change to pyproject.toml.
+  This problem was missed because of an issue in the integration tests,
+  which are fixed now as well.
+
 ## v0.8.0 (2020-05-28)
 
 * Added the option `format-jinja-imports`.
