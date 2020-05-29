@@ -1,4 +1,4 @@
-## Unreleased
+## v0.8.0 (2020-05-28)
 
 * Added the option `format-jinja-imports`.
 * Added support for Pip's PEP 517 isolated builds.
