@@ -1,4 +1,5 @@
 import argparse
+import sys
 
 from poetry_dynamic_versioning import (
     get_config,
@@ -6,6 +7,7 @@ from poetry_dynamic_versioning import (
     _enable_cli_mode,
     _get_pyproject_path,
     _get_version,
+    _state,
 )
 
 
@@ -21,14 +23,25 @@ def _parse_args(argv=None) -> None:
 
 
 def main() -> None:
-    _enable_cli_mode()
-    _parse_args()
+    try:
+        _enable_cli_mode()
+        _parse_args()
 
-    config = get_config()
+        config = get_config()
 
-    pyproject_path = _get_pyproject_path()
-    if pyproject_path is None:
-        raise RuntimeError("Unable to find pyproject.toml")
+        pyproject_path = _get_pyproject_path()
+        if pyproject_path is None:
+            raise RuntimeError("Unable to find pyproject.toml")
 
-    version = _get_version(config)[1]
-    _apply_version(version, config, pyproject_path)
+        version = _get_version(config)[1]
+        print("Version: {}".format(version), file=sys.stderr)
+        _apply_version(version, config, pyproject_path)
+        if _state.substitutions:
+            print("Files with substitutions:", file=sys.stderr)
+            for file_name in _state.substitutions:
+                print("  - {}".format(file_name), file=sys.stderr)
+        else:
+            print("Files with substitutions: none", file=sys.stderr)
+    except Exception as e:
+        print("Error: {}".format(e), file=sys.stderr)
+        sys.exit(1)

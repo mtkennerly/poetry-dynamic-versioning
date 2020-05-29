@@ -2,7 +2,11 @@
 
 * Added the option `format-jinja-imports`.
 * Added support for Pip's PEP 517 isolated builds.
+* In CLI mode:
+  * Improved handling of error conditions.
+  * Added output of the generated version and any modified files.
 * Removed handling for Poetry versions prior to 1.0.0.
+* Avoid writing files if the content does not need to be changed.
 
 ## v0.7.0 (2020-05-14)
 

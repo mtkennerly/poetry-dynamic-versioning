@@ -160,17 +160,22 @@ def _substitute_version(
         for match in root.glob(file_glob):
             files.add(match.resolve())
     for file in files:
-        content = file.read_text()
-        _state.substitutions[file] = content
+        original_content = file.read_text()
+        new_content = original_content
         for pattern in patterns:
-            content = re.sub(pattern, r"\g<1>{}\g<2>".format(version), content, flags=re.MULTILINE)
-        file.write_text(content)
+            new_content = re.sub(
+                pattern, r"\g<1>{}\g<2>".format(version), new_content, flags=re.MULTILINE
+            )
+        if original_content != new_content:
+            _state.substitutions[file] = original_content
+            file.write_text(new_content)
 
 
 def _apply_version(version: str, config: Mapping, pyproject_path: Path) -> None:
-    pyproject = tomlkit.parse(pyproject_path.read_text())
-    pyproject["tool"]["poetry"]["version"] = version
-    pyproject_path.write_text(tomlkit.dumps(pyproject))
+    if _state.original_version and version != _state.original_version:
+        pyproject = tomlkit.parse(pyproject_path.read_text())
+        pyproject["tool"]["poetry"]["version"] = version
+        pyproject_path.write_text(tomlkit.dumps(pyproject))
 
     _substitute_version(
         pyproject_path.parent,
@@ -181,7 +186,7 @@ def _apply_version(version: str, config: Mapping, pyproject_path: Path) -> None:
 
 
 def _revert_version() -> None:
-    if _state.original_version:
+    if _state.original_version and _state.version and _state.original_version != _state.version[1]:
         pyproject_path = _get_pyproject_path()
         if pyproject_path is None:
             return
