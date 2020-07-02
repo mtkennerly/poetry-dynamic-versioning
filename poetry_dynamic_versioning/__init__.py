@@ -229,7 +229,7 @@ def _patch_poetry_create(factory_mod) -> None:
                 try:
                     _state.version = _get_version(config)
                 finally:
-                    os.chdir(current_dir)
+                    os.chdir(str(current_dir))
 
             dynamic_version = _state.version[1]
             if first_time:
