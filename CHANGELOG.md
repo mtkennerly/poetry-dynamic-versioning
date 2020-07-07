@@ -1,3 +1,9 @@
+## v0.8.2 (2020-07-06)
+
+* Fixed an issue with Python 3.5 compatibility.
+  (Contributed by [gsemet](https://github.com/gsemet))
+* Increased minimum Dunamai version to propagate the latest updates.
+
 ## v0.8.1 (2020-05-29)
 
 * Fixed an issue where CLI mode did not persist the change to pyproject.toml.
