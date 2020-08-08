@@ -1,3 +1,8 @@
+## v0.8.3 (2020-08-07)
+
+* Fixed a possible issue with string interning in glob handling.
+  ([Contributed by mariusvniekerk](https://github.com/mtkennerly/poetry-dynamic-versioning/pull/18))
+
 ## v0.8.2 (2020-07-06)
 
 * Fixed an issue with Python 3.5 compatibility.
