@@ -157,7 +157,8 @@ def _substitute_version(
 
     files = set()  # type: MutableSet[Path]
     for file_glob in file_globs:
-        for match in root.glob(file_glob):
+        # since file_glob here could be a non-internable string
+        for match in root.glob(str(file_glob)):
             files.add(match.resolve())
     for file in files:
         original_content = file.read_text()
