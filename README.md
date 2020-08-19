@@ -5,7 +5,10 @@
 
 This package is a plugin for [Poetry](https://github.com/sdispater/poetry)
 to enable dynamic versioning based on tags in your version control system,
-powered by [Dunamai](https://github.com/mtkennerly/dunamai).
+powered by [Dunamai](https://github.com/mtkennerly/dunamai). Many different
+version control systems are supported, including Git and Mercurial; please
+refer to the Dunamai page for the full list (and minimum supported version
+where applicable).
 
 Since Poetry does not yet officially support plugins
 (refer to [this issue](https://github.com/sdispater/poetry/issues/693))
