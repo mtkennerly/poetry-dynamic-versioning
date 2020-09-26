@@ -267,7 +267,7 @@ def _patch_poetry_create(factory_mod) -> None:
             if first_time:
                 current_dir = Path.cwd()
                 # os.chdir(os.environ[_PDV_START_DIR])
-                os.chdir(cwd)
+                os.chdir(str(cwd))
                 try:
                     _state.project(name).version = _get_version(config)
                 finally:
