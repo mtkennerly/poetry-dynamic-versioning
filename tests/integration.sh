@@ -4,6 +4,7 @@ root=$(dirname "$(dirname "$(realpath "$0")")")
 dummy=$root/tests/project
 do_pip="pip"
 do_poetry="poetry"
+failed="no"
 
 function setup {
     $do_pip uninstall -y poetry-dynamic-versioning
@@ -74,7 +75,7 @@ function test_pip_pep_517_isolated_build {
 }
 
 function test_dependency_versions {
-    $do_poetry install
+    $do_poetry install -v
     $do_poetry run pip list --format freeze | should_fail grep dependency-dynamic==0.0.888
     $do_poetry run pip list --format freeze | grep dependency-static==0.0.777
     $do_poetry run pip list --format freeze | grep dependency-classic==0.0.666
@@ -94,6 +95,7 @@ function run_test {
     else
         echo "  $name -- FAILED"
         echo "$output" | fold -w 76 | awk '{ print "    " $0 }'
+        failed="yes"
     fi
 }
 
@@ -113,6 +115,10 @@ function main {
     fi
     teardown > /dev/null 2>&1
     echo "Done"
+
+    if [ "$failed" == "yes" ]; then
+        exit 1
+    fi
 }
 
 main $1
