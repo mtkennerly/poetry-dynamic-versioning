@@ -1,0 +1,50 @@
+on:
+  - push
+  - pull_request
+
+name: Main
+
+jobs:
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.7'
+      - run: |
+          pip install poetry
+          poetry install
+          poetry run pre-commit run --all-files --show-diff-on-failure
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version:
+          - '3.5'
+          - '3.6'
+          - '3.7'
+          - '3.8'
+        poetry-version:
+          - '1.0.1'
+          - '1.0.5'
+          - '1.0.10'
+        install-method:
+          - pip
+          - script
+    env:
+      POETRY_VER: ${{ matrix.poetry-version }}
+      INSTALL_METHOD: ${{ matrix.install-method }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: |
+          curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py -o ./get-poetry.py
+          if [ "$INSTALL_METHOD" = "pip" ]; then pip install poetry==${POETRY_VER}; fi
+          if [ "$INSTALL_METHOD" = "script" ]; then python ./get-poetry.py --version ${POETRY_VER} --yes && source ~/.poetry/env; fi
+          poetry install
+          poetry run pytest --verbose --cov
+          ./tests/integration.sh
