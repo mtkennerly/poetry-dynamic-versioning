@@ -246,6 +246,12 @@ def _patch_poetry_create(factory_mod) -> None:
     def alt_poetry_create(cls, *args, **kwargs):
         instance = original_poetry_create(cls, *args, **kwargs)
 
+        if not _state.patched_poetry_command_run:
+            # Fallback if it hasn't been caught by our patched importer already.
+            run_mod = _state.original_import_func("poetry.console.commands.run", fromlist=[None])
+            _patch_poetry_command_run(run_mod)
+            _state.patched_poetry_command_run = True
+
         cwd = None  # type: Optional[Path]
         if len(args) > 0:
             cwd = args[0]

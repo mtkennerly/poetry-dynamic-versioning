@@ -3,6 +3,7 @@
 * Fixed:
   * The main project's dynamic version would be applied to path/Git dependencies.
     Now, the plugin tracks state and configuration for each dependency separately.
+  * A possible case where the plugin would not clean up after `poetry run`.
 
 ## v0.8.3 (2020-08-07)
 
