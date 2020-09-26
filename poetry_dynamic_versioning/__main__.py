@@ -35,10 +35,10 @@ def main() -> None:
 
         version = _get_version(config)[1]
         print("Version: {}".format(version), file=sys.stderr)
-        _apply_version(version, config, pyproject_path)
-        if _state.substitutions:
+        name = _apply_version(version, config, pyproject_path)
+        if _state.project(name).substitutions:
             print("Files with substitutions:", file=sys.stderr)
-            for file_name in _state.substitutions:
+            for file_name in _state.project(name).substitutions:
                 print("  - {}".format(file_name), file=sys.stderr)
         else:
             print("Files with substitutions: none", file=sys.stderr)

@@ -6,6 +6,9 @@ authors = []
 
 [tool.poetry.dependencies]
 python = "^3.5"
+dependency-classic = {path = "../dependency-classic"}
+dependency-dynamic = {path = "../dependency-dynamic"}
+dependency-static = {path = "../dependency-static"}
 
 [tool.poetry-dynamic-versioning]
 enable = true

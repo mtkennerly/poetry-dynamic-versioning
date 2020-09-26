@@ -27,23 +27,46 @@ _VERSION_PATTERN = r"^v(?P<base>\d+\.\d+\.\d+)(-?((?P<stage>[a-zA-Z]+)\.?(?P<rev
 _PDV_START_DIR = "POETRY_DYNAMIC_VERSIONING_START_DIR"
 
 
+class _ProjectState:
+    def __init__(
+        self,
+        path: Path = None,
+        original_version: str = None,
+        version: Tuple[Version, str] = None,
+        substitutions: MutableMapping[Path, str] = None,
+    ) -> None:
+        self.path = path
+        self.original_version = original_version
+        self.version = version
+        self.substitutions = {} if substitutions is None else substitutions
+
+
 class _State:
     def __init__(
         self,
         patched_poetry_create: bool = False,
         patched_poetry_command_run: bool = False,
-        original_version: str = None,
-        version: Tuple[Version, str] = None,
-        substitutions: MutableMapping[Path, str] = None,
         cli_mode: bool = False,
+        projects: MutableMapping[str, _ProjectState] = None,
     ) -> None:
         self.patched_poetry_create = patched_poetry_create
         self.patched_poetry_command_run = patched_poetry_command_run
-        self.original_version = original_version
-        self.version = version
         self.original_import_func = builtins.__import__
-        self.substitutions = {} if substitutions is None else substitutions
         self.cli_mode = cli_mode
+
+        if projects is None:
+            self.projects = {}  # type: MutableMapping[str, _ProjectState]
+        else:
+            self.projects = projects
+
+    def project(self, name: str) -> _ProjectState:
+        result = self.projects.get(name)
+
+        if result is not None:
+            return result
+
+        self.projects[name] = _ProjectState()
+        return self.projects[name]
 
 
 _state = _State()
@@ -149,9 +172,9 @@ def _get_version(config: Mapping) -> Tuple[Version, str]:
 
 
 def _substitute_version(
-    root: Path, file_globs: Sequence[str], patterns: Sequence[str], version: str
+    name: str, root: Path, file_globs: Sequence[str], patterns: Sequence[str], version: str
 ) -> None:
-    if _state.substitutions:
+    if _state.project(name).substitutions:
         # Already ran; don't need to repeat.
         return
 
@@ -168,38 +191,44 @@ def _substitute_version(
                 pattern, r"\g<1>{}\g<2>".format(version), new_content, flags=re.MULTILINE
             )
         if original_content != new_content:
-            _state.substitutions[file] = original_content
+            _state.project(name).substitutions[file] = original_content
             file.write_text(new_content)
 
 
-def _apply_version(version: str, config: Mapping, pyproject_path: Path) -> None:
+def _apply_version(version: str, config: Mapping, pyproject_path: Path) -> str:
     pyproject = tomlkit.parse(pyproject_path.read_text())
     if pyproject["tool"]["poetry"]["version"] != version:
         pyproject["tool"]["poetry"]["version"] = version
         pyproject_path.write_text(tomlkit.dumps(pyproject))
 
+    name = pyproject["tool"]["poetry"]["name"]
+
     _substitute_version(
+        name,
         pyproject_path.parent,
         config["substitution"]["files"],
         config["substitution"]["patterns"],
         version,
     )
 
+    return name
+
 
 def _revert_version() -> None:
-    if _state.original_version and _state.version and _state.original_version != _state.version[1]:
-        pyproject_path = _get_pyproject_path()
-        if pyproject_path is None:
-            return
-        pyproject = tomlkit.parse(pyproject_path.read_text())
-        pyproject["tool"]["poetry"]["version"] = _state.original_version
-        pyproject_path.write_text(tomlkit.dumps(pyproject))
-        _state.original_version = None
+    for project, state in _state.projects.items():
+        if state.original_version and state.version and state.original_version != state.version[1]:
+            pyproject_path = _get_pyproject_path(state.path)
+            if pyproject_path is None:
+                return
+            pyproject = tomlkit.parse(pyproject_path.read_text())
+            pyproject["tool"]["poetry"]["version"] = state.original_version
+            pyproject_path.write_text(tomlkit.dumps(pyproject))
+            state.original_version = None
 
-    if _state.substitutions:
-        for file, content in _state.substitutions.items():
-            file.write_text(content)
-        _state.substitutions.clear()
+        if state.substitutions:
+            for file, content in state.substitutions.items():
+                file.write_text(content)
+            state.substitutions.clear()
 
 
 def _enable_cli_mode() -> None:
@@ -213,30 +242,42 @@ def _patch_poetry_create(factory_mod) -> None:
         "poetry.semver.version", fromlist=["Version"]
     )
 
-    pyproject_path = _get_pyproject_path()
-    if pyproject_path is None:
-        raise RuntimeError("Unable to find pyproject.toml")
-    config = get_config()
-
     @functools.wraps(original_poetry_create)
     def alt_poetry_create(cls, *args, **kwargs):
         instance = original_poetry_create(cls, *args, **kwargs)
 
+        cwd = None  # type: Optional[Path]
+        if len(args) > 0:
+            cwd = args[0]
+        elif "cwd" in kwargs:
+            cwd = kwargs["cwd"]
+
+        config = get_config(cwd)
+        if not config["enable"]:
+            return instance
+
+        pyproject_path = _get_pyproject_path(cwd)
+        if pyproject_path is None:
+            raise RuntimeError("Unable to find pyproject.toml")
+        pyproject = tomlkit.parse(pyproject_path.read_text())
+        name = pyproject["tool"]["poetry"]["name"]
+
         if not _state.cli_mode:
-            first_time = _state.version is None
+            first_time = _state.project(name).version is None
             if first_time:
                 current_dir = Path.cwd()
-                os.chdir(os.environ[_PDV_START_DIR])
+                # os.chdir(os.environ[_PDV_START_DIR])
+                os.chdir(cwd)
                 try:
-                    _state.version = _get_version(config)
+                    _state.project(name).version = _get_version(config)
                 finally:
                     os.chdir(str(current_dir))
 
-            dynamic_version = _state.version[1]
+            dynamic_version = _state.project(name).version[1]
             if first_time:
-                pyproject = tomlkit.parse(pyproject_path.read_text())
-                if not _state.original_version:
-                    _state.original_version = pyproject["tool"]["poetry"]["version"]
+                if not _state.project(name).original_version:
+                    _state.project(name).original_version = pyproject["tool"]["poetry"]["version"]
+                    _state.project(name).path = cwd
                 _apply_version(dynamic_version, config, pyproject_path)
 
             instance._package._version = poetry_version_module.Version.parse(dynamic_version)

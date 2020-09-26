@@ -73,6 +73,13 @@ function test_pip_pep_517_isolated_build {
     ls $dummy | should_fail grep 0.0.999
 }
 
+function test_dependency_versions {
+    $do_poetry install
+    $do_poetry run pip list --format freeze | should_fail grep dependency-dynamic==0.0.888
+    $do_poetry run pip list --format freeze | grep dependency-static==0.0.777
+    $do_poetry run pip list --format freeze | grep dependency-classic==0.0.666
+}
+
 function run_test {
     cd $dummy
     git checkout -- $dummy

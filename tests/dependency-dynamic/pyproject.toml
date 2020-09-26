@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "dependency-dynamic"
+version = "0.0.888"
+description = ""
+authors = []
+
+[tool.poetry.dependencies]
+python = "^3.5"
+
+[tool.poetry-dynamic-versioning]
+enable = true
+
+[build-system]
+requires = ["poetry>=1.0.0"]
+build-backend = "poetry.masonry.api"

@@ -1,0 +1,12 @@
+[tool.poetry]
+name = "dependency-static"
+version = "0.0.777"
+description = ""
+authors = []
+
+[tool.poetry.dependencies]
+python = "^3.5"
+
+[build-system]
+requires = ["poetry>=1.0.0"]
+build-backend = "poetry.masonry.api"
