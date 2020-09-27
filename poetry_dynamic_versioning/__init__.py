@@ -24,7 +24,6 @@ from dunamai import (
 )
 
 _VERSION_PATTERN = r"^v(?P<base>\d+\.\d+\.\d+)(-?((?P<stage>[a-zA-Z]+)\.?(?P<revision>\d+)?))?$"
-_PDV_START_DIR = "POETRY_DYNAMIC_VERSIONING_START_DIR"
 
 
 class _ProjectState:
@@ -272,7 +271,6 @@ def _patch_poetry_create(factory_mod) -> None:
             first_time = _state.project(name).version is None
             if first_time:
                 current_dir = Path.cwd()
-                # os.chdir(os.environ[_PDV_START_DIR])
                 os.chdir(str(cwd))
                 try:
                     _state.project(name).version = _get_version(config)
@@ -365,13 +363,6 @@ def activate() -> None:
     config = get_config()
     if not config["enable"]:
         return
-
-    if _PDV_START_DIR not in os.environ:
-        # This is needed for Pip's PEP 517 isolated builds,
-        # so we can briefly switch back to the original directory.
-        # It builds in a temporary directory, and it also launches
-        # multiple processes, so we can't just put this in State.
-        os.environ[_PDV_START_DIR] = str(Path.cwd())
 
     _apply_patches()
     atexit.register(deactivate)

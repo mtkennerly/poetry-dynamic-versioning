@@ -1,9 +1,13 @@
 ## Unreleased
 
+* Changed:
+  * Dropped support for `pip wheel .` and bumped the minimum Poetry version to
+    1.0.2 in order to enable fixing the following issue.
 * Fixed:
   * The main project's dynamic version would be applied to path/Git dependencies.
-    Now, the plugin tracks state and configuration for each dependency separately.
-  * A possible case where the plugin would not clean up after `poetry run`.
+    Now, the plugin tracks state and configuration for each dependency separately
+    in order to correctly report their versions.
+  * `poetry run` did not always clean up after itself.
 
 ## v0.8.3 (2020-08-07)
 
