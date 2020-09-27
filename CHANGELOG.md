@@ -8,6 +8,8 @@
     Now, the plugin tracks state and configuration for each dependency separately
     in order to correctly report their versions.
   * `poetry run` did not always clean up after itself.
+  * `poetry.semver.version` could not be imported because it was moved to
+    `poetry.core.semver.version` starting in Poetry 1.1.0a1.
 
 ## v0.8.3 (2020-08-07)
 

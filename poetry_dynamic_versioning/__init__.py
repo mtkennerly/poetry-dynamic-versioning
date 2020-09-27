@@ -237,9 +237,14 @@ def _enable_cli_mode() -> None:
 def _patch_poetry_create(factory_mod) -> None:
     original_poetry_create = getattr(factory_mod, "Factory").create_poetry
 
-    poetry_version_module = _state.original_import_func(
-        "poetry.semver.version", fromlist=["Version"]
-    )
+    try:
+        poetry_version_module = _state.original_import_func(
+            "poetry.core.semver.version", fromlist=["Version"]
+        )
+    except ImportError:
+        poetry_version_module = _state.original_import_func(
+            "poetry.semver.version", fromlist=["Version"]
+        )
 
     @functools.wraps(original_poetry_create)
     def alt_poetry_create(cls, *args, **kwargs):
