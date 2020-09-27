@@ -1,4 +1,4 @@
-## Unreleased
+## v0.9.0 (2020-09-27)
 
 * Changed:
   * Dropped support for `pip wheel .` and bumped the minimum Poetry version to
@@ -9,7 +9,8 @@
     in order to correctly report their versions.
   * `poetry run` did not always clean up after itself.
   * `poetry.semver.version` could not be imported because it was moved to
-    `poetry.core.semver.version` starting in Poetry 1.1.0a1.
+    `poetry.core.semver.version` starting in Poetry 1.1.0a1. The plugin can now
+    handle either location.
 
 ## v0.8.3 (2020-08-07)
 
