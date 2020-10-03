@@ -1,3 +1,8 @@
+## Unreleased
+
+* Added:
+  * Support for patching `poetry-core` when used as a standalone build system.
+
 ## v0.9.0 (2020-09-27)
 
 * Changed:

@@ -16,7 +16,7 @@ liberties to make the functionality possible. As soon as official support
 lands, this plugin will be updated to do things the official way.
 
 ## Installation
-Python 3.5 or newer and Poetry 1.0.2 or newer are required.
+Python 3.5+ and Poetry 1.0.2+ or poetry-core 1.0.0+ are required.
 
 * Run `pip install poetry-dynamic-versioning`
 * Add this section to your pyproject.toml:
@@ -25,12 +25,19 @@ Python 3.5 or newer and Poetry 1.0.2 or newer are required.
   enable = true
   ```
 * Include the plugin in the `build-system` section of pyproject.toml
-  for interoperability:
-  ```toml
-  [build-system]
-  requires = ["poetry>=1.0.2", "poetry-dynamic-versioning"]
-  build-backend = "poetry.masonry.api"
-  ```
+  for interoperability with PEP 517 build frontends.
+  * Example using `poetry-core` as the build system:
+    ```toml
+    [build-system]
+    requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
+    build-backend = "poetry.core.masonry.api"
+    ```
+  * Example using `poetry` as the build system:
+    ```toml
+    [build-system]
+    requires = ["poetry>=1.0.2", "poetry-dynamic-versioning"]
+    build-backend = "poetry.masonry.api"
+    ```
 
 Note that you must install the plugin in your global Python installation,
 **not** as a dev-dependency in pyproject.toml, because the virtual environment

@@ -28,6 +28,7 @@ function should_fail {
 
 function test_plugin_enabled {
     $do_poetry build -v && \
+    ls $dummy/dist | grep .whl && \
     ls $dummy/dist | should_fail grep 0.0.999
 }
 
@@ -66,9 +67,18 @@ function test_cli_mode_and_substitution {
 
 function test_dependency_versions {
     $do_poetry install -v && \
+    $do_poetry run pip list --format freeze | grep dependency-dynamic== && \
     $do_poetry run pip list --format freeze | should_fail grep dependency-dynamic==0.0.888 && \
     $do_poetry run pip list --format freeze | grep dependency-static==0.0.777 && \
     $do_poetry run pip list --format freeze | grep dependency-classic==0.0.666
+}
+
+function test_poetry_core_as_build_system {
+    sed -i 's/requires = .*/requires = ["poetry-core"]/' $dummy/pyproject.toml && \
+    sed -i 's/build-backend = .*/build-backend = "poetry.core.masonry.api"/' $dummy/pyproject.toml && \
+    $do_poetry build -v && \
+    ls $dummy/dist | grep .whl && \
+    ls $dummy/dist | should_fail grep 0.0.999
 }
 
 function run_test {

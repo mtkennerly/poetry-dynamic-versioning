@@ -44,11 +44,13 @@ class _State:
     def __init__(
         self,
         patched_poetry_create: bool = False,
+        patched_core_poetry_create: bool = False,
         patched_poetry_command_run: bool = False,
         cli_mode: bool = False,
         projects: MutableMapping[str, _ProjectState] = None,
     ) -> None:
         self.patched_poetry_create = patched_poetry_create
+        self.patched_core_poetry_create = patched_core_poetry_create
         self.patched_poetry_command_run = patched_poetry_command_run
         self.original_import_func = builtins.__import__
         self.cli_mode = cli_mode
@@ -333,6 +335,14 @@ def _patch_builtins_import() -> None:
                 _patch_poetry_create(module.factory)
                 _state.patched_poetry_create = True
 
+        if not _state.patched_core_poetry_create:
+            if name == "poetry.core.factory" and fromlist:
+                _patch_poetry_create(module)
+                _state.patched_core_poetry_create = True
+            elif name == "poetry.core" and "factory" in fromlist:
+                _patch_poetry_create(module.factory)
+                _state.patched_core_poetry_create = True
+
         if not _state.patched_poetry_command_run:
             if name == "poetry.console.commands.run" and fromlist:
                 _patch_poetry_command_run(module)
@@ -347,20 +357,38 @@ def _patch_builtins_import() -> None:
 
 
 def _apply_patches() -> None:
-    try:
-        # Use the least invasive patching if possible.
-        if not _state.patched_poetry_create:
+    # Use the least invasive patching if possible; otherwise, wait until
+    # Poetry is available to be patched.
+    need_fallback_patches = False
+
+    if not _state.patched_poetry_create:
+        try:
             from poetry import factory as factory_mod
 
             _patch_poetry_create(factory_mod)
             _state.patched_poetry_create = True
-        if not _state.patched_poetry_command_run:
+        except ImportError:
+            need_fallback_patches = True
+
+    if not _state.patched_core_poetry_create:
+        try:
+            from poetry.core import factory as core_factory_mod
+
+            _patch_poetry_create(core_factory_mod)
+            _state.patched_core_poetry_create = True
+        except ImportError:
+            need_fallback_patches = True
+
+    if not _state.patched_poetry_command_run:
+        try:
             from poetry.console.commands import run as run_mod
 
             _patch_poetry_command_run(run_mod)
             _state.patched_poetry_command_run = True
-    except ImportError:
-        # Otherwise, wait until Poetry is available to be patched.
+        except ImportError:
+            need_fallback_patches = True
+
+    if need_fallback_patches:
         _patch_builtins_import()
 
 
