@@ -43,6 +43,9 @@ Note that you must install the plugin in your global Python installation,
 **not** as a dev-dependency in pyproject.toml, because the virtual environment
 that Poetry creates cannot see Poetry itself and therefore cannot patch it.
 
+Poetry's typical `version` setting is still required in `[tool.poetry]`,
+but you are encouraged to use `version = "0.0.0"` as a standard placeholder.
+
 With the minimal configuration above, the plugin will automatically take effect
 when you run commands such as `poetry build`. It will update the version in
 pyproject.toml, then revert the change when the plugin deactivates. If you want
