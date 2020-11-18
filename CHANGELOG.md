@@ -1,3 +1,8 @@
+## Unreleased
+
+* Added:
+  * `bump` option.
+
 ## v0.10.0 (2020-10-08)
 
 * Added:

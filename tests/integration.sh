@@ -81,6 +81,13 @@ function test_poetry_core_as_build_system {
     ls $dummy/dist | should_fail grep 0.0.999
 }
 
+function test_bumping_enabled {
+    # Poetry will convert "-pre.1" to "rc1".
+    sed -i 's/vcs = .*/bump = true/' $dummy/pyproject.toml && \
+    $do_poetry build -v && \
+    ls $dummy/dist | grep rc1
+}
+
 function run_test {
     cd $dummy
     git checkout -- $dummy

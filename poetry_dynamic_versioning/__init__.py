@@ -92,6 +92,7 @@ def _default_config() -> Mapping:
                 "format": None,
                 "format-jinja": None,
                 "format-jinja-imports": [],
+                "bump": False,
             }
         }
     }
@@ -139,11 +140,23 @@ def _get_version(config: Mapping) -> Tuple[Version, str]:
     version = Version.from_vcs(
         vcs, config["pattern"], config["latest-tag"], config["subversion"]["tag-dir"]
     )
+
     if config["format-jinja"]:
+        base = version.base
+        revision = version.revision
+        if config["bump"]:
+            if version.stage is None:
+                base = bump_version(version.base)
+            else:
+                if version.revision is None:
+                    revision = 2
+                else:
+                    revision = version.revision + 1
+
         default_context = {
-            "base": version.base,
+            "base": base,
             "stage": version.stage,
-            "revision": version.revision,
+            "revision": revision,
             "distance": version.distance,
             "commit": version.commit,
             "dirty": version.dirty,
@@ -167,7 +180,9 @@ def _get_version(config: Mapping) -> Tuple[Version, str]:
         if style is not None:
             check_version(serialized, style)
     else:
-        serialized = version.serialize(config["metadata"], config["dirty"], config["format"], style)
+        serialized = version.serialize(
+            config["metadata"], config["dirty"], config["format"], style, bump=config["bump"]
+        )
 
     return (version, serialized)
 
