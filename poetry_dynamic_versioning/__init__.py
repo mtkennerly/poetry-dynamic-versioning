@@ -9,7 +9,7 @@ import os
 import re
 from importlib import import_module
 from pathlib import Path
-from typing import Mapping, MutableMapping, MutableSet, Optional, Sequence, Tuple
+from typing import Mapping, MutableMapping, Optional, Sequence, Tuple
 
 import tomlkit
 from dunamai import (
@@ -46,12 +46,14 @@ class _State:
         patched_poetry_create: bool = False,
         patched_core_poetry_create: bool = False,
         patched_poetry_command_run: bool = False,
+        patched_poetry_command_shell: bool = False,
         cli_mode: bool = False,
         projects: MutableMapping[str, _ProjectState] = None,
     ) -> None:
         self.patched_poetry_create = patched_poetry_create
         self.patched_core_poetry_create = patched_core_poetry_create
         self.patched_poetry_command_run = patched_poetry_command_run
+        self.patched_poetry_command_shell = patched_poetry_command_shell
         self.original_import_func = builtins.__import__
         self.cli_mode = cli_mode
 
@@ -194,7 +196,7 @@ def _substitute_version(
         # Already ran; don't need to repeat.
         return
 
-    files = set()  # type: MutableSet[Path]
+    files = set()
     for file_glob in file_globs:
         # since file_glob here could be a non-internable string
         for match in root.glob(str(file_glob)):
@@ -273,6 +275,14 @@ def _patch_poetry_create(factory_mod) -> None:
             _patch_poetry_command_run(run_mod)
             _state.patched_poetry_command_run = True
 
+        if not _state.patched_poetry_command_shell:
+            # Fallback if it hasn't been caught by our patched importer already.
+            shell_mod = _state.original_import_func(
+                "poetry.console.commands.shell", fromlist=[None]
+            )
+            _patch_poetry_command_shell(shell_mod)
+            _state.patched_poetry_command_shell = True
+
         cwd = None  # type: Optional[Path]
         if len(args) > 0:
             cwd = args[0]
@@ -330,6 +340,17 @@ def _patch_poetry_command_run(run_mod) -> None:
     getattr(run_mod, "RunCommand").handle = alt_poetry_command_run
 
 
+def _patch_poetry_command_shell(shell_mod) -> None:
+    original_poetry_command_shell = getattr(shell_mod, "ShellCommand").handle
+
+    @functools.wraps(original_poetry_command_shell)
+    def alt_poetry_command_shell(self, *args, **kwargs):
+        deactivate()
+        return original_poetry_command_shell(self, *args, **kwargs)
+
+    getattr(shell_mod, "ShellCommand").handle = alt_poetry_command_shell
+
+
 def _patch_builtins_import() -> None:
     """
     We patch the import mechanism to do the rest of the patching for us when
@@ -366,6 +387,14 @@ def _patch_builtins_import() -> None:
                 _patch_poetry_command_run(module.run)
                 _state.patched_poetry_command_run = True
 
+        if not _state.patched_poetry_command_shell:
+            if name == "poetry.console.commands.shell" and fromlist:
+                _patch_poetry_command_shell(module)
+                _state.patched_poetry_command_shell = True
+            elif name == "poetry.console.commands" and "shell" in fromlist:
+                _patch_poetry_command_shell(module.shell)
+                _state.patched_poetry_command_shell = True
+
         return module
 
     builtins.__import__ = alt_import
@@ -400,6 +429,15 @@ def _apply_patches() -> None:
 
             _patch_poetry_command_run(run_mod)
             _state.patched_poetry_command_run = True
+        except ImportError:
+            need_fallback_patches = True
+
+    if not _state.patched_poetry_command_shell:
+        try:
+            from poetry.console.commands import shell as shell_mod
+
+            _patch_poetry_command_shell(shell_mod)
+            _state.patched_poetry_command_shell = True
         except ImportError:
             need_fallback_patches = True
 

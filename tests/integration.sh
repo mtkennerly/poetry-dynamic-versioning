@@ -58,6 +58,13 @@ function test_poetry_run {
     grep 'version = "0.0.999"' $dummy/pyproject.toml
 }
 
+function test_poetry_shell {
+    # Make sure original version number is still in place afterwards:
+    $do_poetry shell && \
+    exit && \
+    grep 'version = "0.0.999"' $dummy/pyproject.toml
+}
+
 function test_cli_mode_and_substitution {
     poetry-dynamic-versioning && \
     # Changes persist after the command is done:
@@ -85,7 +92,8 @@ function test_bumping_enabled {
     # Poetry will convert "-pre.1" to "rc1".
     sed -i 's/vcs = .*/bump = true/' $dummy/pyproject.toml && \
     $do_poetry build -v && \
-    ls $dummy/dist | grep rc1
+    ls $dummy/dist | should_fail grep 0.0.999 && \
+    ls $dummy/dist | should_fail grep .post
 }
 
 function run_test {
