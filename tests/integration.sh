@@ -59,10 +59,12 @@ function test_poetry_run {
 }
 
 function test_poetry_shell {
-    # Make sure original version number is still in place afterwards:
-    $do_poetry shell && \
-    exit && \
-    grep 'version = "0.0.999"' $dummy/pyproject.toml
+    if [ -z "$CI" ]; then
+        # Make sure original version number is still in place afterwards:
+        $do_poetry shell && \
+        exit && \
+        grep 'version = "0.0.999"' $dummy/pyproject.toml
+    fi
 }
 
 function test_cli_mode_and_substitution {
