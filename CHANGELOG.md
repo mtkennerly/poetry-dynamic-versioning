@@ -2,7 +2,7 @@
 
 * Added:
   * `bump` option.
-Fixed:
+* Fixed:
   * `poetry shell` did not clean up after itself.
 
 ## v0.10.0 (2020-10-08)

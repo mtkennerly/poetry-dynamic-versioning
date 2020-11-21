@@ -153,7 +153,6 @@ In your pyproject.toml file, you may configure the following options:
   * `latest-tag`: Boolean. Default: false. If true, then only check the latest
     tag for a version, rather than looking through all the tags until a suitable
     one is found to match the `pattern`.
-  <!--
   * `bump`: Boolean. Default: false. If true, then increment the last part of
     the version `base` by 1, unless the `stage` is set, in which case increment
     the `revision` by 1 or set it to a default of 2 if there was no `revision`.
@@ -161,7 +160,6 @@ In your pyproject.toml file, you may configure the following options:
     Example:
     * PEP 440 with `bump = false`: `1.3.1.post3.dev0+28c1684`
     * PEP 440 with `bump = true`: `1.3.2.dev3+28c1684`
-  -->
 * `[tool.poetry-dynamic-versioning.subversion]`: Options specific to Subversion.
   * `tag-dir`: String. Default: `tags`. This is the location of tags relative
     to the root.
