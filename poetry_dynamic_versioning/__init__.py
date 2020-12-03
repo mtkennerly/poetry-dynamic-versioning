@@ -23,7 +23,12 @@ from dunamai import (
     Version,
 )
 
-_VERSION_PATTERN = r"^v(?P<base>\d+\.\d+\.\d+)(-?((?P<stage>[a-zA-Z]+)\.?(?P<revision>\d+)?))?$"
+_VERSION_PATTERN = r"""
+    (?x)                                                (?# ignore whitespace)
+    ^v(?P<base>\d+\.\d+\.\d+)                           (?# v1.2.3)
+    (-?((?P<stage>[a-zA-Z]+)\.?(?P<revision>\d+)?))?    (?# b0)
+    (\+(?P<tagged_metadata>.+))?$                       (?# +linux)
+""".strip()
 
 
 class _ProjectState:
@@ -95,6 +100,7 @@ def _default_config() -> Mapping:
                 "format-jinja": None,
                 "format-jinja-imports": [],
                 "bump": False,
+                "tagged_metadata": False,
             }
         }
     }
@@ -157,6 +163,7 @@ def _get_version(config: Mapping) -> Tuple[Version, str]:
 
         default_context = {
             "base": base,
+            "version": version,
             "stage": version.stage,
             "revision": revision,
             "distance": version.distance,
@@ -164,6 +171,7 @@ def _get_version(config: Mapping) -> Tuple[Version, str]:
             "dirty": version.dirty,
             "env": os.environ,
             "bump_version": bump_version,
+            "tagged_metadata": version.tagged_metadata,
             "serialize_pep440": serialize_pep440,
             "serialize_pvp": serialize_pvp,
             "serialize_semver": serialize_semver,
@@ -183,7 +191,12 @@ def _get_version(config: Mapping) -> Tuple[Version, str]:
             check_version(serialized, style)
     else:
         serialized = version.serialize(
-            config["metadata"], config["dirty"], config["format"], style, bump=config["bump"]
+            metadata=config["metadata"],
+            dirty=config["dirty"],
+            format=config["format"],
+            style=style,
+            bump=config["bump"],
+            tagged_metadata=config["tagged_metadata"],
         )
 
     return (version, serialized)
