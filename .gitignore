@@ -17,3 +17,5 @@ pip-wheel-metadata/
 *.log
 *.whl
 tests/project*/poetry.lock
+# created by github codespaces
+pythonenv*/

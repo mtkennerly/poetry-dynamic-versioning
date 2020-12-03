@@ -67,6 +67,9 @@ In your pyproject.toml file, you may configure the following options:
   * `metadata`: Boolean. Default: unset. If true, include the commit hash in
     the version, and also include a dirty flag if `dirty` is true. If unset,
     metadata will only be included if you are on a commit without a version tag.
+  * `tagged_metadata`: Boolean. Default: false. If true, include the tagged metadata
+    discovered as the first of the metadata segments.  Requires metatadata to be
+    true as well to have effect.
   * `dirty`: Boolean. Default: false. If true, include a dirty flag in the
     metadata, indicating whether there are any uncommitted changes.
   * `pattern`: String. This is a regular expression which will be used to find
@@ -83,6 +86,7 @@ In your pyproject.toml file, you may configure the following options:
     * `{distance}`
     * `{commit}`
     * `{dirty}`
+    * `{tagged_metadata}`
 
     Example: `v{base}+{distance}.{commit}`
   * `format-jinja`: String. Default: unset. This defines a custom output format
@@ -97,6 +101,8 @@ In your pyproject.toml file, you may configure the following options:
     * `distance` (integer)
     * `commit` (string)
     * `dirty` (boolean)
+    * `tagged_metadata` (string or None)
+    * `version` (dunumai.Version)
     * `env` (dictionary of environment variables)
 
     Available functions:
