@@ -100,7 +100,7 @@ def _default_config() -> Mapping:
                 "format-jinja": None,
                 "format-jinja-imports": [],
                 "bump": False,
-                "tagged_metadata": False,
+                "tagged-metadata": False,
             }
         }
     }
@@ -196,7 +196,7 @@ def _get_version(config: Mapping) -> Tuple[Version, str]:
             format=config["format"],
             style=style,
             bump=config["bump"],
-            tagged_metadata=config["tagged_metadata"],
+            tagged_metadata=config["tagged-metadata"],
         )
 
     return (version, serialized)

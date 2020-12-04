@@ -67,16 +67,28 @@ In your pyproject.toml file, you may configure the following options:
   * `metadata`: Boolean. Default: unset. If true, include the commit hash in
     the version, and also include a dirty flag if `dirty` is true. If unset,
     metadata will only be included if you are on a commit without a version tag.
-  * `tagged_metadata`: Boolean. Default: false. If true, include the tagged metadata
-    discovered as the first of the metadata segments.  Requires metatadata to be
-    true as well to have effect.
+  * `tagged-metadata`: Boolean. Default: false. If true, include any tagged
+    metadata discovered as the first part of the metadata segment.
+    Has no effect when `metadata` is set to false.
   * `dirty`: Boolean. Default: false. If true, include a dirty flag in the
     metadata, indicating whether there are any uncommitted changes.
+    Has no effect when `metadata` is set to false.
   * `pattern`: String. This is a regular expression which will be used to find
-    a tag representing a version. There must be a named capture group `base`
-    with the main part of the version, and optionally you can also have groups
-    named `stage` and `revision` for prereleases. The default is
-    `^v(?P<base>\d+\.\d+\.\d+)(-?((?P<stage>[a-zA-Z]+)\.?(?P<revision>\d+)?))?$`.
+    a tag representing a version. There must be a capture group named `base`
+    with the main part of the version. Optionally, it may contain another two
+    groups named `stage` and `revision` for prereleases, and it may contain a
+    group named `tagged_metadata` to be used with the `tagged-metadata` option.
+
+    The default is:
+
+    ```re
+    (?x)                                                (?# ignore whitespace)
+    ^v(?P<base>\d+\.\d+\.\d+)                           (?# e.g., v1.2.3)
+    (-?((?P<stage>[a-zA-Z]+)\.?(?P<revision>\d+)?))?    (?# e.g., beta-0)
+    (\+(?P<tagged_metadata>.+))?$                       (?# e.g., +linux)
+    ```
+
+    Remember that the backslashes must be escaped (`\\`) in the TOML file.
   * `format`: String. Default: unset. This defines a custom output format for
     the version. Available substitutions:
 
@@ -179,6 +191,8 @@ In your pyproject.toml file, you may configure the following options:
     Each regular expression must have two capture groups, which are any
     text to preserve before and after the replaced text. Default:
     `["(^__version__\s*=\s*['\"])[^'\"]*(['\"])"]`.
+
+    Remember that the backslashes must be escaped (`\\`) in the TOML file.
 
 Simple example:
 
