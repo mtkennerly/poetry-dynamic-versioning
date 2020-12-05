@@ -61,8 +61,7 @@ function test_poetry_run {
 function test_poetry_shell {
     if [ -z "$CI" ]; then
         # Make sure original version number is still in place afterwards:
-        $do_poetry shell && \
-        exit && \
+        $SHELL -c "cd $dummy && $do_poetry shell" && \
         grep 'version = "0.0.999"' $dummy/pyproject.toml
     fi
 }

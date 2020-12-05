@@ -1,8 +1,7 @@
-## Unreleased
+## v0.12.0 (2020-12-05)
 
 * Added:
-  * `tagged-metadata` option and corresponding `format` variable,
-    as well as a `format` variable for the Dunamai `Version` instance.
+  * `tagged-metadata` option, for the corresponding Dunamai feature.
     ([Contributed by mariusvniekerk](https://github.com/mtkennerly/poetry-dynamic-versioning/pull/32))
 
 ## v0.11.0 (2020-11-21)
