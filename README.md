@@ -115,6 +115,7 @@ In your pyproject.toml file, you may configure the following options:
     * `dirty` (boolean)
     * `tagged_metadata` (string or None)
     * `version` (dunumai.Version)
+    * `style` (dunumai.Style or None)
     * `env` (dictionary of environment variables)
 
     Available functions:

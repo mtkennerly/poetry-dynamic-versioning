@@ -164,6 +164,7 @@ def _get_version(config: Mapping) -> Tuple[Version, str]:
         default_context = {
             "base": base,
             "version": version,
+            "style": style,
             "stage": version.stage,
             "revision": revision,
             "distance": version.distance,
