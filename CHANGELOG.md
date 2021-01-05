@@ -1,3 +1,9 @@
+## Unreleased
+
+* Fixed:
+  * Possible exception when applying patches if only `poetry-core` was
+    installed and not the Poetry tool.
+
 ## v0.12.0 (2020-12-05)
 
 * Added:

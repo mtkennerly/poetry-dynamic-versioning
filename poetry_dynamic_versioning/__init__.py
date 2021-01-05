@@ -377,36 +377,48 @@ def _patch_builtins_import() -> None:
         module = _state.original_import_func(name, globals, locals, fromlist, level)
 
         if not _state.patched_poetry_create:
-            if name == "poetry.factory" and fromlist:
-                _patch_poetry_create(module)
-                _state.patched_poetry_create = True
-            elif name == "poetry" and "factory" in fromlist:
-                _patch_poetry_create(module.factory)
-                _state.patched_poetry_create = True
+            try:
+                if name == "poetry.factory" and fromlist:
+                    _patch_poetry_create(module)
+                    _state.patched_poetry_create = True
+                elif name == "poetry" and "factory" in fromlist:
+                    _patch_poetry_create(module.factory)
+                    _state.patched_poetry_create = True
+            except ImportError:
+                pass
 
         if not _state.patched_core_poetry_create:
-            if name == "poetry.core.factory" and fromlist:
-                _patch_poetry_create(module)
-                _state.patched_core_poetry_create = True
-            elif name == "poetry.core" and "factory" in fromlist:
-                _patch_poetry_create(module.factory)
-                _state.patched_core_poetry_create = True
+            try:
+                if name == "poetry.core.factory" and fromlist:
+                    _patch_poetry_create(module)
+                    _state.patched_core_poetry_create = True
+                elif name == "poetry.core" and "factory" in fromlist:
+                    _patch_poetry_create(module.factory)
+                    _state.patched_core_poetry_create = True
+            except ImportError:
+                pass
 
         if not _state.patched_poetry_command_run:
-            if name == "poetry.console.commands.run" and fromlist:
-                _patch_poetry_command_run(module)
-                _state.patched_poetry_command_run = True
-            elif name == "poetry.console.commands" and "run" in fromlist:
-                _patch_poetry_command_run(module.run)
-                _state.patched_poetry_command_run = True
+            try:
+                if name == "poetry.console.commands.run" and fromlist:
+                    _patch_poetry_command_run(module)
+                    _state.patched_poetry_command_run = True
+                elif name == "poetry.console.commands" and "run" in fromlist:
+                    _patch_poetry_command_run(module.run)
+                    _state.patched_poetry_command_run = True
+            except ImportError:
+                pass
 
         if not _state.patched_poetry_command_shell:
-            if name == "poetry.console.commands.shell" and fromlist:
-                _patch_poetry_command_shell(module)
-                _state.patched_poetry_command_shell = True
-            elif name == "poetry.console.commands" and "shell" in fromlist:
-                _patch_poetry_command_shell(module.shell)
-                _state.patched_poetry_command_shell = True
+            try:
+                if name == "poetry.console.commands.shell" and fromlist:
+                    _patch_poetry_command_shell(module)
+                    _state.patched_poetry_command_shell = True
+                elif name == "poetry.console.commands" and "shell" in fromlist:
+                    _patch_poetry_command_shell(module.shell)
+                    _state.patched_poetry_command_shell = True
+            except ImportError:
+                pass
 
         return module
 
