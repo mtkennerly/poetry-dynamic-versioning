@@ -1,4 +1,4 @@
-## Unreleased
+## v0.12.1 (2021-01-04)
 
 * Fixed:
   * Possible exception when applying patches if only `poetry-core` was
