@@ -284,17 +284,25 @@ def _patch_poetry_create(factory_mod) -> None:
 
         if not _state.patched_poetry_command_run:
             # Fallback if it hasn't been caught by our patched importer already.
-            run_mod = _state.original_import_func("poetry.console.commands.run", fromlist=[None])
-            _patch_poetry_command_run(run_mod)
-            _state.patched_poetry_command_run = True
+            try:
+                run_mod = _state.original_import_func(
+                    "poetry.console.commands.run", fromlist=[None]
+                )
+                _patch_poetry_command_run(run_mod)
+                _state.patched_poetry_command_run = True
+            except (ImportError, AttributeError):
+                pass
 
         if not _state.patched_poetry_command_shell:
             # Fallback if it hasn't been caught by our patched importer already.
-            shell_mod = _state.original_import_func(
-                "poetry.console.commands.shell", fromlist=[None]
-            )
-            _patch_poetry_command_shell(shell_mod)
-            _state.patched_poetry_command_shell = True
+            try:
+                shell_mod = _state.original_import_func(
+                    "poetry.console.commands.shell", fromlist=[None]
+                )
+                _patch_poetry_command_shell(shell_mod)
+                _state.patched_poetry_command_shell = True
+            except (ImportError, AttributeError):
+                pass
 
         cwd = None  # type: Optional[Path]
         if len(args) > 0:
@@ -384,7 +392,7 @@ def _patch_builtins_import() -> None:
                 elif name == "poetry" and "factory" in fromlist:
                     _patch_poetry_create(module.factory)
                     _state.patched_poetry_create = True
-            except ImportError:
+            except (ImportError, AttributeError):
                 pass
 
         if not _state.patched_core_poetry_create:
@@ -395,7 +403,7 @@ def _patch_builtins_import() -> None:
                 elif name == "poetry.core" and "factory" in fromlist:
                     _patch_poetry_create(module.factory)
                     _state.patched_core_poetry_create = True
-            except ImportError:
+            except (ImportError, AttributeError):
                 pass
 
         if not _state.patched_poetry_command_run:
@@ -406,7 +414,7 @@ def _patch_builtins_import() -> None:
                 elif name == "poetry.console.commands" and "run" in fromlist:
                     _patch_poetry_command_run(module.run)
                     _state.patched_poetry_command_run = True
-            except ImportError:
+            except (ImportError, AttributeError):
                 pass
 
         if not _state.patched_poetry_command_shell:
@@ -417,7 +425,7 @@ def _patch_builtins_import() -> None:
                 elif name == "poetry.console.commands" and "shell" in fromlist:
                     _patch_poetry_command_shell(module.shell)
                     _state.patched_poetry_command_shell = True
-            except ImportError:
+            except (ImportError, AttributeError):
                 pass
 
         return module
