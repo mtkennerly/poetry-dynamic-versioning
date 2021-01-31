@@ -1,3 +1,9 @@
+## v0.12.2 (2021-01-30)
+
+* Fixed:
+  * Another possible exception when applying patches if only `poetry-core` was
+    installed and not the Poetry tool, particularly combined with Tox.
+
 ## v0.12.1 (2021-01-04)
 
 * Fixed:
