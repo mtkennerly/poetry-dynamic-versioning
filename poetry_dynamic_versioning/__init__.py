@@ -230,6 +230,13 @@ def _apply_version(version: str, config: Mapping, pyproject_path: Path) -> str:
     pyproject = tomlkit.parse(pyproject_path.read_text())
     if pyproject["tool"]["poetry"]["version"] != version:
         pyproject["tool"]["poetry"]["version"] = version
+
+        # Disable the plugin in case we're building a source distribution,
+        # which won't have access to the VCS info at install time.
+        # We revert this later when we deactivate.
+        if not _state.cli_mode:
+            pyproject["tool"]["poetry-dynamic-versioning"]["enable"] = False
+
         pyproject_path.write_text(tomlkit.dumps(pyproject))
 
     name = pyproject["tool"]["poetry"]["name"]
@@ -253,6 +260,12 @@ def _revert_version() -> None:
                 return
             pyproject = tomlkit.parse(pyproject_path.read_text())
             pyproject["tool"]["poetry"]["version"] = state.original_version
+
+            if not _state.cli_mode:
+                # We can't get here unless the plugin was enabled initially,
+                # so we re-enable it after we've temporarily disabled it.
+                pyproject["tool"]["poetry-dynamic-versioning"]["enable"] = True
+
             pyproject_path.write_text(tomlkit.dumps(pyproject))
             state.original_version = None
 
