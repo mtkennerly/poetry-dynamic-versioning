@@ -1,4 +1,4 @@
-## Unreleased
+## v0.12.3 (2021-02-19)
 
 * Fixed:
   * Previously, when building a source distribution with `poetry build`, the
