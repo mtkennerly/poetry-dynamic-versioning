@@ -1,3 +1,10 @@
+## v0.12.4 (2021-03-05)
+
+* Fixed:
+  * An incompatibility with `tox-poetry-installer` where the working directory
+    was received as a `str` instead of a `Path`.
+    ([Contributed by cburgess](https://github.com/mtkennerly/poetry-dynamic-versioning/pull/41))
+
 ## v0.12.3 (2021-02-19)
 
 * Fixed:
