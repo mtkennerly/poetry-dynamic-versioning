@@ -117,8 +117,12 @@ def _deep_merge_dicts(base: Mapping, addition: Mapping) -> Mapping:
 
 
 def _find_higher_file(*names: str, start: Path = None) -> Optional[Path]:
+    # Note: We need to make sure we get a pathlib object. Many tox poetry
+    # helpers will pass us a string and not a pathlib object. See issue #40.
     if start is None:
         start = Path.cwd()
+    elif not isinstance(start, Path):
+        start = Path(start)
     for level in [start, *start.parents]:
         for name in names:
             if (level / name).is_file():
