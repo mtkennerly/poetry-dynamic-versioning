@@ -143,6 +143,23 @@ def get_config(start: Path = None) -> Mapping:
     return result
 
 
+def _bump_version_per_config(version: Version, bump: bool) -> Version:
+    if not bump or version.distance == 0:
+        return version
+
+    version = copy.deepcopy(version)
+
+    if version.stage is None:
+        version.base = bump_version(version.base)
+    else:
+        if version.revision is None:
+            version.revision = 2
+        else:
+            version.revision += 1
+
+    return version
+
+
 def _get_version(config: Mapping) -> Tuple[Version, str]:
     vcs = Vcs(config["vcs"])
     style = config["style"]
@@ -154,22 +171,12 @@ def _get_version(config: Mapping) -> Tuple[Version, str]:
     )
 
     if config["format-jinja"]:
-        base = version.base
-        revision = version.revision
-        if config["bump"]:
-            if version.stage is None:
-                base = bump_version(version.base)
-            else:
-                if version.revision is None:
-                    revision = 2
-                else:
-                    revision = version.revision + 1
-
+        version = _bump_version_per_config(version, config["bump"])
         default_context = {
-            "base": base,
+            "base": version.base,
             "version": version,
             "stage": version.stage,
-            "revision": revision,
+            "revision": version.revision,
             "distance": version.distance,
             "commit": version.commit,
             "dirty": version.dirty,

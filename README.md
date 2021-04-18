@@ -174,8 +174,9 @@ In your pyproject.toml file, you may configure the following options:
   * `bump`: Boolean. Default: false. If true, then increment the last part of
     the version `base` by 1, unless the `stage` is set, in which case increment
     the `revision` by 1 or set it to a default of 2 if there was no `revision`.
+    Does nothing when on a commit with a version tag.
 
-    Example:
+    Example, if there have been 3 commits since the `v1.3.1` tag:
     * PEP 440 with `bump = false`: `1.3.1.post3.dev0+28c1684`
     * PEP 440 with `bump = true`: `1.3.2.dev3+28c1684`
 * `[tool.poetry-dynamic-versioning.subversion]`: Options specific to Subversion.

@@ -1,3 +1,9 @@
+## Unreleased
+
+* Fixed:
+  * When the `bump` option was enabled, the version would be bumped even when on
+    a commit with a version tag. Now, no bumping occurs when on such a commit.
+
 ## v0.12.4 (2021-03-05)
 
 * Fixed:
