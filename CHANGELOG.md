@@ -1,4 +1,4 @@
-## Unreleased
+## v0.12.5 (2021-04-18)
 
 * Fixed:
   * When the `bump` option was enabled, the version would be bumped even when on
