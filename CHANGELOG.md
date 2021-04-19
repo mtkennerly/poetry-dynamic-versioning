@@ -1,3 +1,9 @@
+## v0.12.6 (2021-04-19)
+
+* Fixed:
+  * The previous `bump` fix only applied to `format-jinja`. It has now been
+    fixed for other scenarios as well.
+
 ## v0.12.5 (2021-04-18)
 
 * Fixed:

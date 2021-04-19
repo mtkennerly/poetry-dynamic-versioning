@@ -206,7 +206,7 @@ def _get_version(config: Mapping) -> Tuple[Version, str]:
             dirty=config["dirty"],
             format=config["format"],
             style=style,
-            bump=config["bump"],
+            bump=config["bump"] and version.distance > 0,
             tagged_metadata=config["tagged-metadata"],
         )
 
