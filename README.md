@@ -231,6 +231,9 @@ in your console.
   pip wheel -r requirements.txt
   ```
 
+  With newer versions of Pip, you can pass `--use-feature=in-tree-build`
+  to make the `pip wheel .` and `pip install .` commands work.
+
 ## Implementation
 In order to side-load plugin functionality into Poetry, this package
 does the following:
