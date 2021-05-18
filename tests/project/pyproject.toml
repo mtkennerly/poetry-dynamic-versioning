@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "project"
 version = "0.0.999"
-description = ""
+description = "Some special character like Ø, and Ř in UTF-8 encoding."
 authors = []
 
 [tool.poetry.dependencies]

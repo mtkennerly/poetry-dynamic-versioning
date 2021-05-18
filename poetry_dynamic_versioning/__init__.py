@@ -138,7 +138,7 @@ def get_config(start: Path = None) -> Mapping:
     pyproject_path = _get_pyproject_path(start)
     if pyproject_path is None:
         return _default_config()["tool"]["poetry-dynamic-versioning"]
-    pyproject = tomlkit.parse(pyproject_path.read_text())
+    pyproject = tomlkit.parse(pyproject_path.read_text(encoding="utf-8"))
     result = _deep_merge_dicts(_default_config(), pyproject)["tool"]["poetry-dynamic-versioning"]
     return result
 
@@ -226,7 +226,7 @@ def _substitute_version(
         for match in root.glob(str(file_glob)):
             files.add(match.resolve())
     for file in files:
-        original_content = file.read_text()
+        original_content = file.read_text(encoding="utf-8")
         new_content = original_content
         for pattern in patterns:
             new_content = re.sub(
@@ -234,11 +234,11 @@ def _substitute_version(
             )
         if original_content != new_content:
             _state.project(name).substitutions[file] = original_content
-            file.write_text(new_content)
+            file.write_text(new_content, encoding="utf-8")
 
 
 def _apply_version(version: str, config: Mapping, pyproject_path: Path) -> str:
-    pyproject = tomlkit.parse(pyproject_path.read_text())
+    pyproject = tomlkit.parse(pyproject_path.read_text(encoding="utf-8"))
     if pyproject["tool"]["poetry"]["version"] != version:
         pyproject["tool"]["poetry"]["version"] = version
 
@@ -248,7 +248,7 @@ def _apply_version(version: str, config: Mapping, pyproject_path: Path) -> str:
         if not _state.cli_mode:
             pyproject["tool"]["poetry-dynamic-versioning"]["enable"] = False
 
-        pyproject_path.write_text(tomlkit.dumps(pyproject))
+        pyproject_path.write_text(tomlkit.dumps(pyproject), encoding="utf-8")
 
     name = pyproject["tool"]["poetry"]["name"]
 
@@ -269,7 +269,7 @@ def _revert_version() -> None:
             pyproject_path = _get_pyproject_path(state.path)
             if pyproject_path is None:
                 return
-            pyproject = tomlkit.parse(pyproject_path.read_text())
+            pyproject = tomlkit.parse(pyproject_path.read_text(encoding="utf-8"))
             pyproject["tool"]["poetry"]["version"] = state.original_version
 
             if not _state.cli_mode:
@@ -277,12 +277,12 @@ def _revert_version() -> None:
                 # so we re-enable it after we've temporarily disabled it.
                 pyproject["tool"]["poetry-dynamic-versioning"]["enable"] = True
 
-            pyproject_path.write_text(tomlkit.dumps(pyproject))
+            pyproject_path.write_text(tomlkit.dumps(pyproject), encoding="utf-8")
             state.original_version = None
 
         if state.substitutions:
             for file, content in state.substitutions.items():
-                file.write_text(content)
+                file.write_text(content, encoding="utf-8")
             state.substitutions.clear()
 
 
@@ -341,7 +341,7 @@ def _patch_poetry_create(factory_mod) -> None:
         pyproject_path = _get_pyproject_path(cwd)
         if pyproject_path is None:
             raise RuntimeError("Unable to find pyproject.toml")
-        pyproject = tomlkit.parse(pyproject_path.read_text())
+        pyproject = tomlkit.parse(pyproject_path.read_text(encoding="utf-8"))
         name = pyproject["tool"]["poetry"]["name"]
 
         if not _state.cli_mode:
