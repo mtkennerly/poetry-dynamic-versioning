@@ -1,3 +1,10 @@
+## v0.12.7 (2021-05-20)
+
+* Fixed:
+  * Parsing files containing special UTF-8 characters would result in an error.
+    Files are now assumed to be UTF-8.
+    ([Contributed by rhorenov](https://github.com/mtkennerly/poetry-dynamic-versioning/pull/50))
+
 ## v0.12.6 (2021-04-19)
 
 * Fixed:
