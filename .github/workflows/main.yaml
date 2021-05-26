@@ -28,24 +28,11 @@ jobs:
           - '3.7'
           - '3.8'
         poetry-version:
-          - '1.0.2'
-          - '1.0.5'
-          - '1.0.10'
           - '1.1.0'
+          - '1.1.6'
         install-method:
           - pip
           - script
-
-        # https://github.com/python-poetry/poetry/issues/3001
-        exclude:
-          - python-version: '3.7'
-            poetry-version: '1.0.2'
-          - python-version: '3.7'
-            poetry-version: '1.0.5'
-          - python-version: '3.8'
-            poetry-version: '1.0.2'
-          - python-version: '3.8'
-            poetry-version: '1.0.5'
     env:
       POETRY_VER: ${{ matrix.poetry-version }}
       INSTALL_METHOD: ${{ matrix.install-method }}

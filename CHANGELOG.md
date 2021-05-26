@@ -3,6 +3,9 @@
 * Changed:
   * Broadened version range of Jinja2 dependency to support projects that need
     a newer version.
+  * Bumped the minimum Poetry version to 1.1.0, since the above Jinja2 change
+    seemed to trip up Poetry 1.0.10 (on Python 3.7 and 3.8, but not 3.5 or 3.6,
+    for some reason).
 * Fixed:
   * The plugin did not work on Fedora inside of Pip's isolated build
     environment, because the plugin would be loaded before some of its
