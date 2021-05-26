@@ -1,4 +1,4 @@
-## Unreleased
+## v0.13.0 (2021-05-26)
 
 * Changed:
   * Broadened version range of Jinja2 dependency to support projects that need
