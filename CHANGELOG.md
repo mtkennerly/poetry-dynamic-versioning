@@ -1,3 +1,10 @@
+## Unreleased
+
+* Fixed:
+  * The plugin did not work on Fedora inside of Pip's isolated build
+    environment, because the plugin would be loaded before some of its
+    dependencies. Now, those imports are delayed until needed.
+
 ## v0.12.7 (2021-05-20)
 
 * Fixed:
