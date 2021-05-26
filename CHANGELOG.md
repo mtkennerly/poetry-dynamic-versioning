@@ -1,5 +1,8 @@
 ## Unreleased
 
+* Changed:
+  * Broadened version range of Jinja2 dependency to support projects that need
+    a newer version.
 * Fixed:
   * The plugin did not work on Fedora inside of Pip's isolated build
     environment, because the plugin would be loaded before some of its
