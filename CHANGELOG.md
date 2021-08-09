@@ -1,3 +1,9 @@
+## Unreleased
+
+* Fixed an oversight where the default version tag pattern would only find
+  tags with exactly three parts in the base (e.g., `v1.0.0` and `v1.2.3`).
+  This is now relaxed so that `v1`, `v1.2.3.4`, and so on are also recognized.
+
 ## v0.13.0 (2021-05-26)
 
 * Changed:

@@ -83,7 +83,7 @@ In your pyproject.toml file, you may configure the following options:
 
     ```re
     (?x)                                                (?# ignore whitespace)
-    ^v(?P<base>\d+\.\d+\.\d+)                           (?# e.g., v1.2.3)
+    ^v(?P<base>\d+(\.\d+)*)                             (?# e.g., v1.2.3)
     (-?((?P<stage>[a-zA-Z]+)\.?(?P<revision>\d+)?))?    (?# e.g., beta-0)
     (\+(?P<tagged_metadata>.+))?$                       (?# e.g., +linux)
     ```

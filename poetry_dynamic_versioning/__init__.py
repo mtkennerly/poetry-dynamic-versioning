@@ -14,7 +14,7 @@ import tomlkit
 
 _VERSION_PATTERN = r"""
     (?x)                                                (?# ignore whitespace)
-    ^v(?P<base>\d+\.\d+\.\d+)                           (?# v1.2.3)
+    ^v(?P<base>\d+(\.\d+)*)                             (?# v1.2.3)
     (-?((?P<stage>[a-zA-Z]+)\.?(?P<revision>\d+)?))?    (?# b0)
     (\+(?P<tagged_metadata>.+))?$                       (?# +linux)
 """.strip()
