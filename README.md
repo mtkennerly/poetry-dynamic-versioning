@@ -186,7 +186,7 @@ In your pyproject.toml file, you may configure the following options:
   into additional files other than just pyproject.toml. These changes will be
   reverted when the plugin deactivates.
   * `files`: List of globs for any files that need substitutions. Default:
-    `["*.py", "*/__init__.py", "*/__version__.py", "*/_version.py"]`.
+    `["*.py", "*/__*__.py", "*/_version.py"]`.
     To disable substitution, set this to an empty list.
   * `patterns`: List of regular expressions for the text to replace.
     Each regular expression must have two capture groups, which are any

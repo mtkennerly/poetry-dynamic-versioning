@@ -84,7 +84,7 @@ def _default_config() -> Mapping:
                 "latest-tag": False,
                 "subversion": {"tag-dir": "tags"},
                 "substitution": {
-                    "files": ["*.py", "*/__init__.py", "*/__version__.py", "*/_version.py"],
+                    "files": ["*.py", "*/__*__.py", "*/_version.py"],
                     "patterns": [r"(^__version__\s*=\s*['\"])[^'\"]*(['\"])"],
                 },
                 "style": None,
