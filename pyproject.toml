@@ -49,5 +49,5 @@ poetry-dynamic-versioning = 'poetry_dynamic_versioning.__main__:main'
 line-length = 100
 
 [build-system]
-requires = ["poetry>=0.12"]
-build-backend = "poetry.masonry.api"
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
