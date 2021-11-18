@@ -179,21 +179,29 @@ In your pyproject.toml file, you may configure the following options:
     Example, if there have been 3 commits since the `v1.3.1` tag:
     * PEP 440 with `bump = false`: `1.3.1.post3.dev0+28c1684`
     * PEP 440 with `bump = true`: `1.3.2.dev3+28c1684`
+
 * `[tool.poetry-dynamic-versioning.subversion]`: Options specific to Subversion.
   * `tag-dir`: String. Default: `tags`. This is the location of tags relative
     to the root.
+
 * `[tool.poetry-dynamic-versioning.substitution]`: Insert the dynamic version
   into additional files other than just pyproject.toml. These changes will be
   reverted when the plugin deactivates.
-  * `files`: List of globs for any files that need substitutions. Default:
-    `["*.py", "*/__init__.py", "*/__version__.py", "*/_version.py"]`.
+
+  * `files`: List of globs for any files that need substitutions.
+  
+    * Default: `["*.py", "*/__init__.py", "*/__version__.py", "*/_version.py"]`.  
     To disable substitution, set this to an empty list.
+
   * `patterns`: List of regular expressions for the text to replace.
     Each regular expression must have two capture groups, which are any
-    text to preserve before and after the replaced text. Default:
-    `["(^__version__\s*=\s*['\"])[^'\"]*(['\"])"]`.
+    text to preserve before and after the replaced text.
 
-    Remember that the backslashes must be escaped (`\\`) in the TOML file.
+    * Default: `[r"(^__version__\s*(?::\s*str)?\s*=\s*['\"])[^'\"]*(['\"])"]`.
+
+    * *Remember that the backslashes must be escaped (*`\\`*) in the TOML file.:*  
+    i.e: `patterns = ["(^__version__\\s*(?::\\s*str)?\\s*=\\s*['\"])[^'\"]*(['\"])"]`.
+
 
 Simple example:
 
