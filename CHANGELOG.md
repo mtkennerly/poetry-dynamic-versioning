@@ -1,3 +1,8 @@
+## Unreleased
+
+* Changed the build backend to poetry-core.
+  ([Contributed by fabaff](https://github.com/mtkennerly/poetry-dynamic-versioning/pull/63))
+
 ## v0.13.1 (2021-08-09)
 
 * Fixed an oversight where the default version tag pattern would only find
