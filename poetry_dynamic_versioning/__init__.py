@@ -173,9 +173,13 @@ def _get_version(config: Mapping) -> Tuple[_DUNAMAI_VERSION_ANY, str]:
     if style is not None:
         style = Style(style)
 
-    version = Version.from_vcs(
-        vcs, config["pattern"], config["latest-tag"], config["subversion"]["tag-dir"]
-    )
+    # allow for version to be overwritten, or fetch from vcs
+    if "POETRY_DYNAMIC_VERSIONING_PRETEND_VERSION" in os.environ.keys:
+        version = Version(os.environ.get("POETRY_DYNAMIC_VERSIONING_PRETEND_VERSION"))
+    else:
+        version = Version.from_vcs(
+            vcs, config["pattern"], config["latest-tag"], config["subversion"]["tag-dir"]
+        )
 
     if config["format-jinja"]:
         version = _bump_version_per_config(version, config["bump"])
