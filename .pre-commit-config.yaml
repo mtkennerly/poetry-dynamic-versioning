@@ -1,19 +1,19 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.1.0
+    rev: v4.1.0
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
   - repo: https://github.com/Lucas-C/pre-commit-hooks
-    rev: v1.1.6
+    rev: v1.1.10
     hooks:
       - id: forbid-tabs
   - repo: https://github.com/ambv/black
-    rev: 20.8b1
+    rev: 21.12b0
     hooks:
       - id: black
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: "v0.700"
+    rev: v0.930
     hooks:
       - id: mypy
         args:

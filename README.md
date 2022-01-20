@@ -67,12 +67,15 @@ In your pyproject.toml file, you may configure the following options:
   * `metadata`: Boolean. Default: unset. If true, include the commit hash in
     the version, and also include a dirty flag if `dirty` is true. If unset,
     metadata will only be included if you are on a commit without a version tag.
+    This is ignored when `format` or `format-jinja` is used.
   * `tagged-metadata`: Boolean. Default: false. If true, include any tagged
     metadata discovered as the first part of the metadata segment.
     Has no effect when `metadata` is set to false.
+    This is ignored when `format` or `format-jinja` is used.
   * `dirty`: Boolean. Default: false. If true, include a dirty flag in the
     metadata, indicating whether there are any uncommitted changes.
     Has no effect when `metadata` is set to false.
+    This is ignored when `format` or `format-jinja` is used.
   * `pattern`: String. This is a regular expression which will be used to find
     a tag representing a version. There must be a capture group named `base`
     with the main part of the version. Optionally, it may contain another two
