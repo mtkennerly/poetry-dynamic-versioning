@@ -30,6 +30,7 @@ jinja2 = [
     { version = "^2.11.1", python = "~3.5" },
     { version = ">=2.11.1, <4", python = "^3.6" },
 ]
+MarkupSafe = { version = "<2", python = "3.5" }
 
 [tool.poetry.dev-dependencies]
 pytest = "^4.0"
