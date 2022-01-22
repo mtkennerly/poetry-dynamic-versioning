@@ -18,7 +18,15 @@ lands, this plugin will be updated to do things the official way.
 ## Installation
 Python 3.5+ and Poetry 1.1.0+ or poetry-core 1.0.0+ are required.
 
-* Run `pip install poetry-dynamic-versioning`
+* How you install the plugin depends on how you installed Poetry.
+  * If you installed Poetry with `install-poetry.py`, then you'll need to
+    install the plugin into Poetry's virtual environment:
+    * Windows: `%APPDATA%\pypoetry\venv\Scripts\pip install poetry-dynamic-versioning`
+    * Linux: `${XDG_DATA_HOME:-~/.local/share}/pypoetry/venv/bin/pip install poetry-dynamic-versioning`
+    * Mac: `~/Library/Application Support/pypoetry/venv/bin/pip install poetry-dynamic-versioning`
+  * If you installed Poetry with `get-poetry.py` or `pip install poetry`,
+    then you'll need to install the plugin into your global Python environment:
+    * `pip install poetry-dynamic-versioning`
 * Add this section to your pyproject.toml:
   ```toml
   [tool.poetry-dynamic-versioning]
