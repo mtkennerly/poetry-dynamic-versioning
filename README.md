@@ -202,7 +202,7 @@ In your pyproject.toml file, you may configure the following options:
   * `patterns`: List of regular expressions for the text to replace.
     Each regular expression must have two capture groups, which are any
     text to preserve before and after the replaced text. Default:
-    `["(^__version__\s*=\s*['\"])[^'\"]*(['\"])"]`.
+    `["(^__version__\s*(?::.*?)?=\s*['\"])[^'\"]*(['\"])"]`.
 
     Remember that the backslashes must be escaped (`\\`) in the TOML file.
 

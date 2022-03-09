@@ -1,7 +1,11 @@
 ## Unreleased
 
-* Changed the build backend to poetry-core.
-  ([Contributed by fabaff](https://github.com/mtkennerly/poetry-dynamic-versioning/pull/63))
+* Changed:
+  * The build backend is now poetry-core.
+    ([Contributed by fabaff](https://github.com/mtkennerly/poetry-dynamic-versioning/pull/63))
+  * The default list of `substitution.patterns` now handles `__version__`
+    when it has a type annotation.
+    ([Draft by da2ce7](https://github.com/mtkennerly/poetry-dynamic-versioning/pull/64))
 
 ## v0.13.1 (2021-08-09)
 
