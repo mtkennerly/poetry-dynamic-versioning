@@ -110,6 +110,9 @@ In your pyproject.toml file, you may configure the following options:
     * `{commit}`
     * `{dirty}`
     * `{tagged_metadata}`
+    * `{branch}`
+    * `{branch_escaped}` which omits any non-letter/number characters
+    * `{timestamp}` of the current commit, which expands to YYYYmmddHHMMSS as UTC
 
     Example: `v{base}+{distance}.{commit}`
   * `format-jinja`: String. Default: unset. This defines a custom output format
@@ -127,6 +130,9 @@ In your pyproject.toml file, you may configure the following options:
     * `tagged_metadata` (string or None)
     * `version` (dunumai.Version)
     * `env` (dictionary of environment variables)
+    * `branch` (string or None)
+    * `branch_escaped` (string or None)
+    * `timestamp` (string or None)
 
     Available functions:
 

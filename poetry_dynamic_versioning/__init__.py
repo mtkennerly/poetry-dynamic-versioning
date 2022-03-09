@@ -3,6 +3,7 @@ __all__ = ["activate", "deactivate", "get_config"]
 import atexit
 import builtins
 import copy
+import datetime as dt
 import functools
 import os
 import re
@@ -137,23 +138,16 @@ def get_config(start: Path = None) -> Mapping:
     return result
 
 
-def _bump_version_per_config(version: _DUNAMAI_VERSION_ANY, bump: bool) -> _DUNAMAI_VERSION_ANY:
-    from dunamai import bump_version
+def _escape_branch(value: Optional[str]) -> Optional[str]:
+    if value is None:
+        return None
+    return re.sub(r"[^a-zA-Z0-9]", "", value)
 
-    if not bump or version.distance == 0:
-        return version
 
-    version = copy.deepcopy(version)
-
-    if version.stage is None:
-        version.base = bump_version(version.base)
-    else:
-        if version.revision is None:
-            version.revision = 2
-        else:
-            version.revision += 1
-
-    return version
+def _format_timestamp(value: Optional[dt.datetime]) -> Optional[str]:
+    if value is None:
+        return None
+    return value.strftime("%Y%m%d%H%M%S")
 
 
 def _get_version(config: Mapping) -> str:
@@ -183,7 +177,8 @@ def _get_version(config: Mapping) -> str:
     )
 
     if config["format-jinja"]:
-        version = _bump_version_per_config(version, config["bump"])
+        if config["bump"] and version.distance > 0:
+            version = version.bump()
         default_context = {
             "base": version.base,
             "version": version,
@@ -192,6 +187,9 @@ def _get_version(config: Mapping) -> str:
             "distance": version.distance,
             "commit": version.commit,
             "dirty": version.dirty,
+            "branch": version.branch,
+            "branch_escaped": _escape_branch(version.branch),
+            "timestamp": _format_timestamp(version.timestamp),
             "env": os.environ,
             "bump_version": bump_version,
             "tagged_metadata": version.tagged_metadata,
@@ -277,7 +275,7 @@ def _apply_version(version: str, config: Mapping, pyproject_path: Path) -> str:
 
 def _revert_version() -> None:
     for project, state in _state.projects.items():
-        if state.original_version and state.version and state.original_version != state.version[1]:
+        if state.original_version and state.version and state.original_version != state.version:
             pyproject_path = _get_pyproject_path(state.path)
             if pyproject_path is None:
                 return

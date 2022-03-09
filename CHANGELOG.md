@@ -10,6 +10,7 @@
   * Option to bypass the version control system and set a hard-coded version
     in an environment variable called `POETRY_DYNAMIC_VERSIONING_BYPASS`.
     ([Draft by jonringer](https://github.com/mtkennerly/poetry-dynamic-versioning/pull/69))
+  * `branch`, `branch_escaped`, and `timestamp` formatting variables.
 
 ## v0.13.1 (2021-08-09)
 

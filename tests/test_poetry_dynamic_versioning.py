@@ -85,33 +85,3 @@ def test__get_version__format_jinja_imports_with_module_and_item(config):
     config["format-jinja"] = "{{ pow(2, 3) }}"
     config["format-jinja-imports"] = [{"module": "math", "item": "pow"}]
     assert plugin._get_version(config) == "8.0"
-
-
-def test__bump_version_per_config__bumping_disabled():
-    version = Version("1.2.3")
-    bumped = plugin._bump_version_per_config(version, False)
-    assert version == bumped
-
-
-def test__bump_version_per_config__distance_is_0():
-    version = Version("1.2.3")
-    bumped = plugin._bump_version_per_config(version, True)
-    assert version == bumped
-
-
-def test__bump_version_per_config__bump_base():
-    version = Version("1.2.3", distance=1)
-    bumped = plugin._bump_version_per_config(version, True)
-    assert bumped == Version("1.2.4", distance=1)
-
-
-def test__bump_version_per_config__bump_revision():
-    version = Version("1.2.3", stage=("a", 5), distance=1)
-    bumped = plugin._bump_version_per_config(version, True)
-    assert bumped == Version("1.2.3", stage=("a", 6), distance=1)
-
-
-def test__bump_version_per_config__default_revision():
-    version = Version("1.2.3", stage=("a", None), distance=1)
-    bumped = plugin._bump_version_per_config(version, True)
-    assert bumped == Version("1.2.3", stage=("a", 2), distance=1)

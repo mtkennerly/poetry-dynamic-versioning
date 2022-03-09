@@ -33,7 +33,7 @@ def main() -> None:
         if pyproject_path is None:
             raise RuntimeError("Unable to find pyproject.toml")
 
-        version = _get_version(config)[1]
+        version = _get_version(config)
         print("Version: {}".format(version), file=sys.stderr)
         name = _apply_version(version, config, pyproject_path)
         if _state.project(name).substitutions:
