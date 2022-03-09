@@ -8,7 +8,7 @@ import os
 import re
 from importlib import import_module
 from pathlib import Path
-from typing import Any, Mapping, MutableMapping, Optional, Sequence, Tuple
+from typing import Any, Mapping, MutableMapping, Optional, Sequence
 
 import tomlkit
 
@@ -22,6 +22,7 @@ _VERSION_PATTERN = r"""
 # This is a placeholder for type hint docs since the actual type can't be
 # imported yet.
 _DUNAMAI_VERSION_ANY = Any
+_BYPASS_ENV = "POETRY_DYNAMIC_VERSIONING_BYPASS"
 
 
 class _ProjectState:
@@ -29,7 +30,7 @@ class _ProjectState:
         self,
         path: Path = None,
         original_version: str = None,
-        version: Tuple[_DUNAMAI_VERSION_ANY, str] = None,
+        version: str = None,
         substitutions: MutableMapping[Path, str] = None,
     ) -> None:
         self.path = path
@@ -155,7 +156,11 @@ def _bump_version_per_config(version: _DUNAMAI_VERSION_ANY, bump: bool) -> _DUNA
     return version
 
 
-def _get_version(config: Mapping) -> Tuple[_DUNAMAI_VERSION_ANY, str]:
+def _get_version(config: Mapping) -> str:
+    bypass = os.environ.get(_BYPASS_ENV)
+    if bypass is not None:
+        return bypass
+
     import jinja2
     from dunamai import (
         bump_version,
@@ -217,7 +222,7 @@ def _get_version(config: Mapping) -> Tuple[_DUNAMAI_VERSION_ANY, str]:
             tagged_metadata=config["tagged-metadata"],
         )
 
-    return (version, serialized)
+    return serialized
 
 
 def _substitute_version(
@@ -361,7 +366,7 @@ def _patch_poetry_create(factory_mod) -> None:
                 finally:
                     os.chdir(str(current_dir))
 
-            dynamic_version = _state.project(name).version[1]
+            dynamic_version = _state.project(name).version
             if first_time:
                 if not _state.project(name).original_version:
                     _state.project(name).original_version = pyproject["tool"]["poetry"]["version"]

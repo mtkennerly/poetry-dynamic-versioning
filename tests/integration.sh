@@ -98,6 +98,11 @@ function test_bumping_enabled {
     ls $dummy/dist | should_fail grep .post
 }
 
+function test_bypass {
+    POETRY_DYNAMIC_VERSIONING_BYPASS=1.2.3 $do_poetry build -v && \
+    ls $dummy/dist | grep 1.2.3
+}
+
 function run_test {
     cd $dummy
     git checkout -- $dummy
