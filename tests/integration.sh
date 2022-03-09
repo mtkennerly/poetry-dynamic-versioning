@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 set -e
 
 root=$(dirname "$(dirname "$(realpath "$0")")")
@@ -15,7 +16,7 @@ function setup {
 }
 
 function teardown {
-    git checkout -- $dummy
+    git checkout -- $dummy $root/tests/dependency-*
     $do_pip uninstall -y poetry-dynamic-versioning
 }
 
@@ -61,7 +62,8 @@ function test_poetry_run {
 function test_poetry_shell {
     if [ -z "$CI" ]; then
         # Make sure original version number is still in place afterwards:
-        $SHELL -c "cd $dummy && $do_poetry shell" && \
+        ($SHELL -c "cd $dummy && $do_poetry shell" &) && \
+        sleep 3 && \
         grep 'version = "0.0.999"' $dummy/pyproject.toml
     fi
 }
