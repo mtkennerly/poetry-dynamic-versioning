@@ -20,12 +20,11 @@ classifiers = [
     "Topic :: Software Development :: Version Control :: Mercurial",
     "Topic :: Software Development :: Version Control :: Bazaar",
 ]
-include = ["zzz_poetry_dynamic_versioning.pth"]
 
 [tool.poetry.dependencies]
 python = "^3.5"
 dunamai = "^1.10"
-tomlkit = ">= 0.4"
+poetry = "^1.2.0a2"
 jinja2 = [
     { version = "^2.11.1", python = "~3.5" },
     { version = ">=2.11.1, <4", python = "^3.6" },
@@ -42,6 +41,9 @@ black = { version = "^19.3-alpha.0", allow-prereleases = true, python = "^3.6" }
 flake8 = "^3.7"
 mypy = "^0.740"
 pep8-naming = "^0.8.2"
+
+[tool.poetry.plugins."poetry.application.plugin"]
+poetry-dynamic-versioning = "poetry_dynamic_versioning.plugin:DynamicVersioningPlugin"
 
 [tool.poetry.scripts]
 poetry-dynamic-versioning = 'poetry_dynamic_versioning.__main__:main'

@@ -1,3 +1,8 @@
+## Unreleased
+
+* Changed:
+  * Implemented the official Poetry plugin interface.
+
 ## v0.14.0 (2022-03-09)
 
 * Changed:
