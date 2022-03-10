@@ -12,7 +12,7 @@ function setup {
     cd $root
     rm -rf $root/dist/*
     $do_poetry build
-    $do_pip install $root/dist/*.whl
+    $do_poetry plugin add $root/dist/*.whl
 }
 
 function teardown {

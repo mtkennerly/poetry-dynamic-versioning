@@ -22,22 +22,15 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.5"
+python = "^3.6"
 dunamai = "^1.10"
-poetry = "^1.2.0a2"
-jinja2 = [
-    { version = "^2.11.1", python = "~3.5" },
-    { version = ">=2.11.1, <4", python = "^3.6" },
-]
-MarkupSafe = { version = "<2", python = "3.5" }
+poetry = { version = "^1.2.0a2", allow-prereleases = true }
+jinja2 = ">=2.11.1, <4"
 
 [tool.poetry.dev-dependencies]
-pytest = "^4.0"
-pytest-cov = "^2.7"
+pytest = "^7.0"
 pre-commit = "^1.16"
-tox = "^3.12"
-tox-venv = "^0.4.0"
-black = { version = "^19.3-alpha.0", allow-prereleases = true, python = "^3.6" }
+black = { version = "^19.3-alpha.0", allow-prereleases = true }
 flake8 = "^3.7"
 mypy = "^0.740"
 pep8-naming = "^0.8.2"

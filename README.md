@@ -14,7 +14,7 @@ pre-releases. Until the final Poetry 1.2.0 release, the design of this plugin
 is subject to change.
 
 ## Installation
-Python 3.5+ and Poetry 1.2.0a2+ are required.
+Python 3.6+ and Poetry 1.2.0a2+ are required.
 
 Install by running `poetry plugin add poetry-dynamic-versioning`.
 
