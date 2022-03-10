@@ -1,4 +1,4 @@
-## Unreleased
+## v1.0.0b1
 
 * Changed:
   * Implemented the official Poetry plugin interface.

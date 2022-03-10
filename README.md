@@ -28,7 +28,7 @@ Install by running `poetry plugin add poetry-dynamic-versioning`.
   * Example using `poetry` as the build system:
     ```toml
     [build-system]
-    requires = ["poetry>=1.2.0a2", "poetry-dynamic-versioning>=1.0.0a1"]
+    requires = ["poetry>=1.2.0a2", "poetry-dynamic-versioning>=1.0.0b1"]
     build-backend = "poetry.masonry.api"
     ```
 
