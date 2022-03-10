@@ -1,4 +1,4 @@
-## v1.0.0b1
+## v1.0.0b1 (2022-03-10)
 
 * Changed:
   * Implemented the official Poetry plugin interface.
