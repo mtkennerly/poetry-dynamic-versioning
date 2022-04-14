@@ -1,4 +1,4 @@
-## Unreleased
+## v0.14.1 (2022-04-14)
 
 * Fixed:
   * The plugin maintained its own copy of the default `pattern`, which meant that
