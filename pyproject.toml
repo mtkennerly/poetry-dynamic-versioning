@@ -24,7 +24,7 @@ include = ["zzz_poetry_dynamic_versioning.pth"]
 
 [tool.poetry.dependencies]
 python = "^3.5"
-dunamai = "^1.10"
+dunamai = "^1.11.1"
 tomlkit = ">= 0.4"
 jinja2 = [
     { version = "^2.11.1", python = "~3.5" },

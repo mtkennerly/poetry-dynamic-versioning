@@ -13,13 +13,6 @@ from typing import Any, Mapping, MutableMapping, Optional, Sequence
 
 import tomlkit
 
-_VERSION_PATTERN = r"""
-    (?x)                                                (?# ignore whitespace)
-    ^v(?P<base>\d+(\.\d+)*)                             (?# v1.2.3)
-    (-?((?P<stage>[a-zA-Z]+)\.?(?P<revision>\d+)?))?    (?# b0)
-    (\+(?P<tagged_metadata>.+))?$                       (?# +linux)
-""".strip()
-
 # This is a placeholder for type hint docs since the actual type can't be
 # imported yet.
 _DUNAMAI_VERSION_ANY = Any
@@ -82,7 +75,7 @@ def _default_config() -> Mapping:
                 "enable": False,
                 "vcs": "any",
                 "dirty": False,
-                "pattern": _VERSION_PATTERN,
+                "pattern": None,
                 "latest-tag": False,
                 "subversion": {"tag-dir": "tags"},
                 "substitution": {
@@ -165,6 +158,7 @@ def _get_version(config: Mapping) -> str:
         Style,
         Vcs,
         Version,
+        VERSION_SOURCE_PATTERN,
     )
 
     vcs = Vcs(config["vcs"])
@@ -172,9 +166,9 @@ def _get_version(config: Mapping) -> str:
     if style is not None:
         style = Style(style)
 
-    version = Version.from_vcs(
-        vcs, config["pattern"], config["latest-tag"], config["subversion"]["tag-dir"]
-    )
+    pattern = config["pattern"] if config["pattern"] is not None else VERSION_SOURCE_PATTERN
+
+    version = Version.from_vcs(vcs, pattern, config["latest-tag"], config["subversion"]["tag-dir"])
 
     if config["format-jinja"]:
         if config["bump"] and version.distance > 0:

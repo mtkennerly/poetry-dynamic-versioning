@@ -1,3 +1,11 @@
+## Unreleased
+
+* Fixed:
+  * The plugin maintained its own copy of the default `pattern`, which meant that
+    it could fall behind the copy in Dunamai and lead to surprising behavior.
+    The plugin now automatically uses the latest default from Dunamai directly
+    when you do not customize it in the plugin settings.
+
 ## v0.14.0 (2022-03-09)
 
 * Changed:
