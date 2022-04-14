@@ -70,17 +70,16 @@ In your pyproject.toml file, you may configure the following options:
     with the main part of the version. Optionally, it may contain another two
     groups named `stage` and `revision` for prereleases, and it may contain a
     group named `tagged_metadata` to be used with the `tagged-metadata` option.
+    There may also be a group named `epoch` for the PEP 440 concept.
 
-    The default is:
-
-    ```re
-    (?x)                                                (?# ignore whitespace)
-    ^v(?P<base>\d+(\.\d+)*)                             (?# e.g., v1.2.3)
-    (-?((?P<stage>[a-zA-Z]+)\.?(?P<revision>\d+)?))?    (?# e.g., beta-0)
-    (\+(?P<tagged_metadata>.+))?$                       (?# e.g., +linux)
+    The default is to use Dunamai's `VERSION_SOURCE_PATTERN`. You can check it
+    for your installed version of Dunamai by running this command:
     ```
+    poetry run python -c "import dunamai; print(dunamai.VERSION_SOURCE_PATTERN)"
+    ```
+    Or you can check [the latest definition in Dunamai](https://github.com/mtkennerly/dunamai/blob/master/dunamai/__init__.py).
 
-    Remember that the backslashes must be escaped (`\\`) in the TOML file.
+    Remember that backslashes must be escaped (`\\`) in the TOML file.
   * `format`: String. Default: unset. This defines a custom output format for
     the version. Available substitutions:
 

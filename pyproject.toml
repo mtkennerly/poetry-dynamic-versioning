@@ -23,7 +23,7 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.6"
-dunamai = "^1.10"
+dunamai = "^1.11.1"
 poetry = { version = "^1.2.0a2", allow-prereleases = true }
 jinja2 = ">=2.11.1, <4"
 
