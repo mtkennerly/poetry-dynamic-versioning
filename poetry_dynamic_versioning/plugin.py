@@ -29,17 +29,11 @@ def _apply_version_via_plugin(application: Application, retain: bool) -> None:
     name = application.poetry.local_config["name"]
     version = _get_version(config)
     _state.projects[name] = _ProjectState(
-        application.poetry.file.path,
-        application.poetry.local_config["version"],
-        version,
-        None,
+        application.poetry.file.path, application.poetry.local_config["version"], version, None,
     )
     application.poetry.package.set_version(version)
     _apply_version(
-        version,
-        config,
-        application.poetry.file.path,
-        retain,
+        version, config, application.poetry.file.path, retain,
     )
 
 
