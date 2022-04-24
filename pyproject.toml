@@ -34,7 +34,6 @@ MarkupSafe = { version = "<2", python = "3.5" }
 
 [tool.poetry.dev-dependencies]
 pytest = "^4.0"
-pytest-cov = "^2.7"
 pre-commit = "^1.16"
 black = { version = "^19.3-alpha.0", allow-prereleases = true, python = "^3.6" }
 flake8 = "^3.7"
