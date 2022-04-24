@@ -9,15 +9,37 @@ version control systems are supported, including Git and Mercurial; please
 refer to the Dunamai page for the full list (and minimum supported version
 where applicable).
 
-This is using the experimental plugin interface from Poetry 1.2.0a2 and newer
-pre-releases. Until the final Poetry 1.2.0 release, the design of this plugin
+This plugin comes in two flavors:
+
+| Package                          | Python | Poetry   | Poetry Core | Implementation  |
+|----------------------------------|--------|----------|-------------|-----------------|
+| poetry-dynamic-versioning        | 3.5+   | 1.1.0+   | 1.0.0+      | Import hack     |
+| poetry-dynamic-versioning-plugin | 3.7+   | 1.2.0b1+ | N/A         | Standard plugin |
+
+`poetry-dynamic-versioning` can work even when Poetry Core is used on its own
+without Poetry, but to accomplish this, it has to abuse some [import shenanigans](#implementation).
+On the other hand, `poetry-dynamic-versioning-plugin` requires Poetry proper,
+but functions as a standard Poetry plugin. The Poetry plugin interface is still
+experimental until the final Poetry 1.2.0 release, so the design of the plugin
 is subject to change.
 
 ## Installation
-Python 3.6+ and Poetry 1.2.0a2+ are required.
+* For `poetry-dynamic-versioning-plugin`:
+  * Simply install by running `poetry plugin add poetry-dynamic-versioning`.
+* For `poetry-dynamic-versioning`, it depends on how you installed Poetry.
+  * If you installed Poetry with `pip install poetry` or `get-poetry.py`,
+    then you'll need to install the plugin into your global Python environment:
+    * `pip install poetry-dynamic-versioning`
+  * If you installed Poetry with `install-poetry.py`, then you'll need to
+    install the plugin into Poetry's virtual environment:
 
-Install by running `poetry plugin add poetry-dynamic-versioning`.
+    * Windows: `%APPDATA%\pypoetry\venv\Scripts\pip install poetry-dynamic-versioning`
+    * Linux: `${XDG_DATA_HOME:-~/.local/share}/pypoetry/venv/bin/pip install poetry-dynamic-versioning`
+    * Mac: `~/Library/Application Support/pypoetry/venv/bin/pip install poetry-dynamic-versioning`
 
+    Note that you must install the plugin in your global Python installation,
+    **not** as a dev-dependency in pyproject.toml, because the virtual environment
+    that Poetry creates cannot see Poetry itself and therefore cannot patch it.
 * Add this section to your pyproject.toml:
   ```toml
   [tool.poetry-dynamic-versioning]
@@ -25,12 +47,25 @@ Install by running `poetry plugin add poetry-dynamic-versioning`.
   ```
 * Include the plugin in the `build-system` section of pyproject.toml
   for interoperability with PEP 517 build frontends.
-  * Example using `poetry` as the build system:
-    ```toml
-    [build-system]
-    requires = ["poetry>=1.2.0a2", "poetry-dynamic-versioning>=1.0.0b1"]
-    build-backend = "poetry.masonry.api"
-    ```
+  * For `poetry-dynamic-versioning-plugin`:
+    * ```toml
+      [build-system]
+      requires = ["poetry>=1.2.0b1", "poetry-dynamic-versioning-plugin"]
+      build-backend = "poetry.masonry.api"
+      ```
+  * For `poetry-dynamic-versioning`:
+    * Example using `poetry-core` as the build system:
+      ```toml
+      [build-system]
+      requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
+      build-backend = "poetry.core.masonry.api"
+      ```
+    * Example using `poetry` as the build system:
+      ```toml
+      [build-system]
+      requires = ["poetry>=1.1.0", "poetry-dynamic-versioning"]
+      build-backend = "poetry.masonry.api"
+      ```
 
 Poetry's typical `version` setting is still required in `[tool.poetry]`,
 but you are encouraged to use `version = "0.0.0"` as a standard placeholder.
@@ -208,27 +243,52 @@ the changes in-place, allowing you to inspect the result.
 Your configuration will be detected from pyproject.toml as normal,
 but the `enable` option is not necessary.
 
-To activate this mode, run the `poetry dynamic-versioning` command
-in your console.
+To activate this mode, run the appropriate command in your console:
+
+| Package                            | Command                     |
+|------------------------------------|-----------------------------|
+| `poetry-dynamic-versioning`        | `poetry-dynamic-versioning` |
+| `poetry-dynamic-versioning-plugin` | `poetry dynamic-versioning` |
 
 ## Caveats
 * The dynamic version is not available during `poetry run` or `poetry shell`.
 * Regarding PEP 517 support:
 
-  `pip wheel .` will not work, because Pip creates an isolated copy of the
-  source code, which does not contain the Git history and therefore cannot
-  determine the dynamic version.
+  `pip wheel .` and `pip install .` will work with new enough Pip versions
+  that default to in-tree builds or support the `--use-feature=in-tree-build`
+  option. Older versions of Pip will not work because they create an isolated
+  copy of the source code that does not contain the version control history.
 
-  If you want to build wheels of your dependencies, you **can** do the following,
-  but it won't work with path dependencies for the same reason as above:
+  If you want to build wheels of your dependencies, you can do the following,
+  although local path-based dependencies may not work:
 
   ```
   poetry export -f requirements.txt -o requirements.txt --without-hashes
   pip wheel -r requirements.txt
   ```
 
-  With newer versions of Pip, you can pass `--use-feature=in-tree-build`
-  to make the `pip wheel .` and `pip install .` commands work.
+## Implementation
+This applies to the `poetry-dynamic-versioning` package,
+not `poetry-dynamic-versioning-plugin`.
+
+In order to side-load plugin functionality into Poetry,
+`poetry-dynamic-versioning` does the following:
+
+* Upon installation, it delivers a `zzz_poetry_dynamic_versioning.pth`
+  file to your Python site-packages directory. This forces Python to
+  automatically load the plugin after all other modules have been loaded
+  (or at least those alphabetically prior to `zzz`).
+* It first tries to patch `poetry.factory.Factory.create_poetry` and
+  `poetry.console.commands.run.RunCommand` directly. If they cannot be
+  imported, then it patches `builtins.__import__` so that, whenever those
+  classes are first imported, then they will be patched. The reason we may have
+  to wait for these to be imported is in case you've used the get-poetry.py
+  script, in which case there is a gap between when Python is fully loaded and
+  when `~/.poetry/bin/poetry` adds the Poetry lib folder to the PYTHONPATH.
+* The patched version of `Factory` will compute and apply the dynamic version.
+* The patched version of `RunCommand` will deactivate the plugin before
+  executing the passed command, because otherwise we will not be able to do
+  any cleanup afterwards.
 
 ## Development
 Please refer to [CONTRIBUTING.md](CONTRIBUTING.md).

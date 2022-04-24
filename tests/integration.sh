@@ -6,13 +6,14 @@ dummy=$root/tests/project
 do_pip="pip"
 do_poetry="poetry"
 failed="no"
+mode="${1:=patch}"
 
 function setup {
     $do_pip uninstall -y poetry-dynamic-versioning
     cd $root
     rm -rf $root/dist/*
     $do_poetry build
-    if [ -z "$CI" ]; then
+    if [ -z "$CI" ] || [ "$mode" == "patch" ]; then
         $do_pip install $root/dist/*.whl
     else
         $do_poetry plugin add $root/dist/*.whl
@@ -75,7 +76,7 @@ function test_poetry_shell {
 }
 
 function test_cli_mode_and_substitution {
-    $do_poetry dynamic-versioning && \
+    if [ "$mode" == "patch" ]; then poetry-dynamic-versioning; else $do_poetry dynamic-versioning; fi && \
     # Changes persist after the command is done:
     should_fail grep 'version = "0.0.999"' $dummy/pyproject.toml && \
     should_fail grep '__version__: str = "0.0.0"' $dummy/project/__init__.py && \

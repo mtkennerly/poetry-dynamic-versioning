@@ -1,5 +1,6 @@
 __all__ = []  # type: ignore
 
+import builtins
 import copy
 import datetime as dt
 import os
@@ -29,7 +30,12 @@ class _ProjectState:
 
 class _State:
     def __init__(self) -> None:
-        self.patched = False
+        self.patched_poetry_create = False
+        self.patched_core_poetry_create = False
+        self.patched_poetry_command_run = False
+        self.patched_poetry_command_shell = False
+        self.original_import_func = builtins.__import__
+        self.cli_mode = False
         self.projects = {}  # type: MutableMapping[str, _ProjectState]
 
 
@@ -72,8 +78,35 @@ def _deep_merge_dicts(base: Mapping, addition: Mapping) -> Mapping:
     return result
 
 
+def _find_higher_file(*names: str, start: Path = None) -> Optional[Path]:
+    # Note: We need to make sure we get a pathlib object. Many tox poetry
+    # helpers will pass us a string and not a pathlib object. See issue #40.
+    if start is None:
+        start = Path.cwd()
+    elif not isinstance(start, Path):
+        start = Path(start)
+    for level in [start, *start.parents]:
+        for name in names:
+            if (level / name).is_file():
+                return level / name
+    return None
+
+
+def _get_pyproject_path(start: Path = None) -> Optional[Path]:
+    return _find_higher_file("pyproject.toml", start=start)
+
+
 def _get_config(local: Mapping) -> Mapping:
     return _deep_merge_dicts(_default_config(), local)["tool"]["poetry-dynamic-versioning"]
+
+
+def _get_config_from_path(start: Path = None) -> Mapping:
+    pyproject_path = _get_pyproject_path(start)
+    if pyproject_path is None:
+        return _default_config()["tool"]["poetry-dynamic-versioning"]
+    pyproject = tomlkit.parse(pyproject_path.read_text(encoding="utf-8"))
+    result = _get_config(pyproject)
+    return result
 
 
 def _escape_branch(value: Optional[str]) -> Optional[str]:
@@ -197,7 +230,7 @@ def _apply_version(
         # Disable the plugin in case we're building a source distribution,
         # which won't have access to the VCS info at install time.
         # We revert this later when we deactivate.
-        if not retain:
+        if not retain and not _state.cli_mode:
             pyproject["tool"]["poetry-dynamic-versioning"]["enable"] = False  # type: ignore
 
         pyproject_path.write_text(tomlkit.dumps(pyproject), encoding="utf-8")
@@ -221,7 +254,7 @@ def _revert_version(retain: bool = False) -> None:
             pyproject = tomlkit.parse(state.path.read_text(encoding="utf-8"))
             pyproject["tool"]["poetry"]["version"] = state.original_version  # type: ignore
 
-            if not retain:
+            if not retain and not _state.cli_mode:
                 pyproject["tool"]["poetry-dynamic-versioning"]["enable"] = True  # type: ignore
 
             state.path.write_text(tomlkit.dumps(pyproject), encoding="utf-8")

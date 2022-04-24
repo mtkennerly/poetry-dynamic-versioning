@@ -1,0 +1,1 @@
+import poetry_dynamic_versioning.patch as patch; patch.activate()

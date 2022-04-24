@@ -4,19 +4,31 @@ This project is managed using [Poetry](https://poetry.eustace.io).
 * If you want to take advantage of the default VSCode integration, then first
   configure Poetry to make its virtual environment in the repository:
   ```
-  poetry config settings.virtualenvs.in-project true
+  poetry config virtualenvs.in-project true
   ```
 * After cloning the repository, activate the tooling:
   ```
+  pip install invoke
   poetry install
   poetry run pre-commit install
   ```
-* Run unit tests:
+
+Commands defined in `tasks.py`:
+
+* Load the patch-based `poetry-dynamic-versioning` package:
   ```
-  poetry run pytest
+  invoke patch
   ```
-* Run integration tests:
+* Load the plugin-based `poetry-dynamic-versioning-plugin` package:
   ```
-  ./tests/integration.sh
+  invoke plugin
+  ```
+* Build the currently loaded package:
+  ```
+  invoke build
+  ```
+* Run tests for the currently loaded package:
+  ```
+  invoke test
   ```
   [Git Bash](https://git-scm.com) is recommended for Windows.

@@ -30,7 +30,7 @@ def _patch_dependency_versions() -> None:
     The plugin system doesn't seem to expose a way to change dependency
     versions, so we patch `Factory.create_poetry()` to do the work there.
     """
-    if _state.patched:
+    if _state.patched_core_poetry_create:
         return
 
     original_create_poetry = Factory.create_poetry
@@ -42,7 +42,7 @@ def _patch_dependency_versions() -> None:
         return instance
 
     Factory.create_poetry = patched_create_poetry
-    _state.patched = True
+    _state.patched_core_poetry_create = True
 
 
 def _should_apply(command: str) -> bool:
