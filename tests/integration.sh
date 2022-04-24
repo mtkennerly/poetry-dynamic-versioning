@@ -12,12 +12,14 @@ function setup {
     cd $root
     rm -rf $root/dist/*
     $do_poetry build
+    # pip install $root/dist/*.whl
     $do_poetry plugin add $root/dist/*.whl
 }
 
 function teardown {
     git checkout -- $dummy $root/tests/dependency-*
     $do_pip uninstall -y poetry-dynamic-versioning
+    # $do_poetry plugin remove poetry-dynamic-versioning
 }
 
 function should_fail {
@@ -76,11 +78,10 @@ function test_cli_mode_and_substitution {
     should_fail grep '__version__ = "0.0.0"' $dummy/project/__init__.py
 }
 
-# TODO: dependency-dynamic is not being updated.
 function test_dependency_versions {
     $do_poetry install -v && \
     $do_poetry run pip list --format freeze | grep dependency-dynamic== && \
-    # $do_poetry run pip list --format freeze | should_fail grep dependency-dynamic==0.0.888 && \
+    $do_poetry run pip list --format freeze | should_fail grep dependency-dynamic==0.0.888 && \
     $do_poetry run pip list --format freeze | grep dependency-static==0.0.777 && \
     $do_poetry run pip list --format freeze | grep dependency-classic==0.0.666
 }

@@ -28,11 +28,9 @@ class _ProjectState:
 
 
 class _State:
-    def __init__(self, projects: MutableMapping[str, _ProjectState] = None) -> None:
-        if projects is None:
-            self.projects = {}  # type: MutableMapping[str, _ProjectState]
-        else:
-            self.projects = projects
+    def __init__(self) -> None:
+        self.patched = False
+        self.projects = {}  # type: MutableMapping[str, _ProjectState]
 
 
 _state = _State()
@@ -192,38 +190,39 @@ def _apply_version(
     version: str, config: Mapping, pyproject_path: Path, retain: bool = False
 ) -> str:
     pyproject = tomlkit.parse(pyproject_path.read_text(encoding="utf-8"))
-    if pyproject["tool"]["poetry"]["version"] != version:
-        pyproject["tool"]["poetry"]["version"] = version
+
+    if pyproject["tool"]["poetry"]["version"] != version:  # type: ignore
+        pyproject["tool"]["poetry"]["version"] = version  # type: ignore
 
         # Disable the plugin in case we're building a source distribution,
         # which won't have access to the VCS info at install time.
         # We revert this later when we deactivate.
         if not retain:
-            pyproject["tool"]["poetry-dynamic-versioning"]["enable"] = False
+            pyproject["tool"]["poetry-dynamic-versioning"]["enable"] = False  # type: ignore
 
         pyproject_path.write_text(tomlkit.dumps(pyproject), encoding="utf-8")
 
-    name = pyproject["tool"]["poetry"]["name"]
+    name = pyproject["tool"]["poetry"]["name"]  # type: ignore
 
     _substitute_version(
-        name,
+        name,  # type: ignore
         pyproject_path.parent,
         config["substitution"]["files"],
         config["substitution"]["patterns"],
         version,
     )
 
-    return name
+    return name  # type: ignore
 
 
 def _revert_version(retain: bool = False) -> None:
     for project, state in _state.projects.items():
         if state.original_version != state.version:
             pyproject = tomlkit.parse(state.path.read_text(encoding="utf-8"))
-            pyproject["tool"]["poetry"]["version"] = state.original_version
+            pyproject["tool"]["poetry"]["version"] = state.original_version  # type: ignore
 
             if not retain:
-                pyproject["tool"]["poetry-dynamic-versioning"]["enable"] = True
+                pyproject["tool"]["poetry-dynamic-versioning"]["enable"] = True  # type: ignore
 
             state.path.write_text(tomlkit.dumps(pyproject), encoding="utf-8")
 

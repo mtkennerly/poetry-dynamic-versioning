@@ -3,6 +3,18 @@ __all__ = [
     "DynamicVersioningPlugin",
 ]
 
+import functools
+
+from cleo.commands.command import Command
+from cleo.events.console_command_event import ConsoleCommandEvent
+from cleo.events.event_dispatcher import EventDispatcher
+from cleo.events.console_events import COMMAND, SIGNAL, TERMINATE, ERROR
+from poetry.core.poetry import Poetry
+from poetry.core.factory import Factory
+from poetry.core.semver.version import Version as PoetryCoreVersion
+from poetry.console.application import Application
+from poetry.plugins.application_plugin import ApplicationPlugin
+
 from poetry_dynamic_versioning import (
     _get_config,
     _get_version,
@@ -12,28 +24,50 @@ from poetry_dynamic_versioning import (
     _ProjectState,
 )
 
-from cleo.commands.command import Command
-from cleo.events.console_command_event import ConsoleCommandEvent
-from cleo.events.event_dispatcher import EventDispatcher
-from cleo.events.console_events import COMMAND, SIGNAL, TERMINATE, ERROR
-from poetry.console.application import Application
-from poetry.plugins.application_plugin import ApplicationPlugin
+
+def _patch_dependency_versions() -> None:
+    """
+    The plugin system doesn't seem to expose a way to change dependency
+    versions, so we patch `Factory.create_poetry()` to do the work there.
+    """
+    if _state.patched:
+        return
+
+    original_create_poetry = Factory.create_poetry
+
+    @functools.wraps(Factory.create_poetry)
+    def patched_create_poetry(*args, **kwargs):
+        instance = original_create_poetry(*args, **kwargs)
+        _apply_version_via_plugin(instance, retain=False)
+        return instance
+
+    Factory.create_poetry = patched_create_poetry
+    _state.patched = True
 
 
 def _should_apply(command: str) -> bool:
     return command not in ["run", "shell", "dynamic-versioning"]
 
 
-def _apply_version_via_plugin(application: Application, retain: bool) -> None:
-    config = _get_config(application.poetry.pyproject.data)
-    name = application.poetry.local_config["name"]
+def _apply_version_via_plugin(poetry: Poetry, retain: bool) -> None:
+    config = _get_config(poetry.pyproject.data)
+    if not config["enable"]:
+        return
+    name = poetry.local_config["name"]
+    if name in _state.projects:
+        return
     version = _get_version(config)
     _state.projects[name] = _ProjectState(
-        application.poetry.file.path, application.poetry.local_config["version"], version, None,
+        poetry.file.path, poetry.local_config["version"], version, None,
     )
-    application.poetry.package.set_version(version)
+
+    # Would be nice to use `.set_version()`, but it's only available on
+    # Poetry's `ProjectPackage`, not poetry-core's `ProjectPackage`.
+    poetry._package._version = PoetryCoreVersion.parse(version)
+    poetry._package._pretty_version = version
+
     _apply_version(
-        version, config, application.poetry.file.path, retain,
+        version, config, poetry.file.path, retain,
     )
 
 
@@ -49,7 +83,7 @@ class DynamicVersioningCommand(Command):
         self._application = application
 
     def handle(self) -> int:
-        _apply_version_via_plugin(self._application, True)
+        _apply_version_via_plugin(self._application.poetry, retain=True)
         return 0
 
 
@@ -79,7 +113,8 @@ class DynamicVersioningPlugin(ApplicationPlugin):
         if not _should_apply(event.command.name):
             return
 
-        _apply_version_via_plugin(self._application, False)
+        _apply_version_via_plugin(self._application.poetry, retain=False)
+        _patch_dependency_versions()
 
     def _revert_version(
         self, event: ConsoleCommandEvent, kind: str, dispatcher: EventDispatcher
