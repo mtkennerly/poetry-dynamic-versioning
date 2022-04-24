@@ -38,9 +38,6 @@ pep8-naming = "^0.8.2"
 [tool.poetry.plugins."poetry.application.plugin"]
 poetry-dynamic-versioning = "poetry_dynamic_versioning.plugin:DynamicVersioningPlugin"
 
-[tool.poetry.scripts]
-poetry-dynamic-versioning = 'poetry_dynamic_versioning.__main__:main'
-
 [tool.black]
 line-length = 100
 
