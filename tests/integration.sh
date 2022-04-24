@@ -12,14 +12,18 @@ function setup {
     cd $root
     rm -rf $root/dist/*
     $do_poetry build
-    # pip install $root/dist/*.whl
-    $do_poetry plugin add $root/dist/*.whl
+    if [ -z "$CI" ]; then
+        $do_pip install $root/dist/*.whl
+    else
+        $do_poetry plugin add $root/dist/*.whl
+    fi
 }
 
 function teardown {
     git checkout -- $dummy $root/tests/dependency-*
-    $do_pip uninstall -y poetry-dynamic-versioning
-    # $do_poetry plugin remove poetry-dynamic-versioning
+    if [ -z "$CI" ]; then
+        $do_pip uninstall -y poetry-dynamic-versioning
+    fi
 }
 
 function should_fail {
@@ -95,8 +99,8 @@ function test_poetry_core_as_build_system {
 }
 
 function test_bumping_enabled {
-    # Poetry will convert "-pre.1" to "rc1".
     sed -i 's/vcs = .*/bump = true/' $dummy/pyproject.toml && \
+    sed -i 's/style = .*/style = "pep440"/' $dummy/pyproject.toml && \
     $do_poetry build -v && \
     ls $dummy/dist | should_fail grep 0.0.999 && \
     ls $dummy/dist | should_fail grep .post
