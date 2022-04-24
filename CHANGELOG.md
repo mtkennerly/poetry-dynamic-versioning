@@ -1,3 +1,8 @@
+## v1.0.0b3 (2022-04-24)
+
+* Fixed:
+  * The plugin can now update versions for dependencies that also use the plugin.
+
 ## v1.0.0b2 (2022-04-15)
 
 * Fixed:
