@@ -2,10 +2,7 @@ import argparse
 import sys
 
 from poetry_dynamic_versioning import (
-    _get_config_from_path,
-    _apply_version,
-    _get_pyproject_path,
-    _get_version,
+    _get_and_apply_version,
     _state,
 )
 
@@ -26,15 +23,11 @@ def main() -> None:
         _state.cli_mode = True
         _parse_args()
 
-        config = _get_config_from_path()
+        name = _get_and_apply_version(retain=True)
+        if not name:
+            raise RuntimeError("Unable to determine a dynamic version")
 
-        pyproject_path = _get_pyproject_path()
-        if pyproject_path is None:
-            raise RuntimeError("Unable to find pyproject.toml")
-
-        version = _get_version(config)
-        print("Version: {}".format(version), file=sys.stderr)
-        name = _apply_version(version, config, pyproject_path, retain=True)
+        print("Version: {}".format(_state.projects[name].version), file=sys.stderr)
         if _state.projects[name].substitutions:
             print("Files with substitutions:", file=sys.stderr)
             for file_name in _state.projects[name].substitutions:

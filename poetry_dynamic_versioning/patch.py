@@ -1,20 +1,12 @@
 import atexit
 import builtins
 import functools
-import os
-from pathlib import Path
-from typing import Optional
-
-import tomlkit
 
 from poetry_dynamic_versioning import (
-    _apply_version,
     _revert_version,
+    _get_and_apply_version,
     _get_config_from_path,
-    _get_pyproject_path,
-    _get_version,
     _state,
-    _ProjectState,
 )
 
 
@@ -56,42 +48,18 @@ def _patch_poetry_create(factory_mod) -> None:
             except (ImportError, AttributeError):
                 pass
 
-        cwd = None  # type: Optional[Path]
-        if len(args) > 0:
-            cwd = args[0]
-        elif "cwd" in kwargs:
-            cwd = kwargs["cwd"]
-
-        config = _get_config_from_path(cwd)
-        if not config["enable"]:
-            return instance
-
-        pyproject_path = _get_pyproject_path(cwd)
-        if pyproject_path is None:
-            raise RuntimeError("Unable to find pyproject.toml")
-        pyproject = tomlkit.parse(pyproject_path.read_text(encoding="utf-8"))
-        name = pyproject["tool"]["poetry"]["name"]
-
         if not _state.cli_mode:
-            first_time = name not in _state.projects
-            if first_time:
-                current_dir = Path.cwd()
-                os.chdir(str(cwd))
-                try:
-                    _state.projects[name] = _ProjectState(
-                        pyproject_path,
-                        pyproject["tool"]["poetry"]["version"],
-                        _get_version(config),
-                    )
-                finally:
-                    os.chdir(str(current_dir))
-
-            dynamic_version = _state.projects[name].version
-            if first_time:
-                _apply_version(dynamic_version, config, pyproject_path)
-
-            instance._package._version = poetry_version_module.Version.parse(dynamic_version)
-            instance._package._pretty_version = dynamic_version
+            name = _get_and_apply_version(
+                name=instance.local_config["name"],
+                original=instance.local_config["version"],
+                pyproject=instance.pyproject.data,
+                pyproject_path=instance.pyproject.file,
+                cd=True,
+            )
+            if name:
+                version = _state.projects[name].version
+                instance._package._version = poetry_version_module.Version.parse(version)
+                instance._package._pretty_version = version
 
         return instance
 

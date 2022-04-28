@@ -221,7 +221,7 @@ def _substitute_version(
 
 def _apply_version(
     version: str, config: Mapping, pyproject_path: Path, retain: bool = False
-) -> str:
+) -> None:
     pyproject = tomlkit.parse(pyproject_path.read_text(encoding="utf-8"))
 
     if pyproject["tool"]["poetry"]["version"] != version:  # type: ignore
@@ -245,7 +245,53 @@ def _apply_version(
         version,
     )
 
-    return name  # type: ignore
+
+def _get_and_apply_version(
+    name: Optional[str] = None,
+    original: Optional[str] = None,
+    pyproject: Optional[Mapping] = None,
+    pyproject_path: Optional[Path] = None,
+    cd: bool = False,
+    # fmt: off
+    retain: bool = False
+    # fmt: on
+) -> Optional[str]:
+    if name is not None and name in _state.projects:
+        return None
+
+    if pyproject_path is None:
+        pyproject_path = _get_pyproject_path()
+        if pyproject_path is None:
+            raise RuntimeError("Unable to find pyproject.toml")
+
+    if pyproject is None:
+        pyproject = tomlkit.parse(pyproject_path.read_text(encoding="utf-8"))
+
+    config = _get_config(pyproject)
+    if not config["enable"]:
+        return None
+
+    if name is None or original is None:
+        name = pyproject["tool"]["poetry"]["name"]
+        original = pyproject["tool"]["poetry"]["version"]
+        if name in _state.projects:
+            return None
+
+    initial_dir = Path.cwd()
+    target_dir = pyproject_path.parent
+    if cd:
+        os.chdir(str(target_dir))
+    try:
+        version = _get_version(config)
+    finally:
+        if cd:
+            os.chdir(str(initial_dir))
+
+    if name is not None and original is not None:
+        _state.projects[name] = _ProjectState(pyproject_path, original, version)
+        _apply_version(version, config, pyproject_path, retain)
+
+    return name
 
 
 def _revert_version(retain: bool = False) -> None:

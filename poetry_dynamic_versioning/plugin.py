@@ -17,11 +17,9 @@ from poetry.plugins.application_plugin import ApplicationPlugin
 
 from poetry_dynamic_versioning import (
     _get_config,
-    _get_version,
-    _apply_version,
+    _get_and_apply_version,
     _state,
     _revert_version,
-    _ProjectState,
 )
 
 
@@ -50,25 +48,20 @@ def _should_apply(command: str) -> bool:
 
 
 def _apply_version_via_plugin(poetry: Poetry, retain: bool) -> None:
-    config = _get_config(poetry.pyproject.data)
-    if not config["enable"]:
-        return
-    name = poetry.local_config["name"]
-    if name in _state.projects:
-        return
-    version = _get_version(config)
-    _state.projects[name] = _ProjectState(
-        poetry.file.path, poetry.local_config["version"], version, None,
+    name = _get_and_apply_version(
+        name=poetry.local_config["name"],
+        original=poetry.local_config["version"],
+        pyproject=poetry.pyproject.data,
+        pyproject_path=poetry.pyproject.file,
+        retain=retain,
     )
+    if name:
+        version = _state.projects[name].version
 
-    # Would be nice to use `.set_version()`, but it's only available on
-    # Poetry's `ProjectPackage`, not poetry-core's `ProjectPackage`.
-    poetry._package._version = PoetryCoreVersion.parse(version)
-    poetry._package._pretty_version = version
-
-    _apply_version(
-        version, config, poetry.file.path, retain,
-    )
+        # Would be nice to use `.set_version()`, but it's only available on
+        # Poetry's `ProjectPackage`, not poetry-core's `ProjectPackage`.
+        poetry._package._version = PoetryCoreVersion.parse(version)
+        poetry._package._pretty_version = version
 
 
 class DynamicVersioningCommand(Command):
@@ -79,6 +72,7 @@ class DynamicVersioningCommand(Command):
     )
 
     def __init__(self, application: Application):
+        _state.cli_mode = True
         super().__init__()
         self._application = application
 
@@ -89,6 +83,7 @@ class DynamicVersioningCommand(Command):
 
 class DynamicVersioningPlugin(ApplicationPlugin):
     def __init__(self):
+        _state.cli_mode = True
         self._application = None
 
     def activate(self, application: Application) -> None:

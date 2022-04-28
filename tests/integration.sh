@@ -4,27 +4,60 @@ set -e
 root=$(dirname "$(dirname "$(realpath "$0")")")
 dummy=$root/tests/project
 do_pip="pip"
+do_poetry_pip="pip"
 do_poetry="poetry"
 failed="no"
 mode="${1:=patch}"
+installation="${2:=pip}"
+specific_test="$3"
+
+if [ "$mode" == "plugin" ]; then
+    do_pdv="$do_poetry dynamic-versioning"
+elif [ "$installation" == "poetry-pip" ]; then
+    poetry_bin="${XDG_DATA_HOME:-~/.local/share}/pypoetry/venv/bin"
+    eval poetry_bin="$poetry_bin"
+    do_poetry_pip="${poetry_bin}/pip"
+    do_pdv="${poetry_bin}/poetry-dynamic-versioning"
+else
+    do_pdv="poetry-dynamic-versioning"
+fi
 
 function setup {
-    $do_pip uninstall -y poetry-dynamic-versioning
+    $do_pip uninstall -y poetry-dynamic-versioning poetry-dynamic-versioning-plugin
+    if [ "$do_poetry_pip" != "$do_pip" ]; then
+        $do_poetry_pip uninstall -y poetry-dynamic-versioning poetry-dynamic-versioning-plugin
+    fi
+
     cd $root
     rm -rf $root/dist/*
     $do_poetry build
-    if [ -z "$CI" ] || [ "$mode" == "patch" ]; then
-        $do_pip install $root/dist/*.whl
-    else
-        $do_poetry plugin add $root/dist/*.whl
-    fi
+
+    case $installation in
+        pip)
+            $do_pip install $root/dist/*.whl
+            ;;
+        poetry-pip)
+            $do_poetry_pip install $root/dist/*.whl
+            ;;
+        poetry-plugin)
+            $do_poetry plugin add $root/dist/*.whl
+            ;;
+    esac
 }
 
 function teardown {
     git checkout -- $dummy $root/tests/dependency-*
-    if [ -z "$CI" ]; then
-        $do_pip uninstall -y poetry-dynamic-versioning
-    fi
+    case $installation in
+        pip)
+            $do_pip uninstall -y poetry-dynamic-versioning poetry-dynamic-versioning-plugin
+            ;;
+        poetry-pip)
+            $do_poetry_pip uninstall -y poetry-dynamic-versioning poetry-dynamic-versioning-plugin
+            ;;
+        poetry-plugin)
+            $do_poetry plugin remove poetry-dynamic-versioning-plugin
+            ;;
+    esac
 }
 
 function should_fail {
@@ -76,7 +109,7 @@ function test_poetry_shell {
 }
 
 function test_cli_mode_and_substitution {
-    if [ "$mode" == "patch" ]; then poetry-dynamic-versioning; else $do_poetry dynamic-versioning; fi && \
+    $do_pdv \
     # Changes persist after the command is done:
     should_fail grep 'version = "0.0.999"' $dummy/pyproject.toml && \
     should_fail grep '__version__: str = "0.0.0"' $dummy/project/__init__.py && \
@@ -139,10 +172,10 @@ function run_tests {
 function main {
     echo "Starting..."
     setup > /dev/null 2>&1
-    if [ -z "$1" ]; then
+    if [ -z "$specific_test" ]; then
         run_tests
     else
-        run_test "$1"
+        run_test "$specific_test"
     fi
     teardown > /dev/null 2>&1
     echo "Done"

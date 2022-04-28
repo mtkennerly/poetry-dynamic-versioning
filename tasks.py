@@ -5,26 +5,36 @@ from invoke import task
 
 ROOT = Path(__file__).parent
 PYPROJECT = ROOT / "pyproject.toml"
-PATCH = ROOT / "pyproject.patch.toml"
-PLUGIN = ROOT / "pyproject.plugin.toml"
+LOCK = ROOT / "poetry.lock"
+
+PATCH_PYPROJECT = ROOT / "pyproject.patch.toml"
+PLUGIN_PYPROJECT = ROOT / "pyproject.plugin.toml"
+PATCH_LOCK = ROOT / "poetry.patch.lock"
+PLUGIN_LOCK = ROOT / "poetry.plugin.lock"
 
 
 @task
 def patch(ctx):
-    if PATCH.exists():
-        PYPROJECT.rename(PLUGIN)
-        PATCH.rename(PYPROJECT)
-        with ctx.cd(ROOT):
-            ctx.run("poetry install")
+    if PATCH_PYPROJECT.exists():
+        PYPROJECT.rename(PLUGIN_PYPROJECT)
+        PATCH_PYPROJECT.rename(PYPROJECT)
+    if PATCH_LOCK.exists():
+        LOCK.rename(PLUGIN_LOCK)
+        PATCH_LOCK.rename(LOCK)
+    with ctx.cd(ROOT):
+        ctx.run("poetry install")
 
 
 @task
 def plugin(ctx):
-    if PLUGIN.exists():
-        PYPROJECT.rename(PATCH)
-        PLUGIN.rename(PYPROJECT)
-        with ctx.cd(ROOT):
-            ctx.run("poetry install")
+    if PLUGIN_PYPROJECT.exists():
+        PYPROJECT.rename(PATCH_PYPROJECT)
+        PLUGIN_PYPROJECT.rename(PYPROJECT)
+    if PLUGIN_LOCK.exists():
+        LOCK.rename(PATCH_LOCK)
+        PLUGIN_LOCK.rename(LOCK)
+    with ctx.cd(ROOT):
+        ctx.run("poetry install")
 
 
 @task
@@ -35,11 +45,14 @@ def build(ctx):
 
 
 @task
-def test(ctx):
+def test(ctx, unit=False, integration=False, installation="pip"):
+    all = not unit and not integration
     with ctx.cd(ROOT):
-        mode = "patch" if PLUGIN.exists() else "plugin"
-        ctx.run("poetry run pytest")
-        ctx.run("bash ./tests/integration.sh {}".format(mode))
+        mode = "patch" if PLUGIN_PYPROJECT.exists() else "plugin"
+        if unit or all:
+            ctx.run("poetry run pytest")
+        if integration or all:
+            ctx.run("bash ./tests/integration.sh {} {}".format(mode, installation))
 
 
 @task

@@ -42,6 +42,7 @@ jobs:
           - python-version: '3.6'
             poetry-version: '1.2.0b1'
     env:
+      PYTHON_VER: ${{ matrix.python-version }}
       POETRY_VER: ${{ matrix.poetry-version }}
       INSTALL_METHOD: ${{ matrix.install-method }}
     steps:
@@ -51,20 +52,42 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - run: |
           if [ "$INSTALL_METHOD" = "pip" ]; then
-            pip install --pre poetry==${POETRY_VER}
-          elif [ "${POETRY_VERSION:0:4}" == "1.1." ]; then
-            curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py -o ./get-poetry.py
-            python ./get-poetry.py --version ${POETRY_VER} --yes && source ~/.poetry/env
+            package_installation=pip
+            if [ "${POETRY_VER:0:4}" == "1.2." ]; then
+              pip install --pre poetry==${POETRY_VER}
+            else
+              pip install poetry==${POETRY_VER}
+            fi
           else
-            curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py -o ./install-poetry.py
-            python ./install-poetry.py --version ${POETRY_VER} --yes
+            if [ "${POETRY_VER:0:4}" == "1.1." ] && [ "${PYTHON_VER}" != "3.10" ]; then
+              package_installation=pip
+              curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py -o ./get-poetry.py
+              python ./get-poetry.py --version ${POETRY_VER} --yes && source ~/.poetry/env
+            else
+              curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py -o ./install-poetry.py
+              python ./install-poetry.py --version ${POETRY_VER} --yes
+
+              if [ "${POETRY_VER:0:4}" == "1.1." ]; then
+                package_installation=poetry-pip
+              else
+                package_installation=poetry-plugin
+              fi
+            fi
           fi
 
           pip install invoke
           invoke patch
-          invoke test
+          if [ "${PYTHON_VER}" != "3.10" ]; then
+            invoke test --unit
+          fi
+          if [ "$package_installation" == "poetry-plugin" ]; then
+            patch_package_installation=poetry-pip
+          else
+            patch_package_installation="$package_installation"
+          fi
+          invoke test --integration --installation "${patch_package_installation}"
 
-          if [ "${POETRY_VERSION:0:4}" != "1.1." ]; then
+          if [ "${POETRY_VER:0:4}" != "1.1." ]; then
             invoke plugin
-            invoke test
+            invoke test --installation "${package_installation}"
           fi
