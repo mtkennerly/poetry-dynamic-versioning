@@ -1,7 +1,4 @@
 # Dynamic versioning plugin for Poetry
-[![Version](https://img.shields.io/pypi/v/poetry-dynamic-versioning)](https://pypi.org/project/poetry-dynamic-versioning)
-[![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
 This package is a plugin for [Poetry](https://github.com/sdispater/poetry)
 to enable dynamic versioning based on tags in your version control system,
 powered by [Dunamai](https://github.com/mtkennerly/dunamai). Many different
@@ -25,7 +22,7 @@ is subject to change.
 
 ## Installation
 * For `poetry-dynamic-versioning-plugin`:
-  * Simply install by running `poetry plugin add poetry-dynamic-versioning`.
+  * Simply install by running `poetry plugin add poetry-dynamic-versioning-plugin`.
 * For `poetry-dynamic-versioning`, it depends on how you installed Poetry.
   * If you installed Poetry with `pip install poetry` or `get-poetry.py`,
     then you'll need to install the plugin into your global Python environment:
