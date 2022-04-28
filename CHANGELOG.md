@@ -1,10 +1,12 @@
-## poetry-dynamic-versioning-plugin: Unreleased
+## poetry-dynamic-versioning-plugin: v0.1.0 (2022-04-28)
 
 * Changed:
-  * The Poetry 1.2+ plugin now has a new name, `poetry-dynamic-versioning-plugin`.
-    The import hack-based pseudo-plugin will continue to be called `poetry-dynamic-versioning`.
+  * The Poetry 1.2+ plugin now has a new name, `poetry-dynamic-versioning-plugin`,
+    and this is its first release as a separate package.
 
-## poetry-dynamic-versioning: Unreleased
+    The import-hack-based pseudo-plugin will continue to be called `poetry-dynamic-versioning`.
+
+## poetry-dynamic-versioning: v0.15.0 (2022-04-28)
 
 * Changed:
   * Internal improvements/refactoring to unify code base with `poetry-dynamic-versioning-plugin`,
