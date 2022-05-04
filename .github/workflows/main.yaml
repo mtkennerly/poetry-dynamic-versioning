@@ -47,6 +47,8 @@ jobs:
       INSTALL_METHOD: ${{ matrix.install-method }}
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
