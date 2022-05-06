@@ -13,26 +13,34 @@ PATCH_LOCK = ROOT / "poetry.patch.lock"
 PLUGIN_LOCK = ROOT / "poetry.plugin.lock"
 
 
-@task
-def patch(ctx):
+def switch_to_patch():
     if PATCH_PYPROJECT.exists():
         PYPROJECT.rename(PLUGIN_PYPROJECT)
         PATCH_PYPROJECT.rename(PYPROJECT)
     if PATCH_LOCK.exists():
         LOCK.rename(PLUGIN_LOCK)
         PATCH_LOCK.rename(LOCK)
-    with ctx.cd(ROOT):
-        ctx.run("poetry install")
 
 
-@task
-def plugin(ctx):
+def switch_to_plugin():
     if PLUGIN_PYPROJECT.exists():
         PYPROJECT.rename(PATCH_PYPROJECT)
         PLUGIN_PYPROJECT.rename(PYPROJECT)
     if PLUGIN_LOCK.exists():
         LOCK.rename(PATCH_LOCK)
         PLUGIN_LOCK.rename(LOCK)
+
+
+@task
+def patch(ctx):
+    switch_to_patch()
+    with ctx.cd(ROOT):
+        ctx.run("poetry install")
+
+
+@task
+def plugin(ctx):
+    switch_to_plugin()
     with ctx.cd(ROOT):
         ctx.run("poetry install")
 
@@ -67,3 +75,18 @@ def install(ctx):
 @task
 def uninstall(ctx):
     ctx.run("pip uninstall -y poetry-dynamic-versioning poetry-dynamic-versioning-plugin")
+
+
+@task
+def release(ctx, patch=False, plugin=False):
+    started_as_patch = PLUGIN_PYPROJECT.exists()
+
+    if patch:
+        switch_to_patch()
+        build(ctx)
+    if plugin:
+        switch_to_plugin()
+        build(ctx)
+
+    if started_as_patch:
+        switch_to_patch()
