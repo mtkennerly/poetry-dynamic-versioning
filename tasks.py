@@ -46,9 +46,10 @@ def plugin(ctx):
 
 
 @task
-def build(ctx):
+def build(ctx, clean=True):
     with ctx.cd(ROOT):
-        shutil.rmtree("dist", ignore_errors=True)
+        if clean:
+            shutil.rmtree("dist", ignore_errors=True)
         ctx.run("poetry build")
 
 
@@ -80,13 +81,15 @@ def uninstall(ctx):
 @task
 def release(ctx, patch=False, plugin=False):
     started_as_patch = PLUGIN_PYPROJECT.exists()
+    clean = True
 
     if patch:
         switch_to_patch()
-        build(ctx)
+        build(ctx, clean)
+        clean = False
     if plugin:
         switch_to_plugin()
-        build(ctx)
+        build(ctx, clean)
 
     if started_as_patch:
         switch_to_patch()
