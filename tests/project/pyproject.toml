@@ -14,8 +14,6 @@ dependency-static = {path = "../dependency-static"}
 enable = true
 vcs = "git"
 style = "semver"
-
-[tool.poetry-dynamic-versioning.subversion]
 tag-dir = "alt/tags"
 
 [build-system]

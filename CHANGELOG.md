@@ -1,3 +1,10 @@
+## Unreleased
+* Changed:
+  * Option `tool.poetry-dynamic-versioning.subversion.tag-dir` is now `tool.poetry-dynamic-versioning.tag-dir`.
+* Added:
+  * Option `tool.poetry-dynamic-versioning.tag-branch`.
+  * Option `tool.poetry-dynamic-versioning.full-commit`.
+
 ## poetry-dynamic-versioning-plugin: v0.1.0 (2022-04-28)
 
 * Changed:

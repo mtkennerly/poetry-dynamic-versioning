@@ -51,7 +51,6 @@ def _default_config() -> Mapping:
                 "dirty": False,
                 "pattern": None,
                 "latest-tag": False,
-                "subversion": {"tag-dir": "tags"},
                 "substitution": {
                     "files": ["*.py", "*/__init__.py", "*/__version__.py", "*/_version.py"],
                     "patterns": [r"(^__version__\s*(?::.*?)?=\s*['\"])[^'\"]*(['\"])"],
@@ -63,6 +62,9 @@ def _default_config() -> Mapping:
                 "format-jinja-imports": [],
                 "bump": False,
                 "tagged-metadata": False,
+                "full-commit": False,
+                "tag-branch": None,
+                "tag-dir": "tags",
             }
         }
     }
@@ -130,13 +132,13 @@ def _get_version(config: Mapping) -> str:
     from dunamai import (
         bump_version,
         check_version,
+        Pattern,
         serialize_pep440,
         serialize_pvp,
         serialize_semver,
         Style,
         Vcs,
         Version,
-        VERSION_SOURCE_PATTERN,
     )
 
     vcs = Vcs(config["vcs"])
@@ -144,9 +146,16 @@ def _get_version(config: Mapping) -> str:
     if style is not None:
         style = Style(style)
 
-    pattern = config["pattern"] if config["pattern"] is not None else VERSION_SOURCE_PATTERN
+    pattern = config["pattern"] if config["pattern"] is not None else Pattern.Default
 
-    version = Version.from_vcs(vcs, pattern, config["latest-tag"], config["subversion"]["tag-dir"])
+    version = Version.from_vcs(
+        vcs,
+        pattern,
+        config["latest-tag"],
+        config["tag-dir"],
+        config["tag-branch"],
+        config["full-commit"],
+    )
 
     if config["format-jinja"]:
         if config["bump"] and version.distance > 0:
@@ -188,7 +197,7 @@ def _get_version(config: Mapping) -> str:
             dirty=config["dirty"],
             format=config["format"],
             style=style,
-            bump=config["bump"] and version.distance > 0,
+            bump=config["bump"],
             tagged_metadata=config["tagged-metadata"],
         )
 

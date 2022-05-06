@@ -36,14 +36,14 @@ def test__get_config_from_path__without_plugin_customizations():
     config = plugin._get_config_from_path(root)
     assert config["vcs"] == "any"
     assert config["style"] is None
-    assert config["subversion"]["tag-dir"] == "tags"
+    assert config["tag-dir"] == "tags"
 
 
 def test__get_config_from_path__with_plugin_customizations():
     config = plugin._get_config_from_path(root / "tests" / "project")
     assert config["vcs"] == "git"
     assert config["style"] == "semver"
-    assert config["subversion"]["tag-dir"] == "alt/tags"
+    assert config["tag-dir"] == "alt/tags"
 
 
 def test__get_version__defaults(config):

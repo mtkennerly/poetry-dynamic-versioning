@@ -7,8 +7,8 @@ do_pip="pip"
 do_poetry_pip="pip"
 do_poetry="poetry"
 failed="no"
-mode="${1:=patch}"
-installation="${2:=pip}"
+mode="${1:-patch}"
+installation="${2:-pip}"
 specific_test="$3"
 
 if [ "$mode" == "plugin" ]; then

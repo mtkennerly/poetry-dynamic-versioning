@@ -104,12 +104,14 @@ In your pyproject.toml file, you may configure the following options:
     group named `tagged_metadata` to be used with the `tagged-metadata` option.
     There may also be a group named `epoch` for the PEP 440 concept.
 
-    The default is to use Dunamai's `VERSION_SOURCE_PATTERN`. You can check it
-    for your installed version of Dunamai by running this command:
+    If the `base` group is not included, then this will be interpreted as a
+    named preset from the Dunamai `Pattern` class. This includes:
+    `default`, `default-unprefixed` (makes the `v` prefix optional).
+
+    You can check the default for your installed version of Dunamai by running this command:
     ```
-    poetry run python -c "import dunamai; print(dunamai.VERSION_SOURCE_PATTERN)"
+    poetry run python -c "import dunamai; print(dunamai.Pattern.Default.regex())"
     ```
-    Or you can check [the latest definition in Dunamai](https://github.com/mtkennerly/dunamai/blob/master/dunamai/__init__.py).
 
     Remember that backslashes must be escaped (`\\`) in the TOML file.
   * `format`: String. Default: unset. This defines a custom output format for
@@ -208,9 +210,12 @@ In your pyproject.toml file, you may configure the following options:
     Example, if there have been 3 commits since the `v1.3.1` tag:
     * PEP 440 with `bump = false`: `1.3.1.post3.dev0+28c1684`
     * PEP 440 with `bump = true`: `1.3.2.dev3+28c1684`
-* `[tool.poetry-dynamic-versioning.subversion]`: Options specific to Subversion.
   * `tag-dir`: String. Default: `tags`. This is the location of tags relative
-    to the root.
+    to the root. This is only used for Subversion.
+  * `tag-branch`: String. Branch on which to find tags, if different than the
+    current branch. This is only used for Git currently.
+  * `full-commit`: Boolean. Default: `False`. If true, get the full commit hash
+    instead of the short form. This is only used for Git and Mercurial.
 * `[tool.poetry-dynamic-versioning.substitution]`: Insert the dynamic version
   into additional files other than just pyproject.toml. These changes will be
   reverted when the plugin deactivates.

@@ -45,14 +45,14 @@ def build(ctx):
 
 
 @task
-def test(ctx, unit=False, integration=False, installation="pip"):
+def test(ctx, unit=False, integration=False, installation="pip", name=None):
     all = not unit and not integration
     with ctx.cd(ROOT):
         mode = "patch" if PLUGIN_PYPROJECT.exists() else "plugin"
         if unit or all:
             ctx.run("poetry run pytest")
         if integration or all:
-            ctx.run("bash ./tests/integration.sh {} {}".format(mode, installation))
+            ctx.run("bash ./tests/integration.sh {} {} {}".format(mode, installation, name or ""))
 
 
 @task
