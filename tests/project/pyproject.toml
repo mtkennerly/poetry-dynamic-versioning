@@ -16,6 +16,11 @@ vcs = "git"
 style = "semver"
 tag-dir = "alt/tags"
 
+[tool.poetry-dynamic-versioning.substitution]
+folders = [
+    { path = "docs", files = ["*.txt"], patterns = ["(<).*(>)"] }
+]
+
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"

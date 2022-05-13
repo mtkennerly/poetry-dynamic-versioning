@@ -214,7 +214,7 @@ In your pyproject.toml file, you may configure the following options:
     to the root. This is only used for Subversion.
   * `tag-branch`: String. Branch on which to find tags, if different than the
     current branch. This is only used for Git currently.
-  * `full-commit`: Boolean. Default: `False`. If true, get the full commit hash
+  * `full-commit`: Boolean. Default: false. If true, get the full commit hash
     instead of the short form. This is only used for Git and Mercurial.
 * `[tool.poetry-dynamic-versioning.substitution]`: Insert the dynamic version
   into additional files other than just pyproject.toml. These changes will be
@@ -228,6 +228,21 @@ In your pyproject.toml file, you may configure the following options:
     `["(^__version__\s*(?::.*?)?=\s*['\"])[^'\"]*(['\"])"]`.
 
     Remember that the backslashes must be escaped (`\\`) in the TOML file.
+  * `folders`: List of additional folders to check for substitutions.
+    Each item in the list may specify these options:
+
+    * `path` (string, required): Path to the folder.
+    * `files` (optional): Override `substitution.files` for this folder.
+    * `patterns` (optional): Override `substitution.patterns` for this folder.
+
+    If you use an `src` layout, you may want to keep the default `files`/`patterns`
+    and just specify the following:
+
+    ```toml
+    folders = [
+      { path = "src" }
+    ]
+    ```
 
 Simple example:
 

@@ -1,3 +1,8 @@
+## Unreleased
+
+* Added:
+  * Option `tool.poetry-dynamic-versioning.substitution.folders`.
+
 ## poetry-dynamic-versioning: v0.16.0 & poetry-dynamic-versioning-plugin: v0.2.0 (2022-05-07)
 
 * Changed:

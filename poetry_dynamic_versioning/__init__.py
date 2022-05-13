@@ -42,6 +42,26 @@ class _State:
 _state = _State()
 
 
+class _FolderConfig:
+    def __init__(self, path: Path, files: Sequence[str], patterns: Sequence[str]):
+        self.path = path
+        self.files = files
+        self.patterns = patterns
+
+    @staticmethod
+    def from_config(config: Mapping, root: Path) -> Sequence["_FolderConfig"]:
+        files = config["substitution"]["files"]
+        patterns = config["substitution"]["patterns"]
+
+        main = _FolderConfig(root, files, patterns)
+        extra = [
+            _FolderConfig(root / x["path"], x.get("files", files), x.get("patterns", patterns))
+            for x in config["substitution"]["folders"]
+        ]
+
+        return [main, *extra]
+
+
 def _default_config() -> Mapping:
     return {
         "tool": {
@@ -54,6 +74,7 @@ def _default_config() -> Mapping:
                 "substitution": {
                     "files": ["*.py", "*/__init__.py", "*/__version__.py", "*/_version.py"],
                     "patterns": [r"(^__version__\s*(?::.*?)?=\s*['\"])[^'\"]*(['\"])"],
+                    "folders": [],
                 },
                 "style": None,
                 "metadata": None,
@@ -204,19 +225,22 @@ def _get_version(config: Mapping) -> str:
     return serialized
 
 
-def _substitute_version(
-    name: str, root: Path, file_globs: Sequence[str], patterns: Sequence[str], version: str
-) -> None:
+def _substitute_version(name: str, version: str, folders: Sequence[_FolderConfig]) -> None:
     if _state.projects[name].substitutions:
         # Already ran; don't need to repeat.
         return
 
-    files = set()
-    for file_glob in file_globs:
-        # since file_glob here could be a non-internable string
-        for match in root.glob(str(file_glob)):
-            files.add(match.resolve())
-    for file in files:
+    files = {}  # type: MutableMapping[Path, Sequence[str]]
+    for folder in folders:
+        for file_glob in folder.files:
+            # call str() since file_glob here could be a non-internable string
+            for match in folder.path.glob(str(file_glob)):
+                resolved = match.resolve()
+                if resolved in files:
+                    continue
+                files[resolved] = folder.patterns
+
+    for file, patterns in files.items():
         original_content = file.read_text(encoding="utf-8")
         new_content = original_content
         for pattern in patterns:
@@ -248,10 +272,8 @@ def _apply_version(
 
     _substitute_version(
         name,  # type: ignore
-        pyproject_path.parent,
-        config["substitution"]["files"],
-        config["substitution"]["patterns"],
         version,
+        _FolderConfig.from_config(config, pyproject_path.parent),
     )
 
 

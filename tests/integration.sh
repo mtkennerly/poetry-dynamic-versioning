@@ -113,7 +113,8 @@ function test_cli_mode_and_substitution {
     # Changes persist after the command is done:
     should_fail grep 'version = "0.0.999"' $dummy/pyproject.toml && \
     should_fail grep '__version__: str = "0.0.0"' $dummy/project/__init__.py && \
-    should_fail grep '__version__ = "0.0.0"' $dummy/project/__init__.py
+    should_fail grep '__version__ = "0.0.0"' $dummy/project/__init__.py \
+    should_fail grep '<0.0.0>' $dummy/project/__init__.py
 }
 
 function test_dependency_versions {
