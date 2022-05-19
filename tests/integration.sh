@@ -117,6 +117,16 @@ function test_cli_mode_and_substitution {
     should_fail grep '<0.0.0>' $dummy/project/__init__.py
 }
 
+function test_cli_mode_and_substitution_without_enable {
+    sed -i 's/enable = .*/enable = false/' $dummy/pyproject.toml && \
+    $do_pdv \
+    # Changes persist after the command is done:
+    should_fail grep 'version = "0.0.999"' $dummy/pyproject.toml && \
+    should_fail grep '__version__: str = "0.0.0"' $dummy/project/__init__.py && \
+    should_fail grep '__version__ = "0.0.0"' $dummy/project/__init__.py \
+    should_fail grep '<0.0.0>' $dummy/project/__init__.py
+}
+
 function test_dependency_versions {
     $do_poetry install -v && \
     $do_poetry run pip list --format freeze | grep dependency-dynamic== && \

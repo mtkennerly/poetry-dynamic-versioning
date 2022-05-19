@@ -23,7 +23,7 @@ def main() -> None:
         _state.cli_mode = True
         _parse_args()
 
-        name = _get_and_apply_version(retain=True)
+        name = _get_and_apply_version(retain=True, force=True)
         if not name:
             raise RuntimeError("Unable to determine a dynamic version")
 

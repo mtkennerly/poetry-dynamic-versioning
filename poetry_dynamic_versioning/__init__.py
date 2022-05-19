@@ -283,12 +283,13 @@ def _get_and_apply_version(
     pyproject: Optional[Mapping] = None,
     pyproject_path: Optional[Path] = None,
     cd: bool = False,
+    retain: bool = False,
     # fmt: off
-    retain: bool = False
+    force: bool = False
     # fmt: on
 ) -> Optional[str]:
     if name is not None and name in _state.projects:
-        return None
+        return name
 
     if pyproject_path is None:
         pyproject_path = _get_pyproject_path()
@@ -298,15 +299,15 @@ def _get_and_apply_version(
     if pyproject is None:
         pyproject = tomlkit.parse(pyproject_path.read_text(encoding="utf-8"))
 
-    config = _get_config(pyproject)
-    if not config["enable"]:
-        return None
-
     if name is None or original is None:
         name = pyproject["tool"]["poetry"]["name"]
         original = pyproject["tool"]["poetry"]["version"]
         if name in _state.projects:
-            return None
+            return name
+
+    config = _get_config(pyproject)
+    if not config["enable"] and not force:
+        return name if name in _state.projects else None
 
     initial_dir = Path.cwd()
     target_dir = pyproject_path.parent
@@ -318,6 +319,7 @@ def _get_and_apply_version(
         if cd:
             os.chdir(str(initial_dir))
 
+    # Condition will always be true, but it makes Mypy happy.
     if name is not None and original is not None:
         _state.projects[name] = _ProjectState(pyproject_path, original, version)
         _apply_version(version, config, pyproject_path, retain)
