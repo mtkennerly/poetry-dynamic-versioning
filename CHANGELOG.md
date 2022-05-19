@@ -1,4 +1,4 @@
-## poetry-dynamic-versioning: Unreleased & poetry-dynamic-versioning-plugin: Unreleased
+## poetry-dynamic-versioning: v0.17.1 & poetry-dynamic-versioning-plugin: v0.3.1
 
 * Fixed:
   * CLI mode failed when pyproject.toml did not specify `enable = true`.
