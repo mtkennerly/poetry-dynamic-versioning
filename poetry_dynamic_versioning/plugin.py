@@ -36,7 +36,7 @@ def _patch_dependency_versions() -> None:
     @functools.wraps(Factory.create_poetry)
     def patched_create_poetry(*args, **kwargs):
         instance = original_create_poetry(*args, **kwargs)
-        _apply_version_via_plugin(instance, retain=False)
+        _apply_version_via_plugin(instance)
         return instance
 
     Factory.create_poetry = patched_create_poetry
@@ -47,13 +47,14 @@ def _should_apply(command: str) -> bool:
     return command not in ["run", "shell", "dynamic-versioning"]
 
 
-def _apply_version_via_plugin(poetry: Poetry, retain: bool) -> None:
+def _apply_version_via_plugin(poetry: Poetry, retain: bool = False, force: bool = False) -> None:
     name = _get_and_apply_version(
         name=poetry.local_config["name"],
         original=poetry.local_config["version"],
         pyproject=poetry.pyproject.data,
         pyproject_path=poetry.pyproject.file,
         retain=retain,
+        force=force,
     )
     if name:
         version = _state.projects[name].version
@@ -77,7 +78,7 @@ class DynamicVersioningCommand(Command):
         self._application = application
 
     def handle(self) -> int:
-        _apply_version_via_plugin(self._application.poetry, retain=True)
+        _apply_version_via_plugin(self._application.poetry, retain=True, force=True)
         return 0
 
 
@@ -108,7 +109,7 @@ class DynamicVersioningPlugin(ApplicationPlugin):
         if not _should_apply(event.command.name):
             return
 
-        _apply_version_via_plugin(self._application.poetry, retain=False)
+        _apply_version_via_plugin(self._application.poetry)
         _patch_dependency_versions()
 
     def _revert_version(
