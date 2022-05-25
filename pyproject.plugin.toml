@@ -40,7 +40,7 @@ mypy = "^0.740"
 pep8-naming = "^0.8.2"
 
 [tool.poetry.plugins."poetry.application.plugin"]
-poetry-dynamic-versioning = "poetry_dynamic_versioning.plugin:DynamicVersioningPlugin"
+poetry-dynamic-versioning-plugin = "poetry_dynamic_versioning.plugin:DynamicVersioningPlugin"
 
 [tool.black]
 line-length = 100

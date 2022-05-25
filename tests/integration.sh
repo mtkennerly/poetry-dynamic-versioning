@@ -55,7 +55,11 @@ function teardown {
             $do_poetry_pip uninstall -y poetry-dynamic-versioning poetry-dynamic-versioning-plugin
             ;;
         poetry-plugin)
-            $do_poetry plugin remove poetry-dynamic-versioning-plugin
+            # Workaround to avoid "The dependency group "default" does not exist" from
+            # incompatibility between Potry 1.2.0b1 and newly released poetry-core 1.1.0b1.
+            if [ -z "$CI" ]; then
+                $do_poetry plugin remove poetry-dynamic-versioning-plugin
+            fi
             ;;
     esac
 }
@@ -77,6 +81,17 @@ function test_plugin_disabled {
     sed -i 's/enable = .*/enable = false/' $dummy/pyproject.toml && \
     $do_poetry build -v && \
     ls $dummy/dist | grep 0.0.999
+}
+
+function test_plugin_disabled_without_plugin_section {
+    sed -i 's/tool.poetry-dynamic-versioning/tool.poetry-dynamic-versioning-x/' $dummy/pyproject.toml && \
+    $do_poetry build -v && \
+    ls $dummy/dist | grep 0.0.999
+}
+
+function test_plugin_disabled_without_pyproject_file {
+    cd ~ && \
+    $do_poetry --help
 }
 
 function test_invalid_config_for_vcs {
@@ -154,6 +169,12 @@ function test_bumping_enabled {
 function test_bypass {
     POETRY_DYNAMIC_VERSIONING_BYPASS=1.2.3 $do_poetry build -v && \
     ls $dummy/dist | grep 1.2.3
+}
+
+function test_plugin_show {
+    if [ "$mode" == "plugin" ]; then
+        $do_poetry plugin show
+    fi
 }
 
 function run_test {

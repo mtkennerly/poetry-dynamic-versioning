@@ -94,7 +94,12 @@ class DynamicVersioningPlugin(ApplicationPlugin):
             "dynamic-versioning", lambda: DynamicVersioningCommand(application)
         )
 
-        config = _get_config(self._application.poetry.pyproject.data)
+        try:
+            local = self._application.poetry.pyproject.data
+        except RuntimeError:
+            # We're not in a Poetry project directory
+            return
+        config = _get_config(local)
         if not config["enable"]:
             return
 
