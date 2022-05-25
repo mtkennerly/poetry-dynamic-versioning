@@ -4,7 +4,7 @@
   * `poetry` did not work correctly when in a folder without a pyproject.toml.
   * `poetry plugin show` did not work correctly.
 
-## poetry-dynamic-versioning: v0.17.1 & poetry-dynamic-versioning-plugin: v0.3.1
+## poetry-dynamic-versioning: v0.17.1 & poetry-dynamic-versioning-plugin: v0.3.1 (2022-05-19)
 
 * Fixed:
   * CLI mode failed when pyproject.toml did not specify `enable = true`.
