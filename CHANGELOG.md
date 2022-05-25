@@ -1,4 +1,4 @@
-## poetry-dynamic-versioning-plugin: v0.3.2
+## poetry-dynamic-versioning-plugin: v0.3.2 (2022-05-25)
 
 * Fixed:
   * `poetry` did not work correctly when in a folder without a pyproject.toml.
