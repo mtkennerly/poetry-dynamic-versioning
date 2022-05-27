@@ -44,25 +44,23 @@ is subject to change.
   ```
 * Include the plugin in the `build-system` section of pyproject.toml
   for interoperability with PEP 517 build frontends.
-  * For `poetry-dynamic-versioning-plugin`:
-    * ```toml
-      [build-system]
-      requires = ["poetry>=1.2.0b1", "poetry-dynamic-versioning-plugin"]
-      build-backend = "poetry.masonry.api"
-      ```
-  * For `poetry-dynamic-versioning`:
-    * Example using `poetry-core` as the build system:
-      ```toml
-      [build-system]
-      requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
-      build-backend = "poetry.core.masonry.api"
-      ```
-    * Example using `poetry` as the build system:
-      ```toml
-      [build-system]
-      requires = ["poetry>=1.1.0", "poetry-dynamic-versioning"]
-      build-backend = "poetry.masonry.api"
-      ```
+
+  * Example using `poetry-core` as the build system (recommended):
+    ```toml
+    [build-system]
+    requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
+    build-backend = "poetry.core.masonry.api"
+    ```
+  * Example using `poetry` as the build system:
+    ```toml
+    [build-system]
+    requires = ["poetry>=1.1.0", "poetry-dynamic-versioning"]
+    build-backend = "poetry.masonry.api"
+    ```
+
+  Currently, it is not possible to use `poetry-dynamic-versioning-plugin` in the
+  `build-system`, because `poetry.masonry.api` bypasses the Poetry plugin system.
+  Therefore, you must use `poetry-dynamic-versioning`.
 
 Poetry's typical `version` setting is still required in `[tool.poetry]`,
 but you are encouraged to use `version = "0.0.0"` as a standard placeholder.
