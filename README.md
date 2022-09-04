@@ -8,55 +8,41 @@ where applicable).
 
 This plugin comes in two flavors:
 
-| Package                          | Python | Poetry   | Poetry Core | Implementation  |
-|----------------------------------|--------|----------|-------------|-----------------|
-| poetry-dynamic-versioning        | 3.5+   | 1.1.0+   | 1.0.0+      | Import hack     |
-| poetry-dynamic-versioning-plugin | 3.7+   | 1.2.0b1+ | N/A         | Standard plugin |
+| Package                          | Python | Poetry | Poetry Core | Implementation  |
+|----------------------------------|--------|--------|-------------|-----------------|
+| poetry-dynamic-versioning        | 3.5+   | 1.1.0+ | 1.0.0+      | Import hack     |
+| poetry-dynamic-versioning-plugin | 3.7+   | 1.2.0+ | N/A         | Standard plugin |
 
 `poetry-dynamic-versioning` can work even when Poetry Core is used on its own
 without Poetry, but to accomplish this, it has to abuse some [import shenanigans](#implementation).
 On the other hand, `poetry-dynamic-versioning-plugin` requires Poetry proper,
-but functions as a standard Poetry plugin. The Poetry plugin interface is still
-experimental until the final Poetry 1.2.0 release, so the design of the plugin
-is subject to change.
+but functions as a standard Poetry plugin.
 
 ## Installation
-* For `poetry-dynamic-versioning-plugin`:
-  * Simply install by running `poetry plugin add poetry-dynamic-versioning-plugin`.
-* For `poetry-dynamic-versioning`, it depends on how you installed Poetry.
-  * If you installed Poetry with `pip install poetry` or `get-poetry.py`,
-    then you'll need to install the plugin into your global Python environment:
-    * `pip install poetry-dynamic-versioning`
-  * If you installed Poetry with `install-poetry.py`, then you'll need to
-    install the plugin into Poetry's virtual environment:
+* As of Poetry 1.2.0, Poetry only officially supports being installed in a virtual
+  environment and NOT in your global/user Python space. Therefore, the best way to
+  install the plugin is in the same virtual environment where you've installed Poetry:
 
-    * Windows: `%APPDATA%\pypoetry\venv\Scripts\pip install poetry-dynamic-versioning`
-    * Linux: `${XDG_DATA_HOME:-~/.local/share}/pypoetry/venv/bin/pip install poetry-dynamic-versioning`
-    * Mac: `~/Library/Application Support/pypoetry/venv/bin/pip install poetry-dynamic-versioning`
+  * For Poetry 1.2.0+, run `poetry self add poetry-dynamic-versioning-plugin`.
+  * For older Poetry versions, activate the virtual environment and run
+    `pip install poetry-dynamic-versioning`.
 
-    Note that you must install the plugin in your global Python installation,
-    **not** as a dev-dependency in pyproject.toml, because the virtual environment
-    that Poetry creates cannot see Poetry itself and therefore cannot patch it.
+  If you installed Poetry in the global environment, then you can try installing
+  the plugin there as well, but you may run into broken imports and other issues,
+  so this is no longer recommended or supported.
 * Add this section to your pyproject.toml:
   ```toml
   [tool.poetry-dynamic-versioning]
   enable = true
   ```
 * Include the plugin in the `build-system` section of pyproject.toml
-  for interoperability with PEP 517 build frontends.
+  for interoperability with PEP 517 build frontends:
 
-  * Example using `poetry-core` as the build system (recommended):
-    ```toml
-    [build-system]
-    requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
-    build-backend = "poetry.core.masonry.api"
-    ```
-  * Example using `poetry` as the build system:
-    ```toml
-    [build-system]
-    requires = ["poetry>=1.1.0", "poetry-dynamic-versioning"]
-    build-backend = "poetry.masonry.api"
-    ```
+  ```toml
+  [build-system]
+  requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
+  build-backend = "poetry.core.masonry.api"
+  ```
 
   Currently, it is not possible to use `poetry-dynamic-versioning-plugin` in the
   `build-system`, because `poetry.masonry.api` bypasses the Poetry plugin system.
