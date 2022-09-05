@@ -1,6 +1,5 @@
 __all__ = []  # type: ignore
 
-import builtins
 import copy
 import datetime as dt
 import os
@@ -30,11 +29,7 @@ class _ProjectState:
 
 class _State:
     def __init__(self) -> None:
-        self.patched_poetry_create = False
         self.patched_core_poetry_create = False
-        self.patched_poetry_command_run = False
-        self.patched_poetry_command_shell = False
-        self.original_import_func = builtins.__import__
         self.cli_mode = False
         self.projects = {}  # type: MutableMapping[str, _ProjectState]
 

@@ -4,7 +4,7 @@ version = "0.3.2"
 description = "Plugin for Poetry to enable dynamic versioning based on VCS tags"
 license = "MIT"
 authors = ["Matthew T. Kennerly <mtkennerly@gmail.com>"]
-readme = "README.md"
+readme = "README.plugin.md"
 repository = "https://github.com/mtkennerly/poetry-dynamic-versioning"
 keywords = ["poetry", "plugin", "version", "versioning", "dynamic"]
 classifiers = [
@@ -29,21 +29,10 @@ python = "^3.7"
 dunamai = "^1.12.0"
 tomlkit = ">= 0.4"
 jinja2 = ">=2.11.1, <4"
-poetry = { version = "^1.2.0b1", allow-prereleases = true }
-
-[tool.poetry.dev-dependencies]
-pytest = "^7.0"
-pre-commit = "^1.16"
-black = { version = "^19.3-alpha.0", allow-prereleases = true }
-flake8 = "^3.7"
-mypy = "^0.740"
-pep8-naming = "^0.8.2"
+poetry = "^1.2.0"
 
 [tool.poetry.plugins."poetry.application.plugin"]
 poetry-dynamic-versioning-plugin = "poetry_dynamic_versioning.plugin:DynamicVersioningPlugin"
-
-[tool.black]
-line-length = 100
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

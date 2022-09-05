@@ -3,65 +3,36 @@ set -e
 
 root=$(dirname "$(dirname "$(realpath "$0")")")
 dummy=$root/tests/project
-do_pip="pip"
-do_poetry_pip="pip"
+do_pix="pipx"
 do_poetry="poetry"
 failed="no"
-mode="${1:-patch}"
-installation="${2:-pip}"
-specific_test="$3"
-
-if [ "$mode" == "plugin" ]; then
-    do_pdv="$do_poetry dynamic-versioning"
-elif [ "$installation" == "poetry-pip" ]; then
-    poetry_bin="${XDG_DATA_HOME:-~/.local/share}/pypoetry/venv/bin"
-    eval poetry_bin="$poetry_bin"
-    do_poetry_pip="${poetry_bin}/pip"
-    do_pdv="${poetry_bin}/poetry-dynamic-versioning"
-else
-    do_pdv="poetry-dynamic-versioning"
-fi
+specific_test="$1"
 
 function setup {
-    $do_pip uninstall -y poetry-dynamic-versioning poetry-dynamic-versioning-plugin
-    if [ "$do_poetry_pip" != "$do_pip" ]; then
-        $do_poetry_pip uninstall -y poetry-dynamic-versioning poetry-dynamic-versioning-plugin
-    fi
+    $do_poetry self remove poetry-dynamic-versioning || true
 
     cd $root
     rm -rf $root/dist/*
     $do_poetry build
+    rm -rf $dummy/.venv
 
-    case $installation in
-        pip)
-            $do_pip install $root/dist/*.whl
+    uname_id="$(uname -s)"
+    case "${uname_id}" in
+        MINGW*)
+            whl_pattern="$(pwd -W)/dist/*.whl"
             ;;
-        poetry-pip)
-            $do_poetry_pip install $root/dist/*.whl
-            ;;
-        poetry-plugin)
-            $do_poetry plugin add $root/dist/*.whl
+        *)
+            whl_pattern="$root/dist/*.whl"
             ;;
     esac
+    whl_files=( $whl_pattern )
+    echo WHL FILE: "${whl_files[0]}", from pattern: "${whl_pattern}"
+    $do_poetry self add ${whl_files[0]}[plugin]
 }
 
 function teardown {
     git checkout -- $dummy $root/tests/dependency-*
-    case $installation in
-        pip)
-            $do_pip uninstall -y poetry-dynamic-versioning poetry-dynamic-versioning-plugin
-            ;;
-        poetry-pip)
-            $do_poetry_pip uninstall -y poetry-dynamic-versioning poetry-dynamic-versioning-plugin
-            ;;
-        poetry-plugin)
-            # Workaround to avoid "The dependency group "default" does not exist" from
-            # incompatibility between Potry 1.2.0b1 and newly released poetry-core 1.1.0b1.
-            if [ -z "$CI" ]; then
-                $do_poetry plugin remove poetry-dynamic-versioning-plugin
-            fi
-            ;;
-    esac
+    $do_poetry self remove poetry-dynamic-versioning || true
 }
 
 function should_fail {
@@ -123,8 +94,17 @@ function test_poetry_shell {
     fi
 }
 
-function test_cli_mode_and_substitution {
-    $do_pdv \
+function test_plugin_cli_mode_and_substitution {
+    $do_poetry dynamic-versioning \
+    # Changes persist after the command is done:
+    should_fail grep 'version = "0.0.999"' $dummy/pyproject.toml && \
+    should_fail grep '__version__: str = "0.0.0"' $dummy/project/__init__.py && \
+    should_fail grep '__version__ = "0.0.0"' $dummy/project/__init__.py \
+    should_fail grep '<0.0.0>' $dummy/project/__init__.py
+}
+
+function extra_standalone_cli_mode_and_substitution {
+    poetry-dynamic-versioning \
     # Changes persist after the command is done:
     should_fail grep 'version = "0.0.999"' $dummy/pyproject.toml && \
     should_fail grep '__version__: str = "0.0.0"' $dummy/project/__init__.py && \
@@ -134,7 +114,7 @@ function test_cli_mode_and_substitution {
 
 function test_cli_mode_and_substitution_without_enable {
     sed -i 's/enable = .*/enable = false/' $dummy/pyproject.toml && \
-    $do_pdv \
+    $do_poetry dynamic-versioning \
     # Changes persist after the command is done:
     should_fail grep 'version = "0.0.999"' $dummy/pyproject.toml && \
     should_fail grep '__version__: str = "0.0.0"' $dummy/project/__init__.py && \
@@ -150,12 +130,13 @@ function test_dependency_versions {
     $do_poetry run pip list --format freeze | grep dependency-classic==0.0.666
 }
 
-function test_poetry_core_as_build_system {
-    sed -i 's/requires = .*/requires = ["poetry-core"]/' $dummy/pyproject.toml && \
-    sed -i 's/build-backend = .*/build-backend = "poetry.core.masonry.api"/' $dummy/pyproject.toml && \
-    $do_poetry build -v && \
-    ls $dummy/dist | grep .whl && \
-    ls $dummy/dist | should_fail grep 0.0.999
+function extra_poetry_core_as_build_system {
+    cd $root/tests/dependency-dynamic
+    sed -i 's/requires = .*/requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]/' pyproject.toml && \
+    sed -i 's/build-backend = .*/build-backend = "poetry_dynamic_versioning.backend"/' pyproject.toml && \
+    pip wheel . --no-build-isolation --wheel-dir dist
+    ls dist | grep .whl && \
+    ls dist | should_fail grep 0.0.888
 }
 
 function test_bumping_enabled {
@@ -172,9 +153,7 @@ function test_bypass {
 }
 
 function test_plugin_show {
-    if [ "$mode" == "plugin" ]; then
-        $do_poetry plugin show
-    fi
+    $do_poetry self show
 }
 
 function run_test {

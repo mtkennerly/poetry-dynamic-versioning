@@ -1,3 +1,18 @@
+## poetry-dynamic-versioning: Unreleased
+
+* Changed:
+  * The minimum supported Python version is now 3.7.
+  * The minimum supported Poetry version is now 1.2.0.
+  * Import hacks have been eliminated in favor of a PEP 517 build backend wrapper
+    around Poetry Core.
+  * The two flavors of poetry-dynamic-versioning are now combined into one package
+    via the optional `plugin` feature.
+
+## poetry-dynamic-versioning-plugin: Unreleased
+
+* Deprecated the name `poetry-dynamic-versioning-plugin`
+  in favor of a newly unified `poetry-dynamic-versioning`.
+
 ## poetry-dynamic-versioning-plugin: v0.3.2 (2022-05-25)
 
 * Fixed:

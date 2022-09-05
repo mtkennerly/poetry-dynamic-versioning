@@ -54,14 +54,16 @@ def build(ctx, clean=True):
 
 
 @task
-def test(ctx, unit=False, integration=False, installation="pip", name=None):
-    all = not unit and not integration
+def test(ctx, unit=False, integration=False, extra=False, name=None):
+    all = not unit and not integration and not extra
     with ctx.cd(ROOT):
-        mode = "patch" if PLUGIN_PYPROJECT.exists() else "plugin"
         if unit or all:
             ctx.run("poetry run pytest")
         if integration or all:
-            ctx.run("bash ./tests/integration.sh {} {} {}".format(mode, installation, name or ""))
+            ctx.run("bash ./tests/integration.sh {}".format(name or ""))
+        if extra:
+            ctx.run("bash ./tests/integration.sh extra_standalone_cli_mode_and_substitution")
+            ctx.run("bash ./tests/integration.sh extra_poetry_core_as_build_system")
 
 
 @task
@@ -70,12 +72,12 @@ def install(ctx):
         uninstall(ctx)
         build(ctx)
         wheel = next(ROOT.glob("dist/*.whl"))
-        ctx.run('pip install "{}"'.format(wheel))
+        ctx.run('poetry self add "{}[plugin]"'.format(wheel))
 
 
 @task
 def uninstall(ctx):
-    ctx.run("pip uninstall -y poetry-dynamic-versioning poetry-dynamic-versioning-plugin")
+    ctx.run("poetry self remove poetry-dynamic-versioning")
 
 
 @task
