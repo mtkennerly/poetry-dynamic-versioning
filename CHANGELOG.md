@@ -1,4 +1,4 @@
-## poetry-dynamic-versioning: Unreleased
+## poetry-dynamic-versioning: v0.18.0 (2022-09-05)
 
 * Changed:
   * The minimum supported Python version is now 3.7.

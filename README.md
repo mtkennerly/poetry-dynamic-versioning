@@ -255,6 +255,3 @@ or `poetry-dynamic-versioning` (standalone script with default features).
   poetry export -f requirements.txt -o requirements.txt --without-hashes
   pip wheel -r requirements.txt
   ```
-
-## Development
-Please refer to [CONTRIBUTING.md](CONTRIBUTING.md).
