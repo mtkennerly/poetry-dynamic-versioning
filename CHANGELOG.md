@@ -8,7 +8,7 @@
   * The two flavors of poetry-dynamic-versioning are now combined into one package
     via the optional `plugin` feature.
 
-## poetry-dynamic-versioning-plugin: Unreleased
+## poetry-dynamic-versioning-plugin: v0.4.0 (2022-09-05)
 
 * Deprecated the name `poetry-dynamic-versioning-plugin`
   in favor of a newly unified `poetry-dynamic-versioning`.

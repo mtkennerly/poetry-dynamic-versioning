@@ -34,15 +34,11 @@ def switch_to_plugin():
 @task
 def patch(ctx):
     switch_to_patch()
-    with ctx.cd(ROOT):
-        ctx.run("poetry install")
 
 
 @task
 def plugin(ctx):
     switch_to_plugin()
-    with ctx.cd(ROOT):
-        ctx.run("poetry install")
 
 
 @task

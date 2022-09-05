@@ -12,7 +12,7 @@ to enable the versioning system in PEP 517 build frontends.
 When installed with the `plugin` feature (i.e., `poetry-dynamic-versioning[plugin]`),
 it also integrates with the Poetry CLI to trigger the versioning in commands like `poetry build`.
 
-For Poetry 1.1.x, you can use an older version of `poetry-dynamic-versioning`
+For Poetry 1.1.x, you can use an older version of `poetry-dynamic-versioning` (0.17.1 or earlier)
 that relied on a `*.pth` import hack, but this is no longer supported,
 so you should migrate to the standardized plugin and Poetry 1.2.0+.
 
