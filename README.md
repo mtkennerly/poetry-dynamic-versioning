@@ -17,7 +17,7 @@ that relied on a `*.pth` import hack, but this is no longer supported,
 so you should migrate to the standardized plugin and Poetry 1.2.0+.
 
 ## Installation
-* Run: `poetry self add poetry-dynamic-versioning[plugin]`
+* Run: `poetry self add "poetry-dynamic-versioning[plugin]"`
 * Add this section to your pyproject.toml:
   ```toml
   [tool.poetry-dynamic-versioning]
