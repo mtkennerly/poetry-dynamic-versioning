@@ -8,18 +8,18 @@ This project is managed using [Poetry](https://poetry.eustace.io).
   ```
 * After cloning the repository, activate the tooling:
   ```
-  pip install invoke
-  poetry install
+  pipx install invoke
+  poetry install --extras plugin
   poetry run pre-commit install
   ```
 
 Commands defined in `tasks.py`:
 
-* Load the patch-based `poetry-dynamic-versioning` package:
+* Load the main `poetry-dynamic-versioning` package:
   ```
   invoke patch
   ```
-* Load the plugin-based `poetry-dynamic-versioning-plugin` package:
+* Load the deprecated `poetry-dynamic-versioning-plugin` package:
   ```
   invoke plugin
   ```

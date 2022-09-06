@@ -41,9 +41,9 @@ jobs:
           pipx install poetry==${{ matrix.poetry-version }}
           pipx install invoke
 
-          poetry install
+          poetry install --extras plugin
           invoke test
 
-          pip install ./dist/*.whl
-          pip install poetry-core==1.1.0
-          invoke test --extra
+          # pip install ./dist/*.whl
+          # pip install poetry-core==1.1.0
+          # invoke test --extra

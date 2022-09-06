@@ -1,3 +1,4 @@
+import os
 import shutil
 from pathlib import Path
 
@@ -50,16 +51,17 @@ def build(ctx, clean=True):
 
 
 @task
-def test(ctx, unit=False, integration=False, extra=False, name=None):
-    all = not unit and not integration and not extra
+def test(ctx, unit=False, integration=False):
+    all = not unit and not integration
+
+    # This ensures we use the global Poetry instead of the venv's Poetry:
+    os.environ.update({"POETRY": shutil.which("poetry")})
+
     with ctx.cd(ROOT):
         if unit or all:
-            ctx.run("poetry run pytest")
+            ctx.run("poetry run pytest tests/test_unit.py")
         if integration or all:
-            ctx.run("bash ./tests/integration.sh {}".format(name or ""))
-        if extra:
-            ctx.run("bash ./tests/integration.sh extra_standalone_cli_mode_and_substitution")
-            ctx.run("bash ./tests/integration.sh extra_poetry_core_as_build_system")
+            ctx.run("poetry run pytest tests/test_integration.py")
 
 
 @task
