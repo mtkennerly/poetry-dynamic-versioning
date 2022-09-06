@@ -15,13 +15,10 @@ This project is managed using [Poetry](https://poetry.eustace.io).
 
 Commands defined in `tasks.py`:
 
-* Load the main `poetry-dynamic-versioning` package:
+* Load the deprecated `poetry-dynamic-versioning-plugin` package and switch back:
   ```
-  invoke patch
-  ```
-* Load the deprecated `poetry-dynamic-versioning-plugin` package:
-  ```
-  invoke plugin
+  invoke pdvp
+  invoke pdv
   ```
 * Build the currently loaded package:
   ```

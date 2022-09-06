@@ -184,11 +184,6 @@ def test_dependency_versions():
 
 
 def test_poetry_core_as_build_system():
-    print("----------------------")
-    print(run("which pip"))
-    print(run("pip list"))
-    print("----------------------")
-
     project = ROOT / "tests" / "dependency-dynamic"
     dist = project / "dist"
     pyproject = project / "pyproject.toml"

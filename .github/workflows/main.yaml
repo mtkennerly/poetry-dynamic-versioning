@@ -43,7 +43,3 @@ jobs:
 
           poetry install --extras plugin
           invoke test
-
-          # pip install ./dist/*.whl
-          # pip install poetry-core==1.1.0
-          # invoke test --extra
