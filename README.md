@@ -240,6 +240,10 @@ To activate this mode, either use `poetry dynamic-versioning` (provided by the `
 or `poetry-dynamic-versioning` (standalone script with default features).
 
 ## Caveats
+* When using Git, remember that lightweight tags do not store their creation time.
+  Therefore, if a commit has multiple lightweight tags,
+  we cannot reliably determine which one should be considered the newest.
+  The solution is to use annotated tags instead.
 * The dynamic version is not available during `poetry run` or `poetry shell`.
 * Regarding PEP 517 support:
 
