@@ -4,6 +4,9 @@
   * When using `poetry build`, the plugin did not properly disable itself in the
     copy of pyproject.toml included in source distributions, causing failures
     when trying to install them.
+* Added:
+  * Support for activating the dynamic versioning only for certain Poetry commands
+    (environment variable: `POETRY_DYNAMIC_VERSIONING_COMMANDS`).
 
 ## poetry-dynamic-versioning: v0.18.0 (2022-09-05)
 

@@ -4,6 +4,7 @@ __all__ = [
 ]
 
 import functools
+import os
 
 from cleo.commands.command import Command
 from cleo.events.console_command_event import ConsoleCommandEvent
@@ -21,6 +22,8 @@ from poetry_dynamic_versioning import (
     _state,
     _revert_version,
 )
+
+_COMMAND_ENV = "POETRY_DYNAMIC_VERSIONING_COMMANDS"
 
 
 def _patch_dependency_versions() -> None:
@@ -44,7 +47,11 @@ def _patch_dependency_versions() -> None:
 
 
 def _should_apply(command: str) -> bool:
-    return command not in ["run", "shell", "dynamic-versioning"]
+    override = os.environ.get(_COMMAND_ENV)
+    if override is not None:
+        return command in override.split(",")
+    else:
+        return command not in ["run", "shell", "dynamic-versioning"]
 
 
 def _apply_version_via_plugin(poetry: Poetry, retain: bool = False, force: bool = False) -> None:

@@ -232,6 +232,18 @@ vcs = "git"
 style = "semver"
 ```
 
+## Environment variables
+In addition to the project-specific configuration above,
+you can apply some global overrides via environment variables.
+
+* `POETRY_DYNAMIC_VERSIONING_BYPASS`:
+  Use this to bypass the VCS mechanisms and use a static version instead.
+  This is mainly for distro package maintainers who need to patch existing releases,
+  without needing access to the original repository.
+* `POETRY_DYNAMIC_VERSIONING_COMMANDS`:
+  You can set a comma-separated list of Poetry commands during which to activate the versioning.
+  For example, `build,publish` will limit the dynamic versioning to those two commands.
+
 ## Command line mode
 The plugin also has a command line mode for execution on demand.
 This mode applies the dynamic version to all relevant files and leaves
