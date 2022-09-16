@@ -1,4 +1,4 @@
-## Unreleased
+## v0.19.0 (2022-09-16)
 
 * Fixed:
   * When using `poetry build`, the plugin did not properly disable itself in the
