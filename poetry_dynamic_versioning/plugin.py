@@ -73,18 +73,17 @@ class DynamicVersioningCommand(Command):
     )
 
     def __init__(self, application: Application):
-        _state.cli_mode = True
         super().__init__()
         self._application = application
 
     def handle(self) -> int:
+        _state.cli_mode = True
         _apply_version_via_plugin(self._application.poetry, retain=True, force=True)
         return 0
 
 
 class DynamicVersioningPlugin(ApplicationPlugin):
     def __init__(self):
-        _state.cli_mode = True
         self._application = None
 
     def activate(self, application: Application) -> None:
