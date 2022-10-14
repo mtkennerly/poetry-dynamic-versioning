@@ -56,7 +56,7 @@ In your pyproject.toml file, you may configure the following options:
     globally, this setting is an opt-in per project. This setting will likely
     be removed once plugins are officially supported.
   * `vcs` (string, default: `any`): This is the version control system to check for a version.
-    One of: `any`, `git`, `mercurial`, `darcs`, `bazaar`, `subversion`, `fossil`.
+    One of: `any`, `git`, `mercurial`, `darcs`, `bazaar`, `subversion`, `fossil`, `pijul`.
   * `metadata` (boolean, default: unset): If true, include the commit hash in
     the version, and also include a dirty flag if `dirty` is true. If unset,
     metadata will only be included if you are on a commit without a version tag.

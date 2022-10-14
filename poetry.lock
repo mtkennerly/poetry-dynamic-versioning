@@ -219,7 +219,7 @@ pgp = ["gpg"]
 
 [[package]]
 name = "dunamai"
-version = "1.12.0"
+version = "1.13.2"
 description = "Dynamic version generation"
 category = "main"
 optional = false
@@ -925,7 +925,7 @@ plugin = ["poetry"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "8d47c63510ff957c5117cd1e59bafa711e0e436f1ae1045140271a7d2a35f7e0"
+content-hash = "f8fa1ade41ecf334e0aee7b8e7253f93c672a2257b70fa096cd8753d6777c6f3"
 
 [metadata.files]
 "aspy.yaml" = [
@@ -1119,8 +1119,8 @@ dulwich = [
     {file = "dulwich-0.20.45.tar.gz", hash = "sha256:70710dd9ca2a442190c7e506892db074c318ac762e221f7529b8ce34802041b7"},
 ]
 dunamai = [
-    {file = "dunamai-1.12.0-py3-none-any.whl", hash = "sha256:00b9c1ef58d4950204f76c20f84afe7a28d095f77feaa8512dbb172035415e61"},
-    {file = "dunamai-1.12.0.tar.gz", hash = "sha256:fac4f09e2b8a105bd01f8c50450fea5aa489a6c439c949950a65f0dd388b0d20"},
+    {file = "dunamai-1.13.2-py3-none-any.whl", hash = "sha256:d64974271c32d40ad097dceac43e411c87ca9f74d22ce55e03b358fa1adf624d"},
+    {file = "dunamai-1.13.2.tar.gz", hash = "sha256:3bb079c1a84b3dd04a20071e6c914308caba125af98bcef537cabed1a628d989"},
 ]
 filelock = [
     {file = "filelock-3.2.1-py2.py3-none-any.whl", hash = "sha256:7f07b08d731907441ff40d0c5b81f9512cd968842e0b6264c8bd18a8ce877760"},

@@ -1,3 +1,9 @@
+## Unreleased
+
+* Changed:
+  * Updated Dunamai to 1.13.2+ for the latest features and bug fixes.
+    In particular, this fixes an error when parsing Git output with `showSignature = true` configured.
+
 ## v0.19.0 (2022-09-16)
 
 * Fixed:
