@@ -1,4 +1,4 @@
-## Unreleased
+## v0.20.0 (2022-10-18)
 
 * Changed:
   * Updated Dunamai to 1.13.2+ for the latest features and bug fixes.
