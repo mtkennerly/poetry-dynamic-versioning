@@ -4,6 +4,7 @@ import sys
 from poetry_dynamic_versioning import (
     _get_and_apply_version,
     _state,
+    _validate_config,
 )
 
 
@@ -22,6 +23,12 @@ def main() -> None:
     try:
         _state.cli_mode = True
         _parse_args()
+
+        errors = _validate_config()
+        if errors:
+            print("Configuration issues:")
+            for error in errors:
+                print("  - {}".format(error))
 
         name = _get_and_apply_version(retain=True, force=True)
         if not name:

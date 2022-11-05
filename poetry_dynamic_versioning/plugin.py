@@ -21,6 +21,7 @@ from poetry_dynamic_versioning import (
     _get_and_apply_version,
     _state,
     _revert_version,
+    _validate_config,
 )
 
 _COMMAND_ENV = "POETRY_DYNAMIC_VERSIONING_COMMANDS"
@@ -105,6 +106,13 @@ class DynamicVersioningPlugin(ApplicationPlugin):
         except RuntimeError:
             # We're not in a Poetry project directory
             return
+
+        errors = _validate_config(local)
+        if errors:
+            print("poetry-dynamic-versioning configuration issues:")
+            for error in errors:
+                print("  - {}".format(error))
+
         config = _get_config(local)
         if not config["enable"]:
             return

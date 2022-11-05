@@ -58,4 +58,7 @@ def install(ctx):
 
 @task
 def uninstall(ctx):
-    ctx.run("poetry self remove poetry-dynamic-versioning")
+    try:
+        ctx.run("poetry self remove poetry-dynamic-versioning")
+    except Exception:
+        pass

@@ -127,6 +127,35 @@ def _get_config_from_path(start: Path = None) -> Mapping:
     return result
 
 
+def _validate_config(config: Optional[Mapping] = None) -> Sequence[str]:
+    if config is None:
+        pyproject_path = _get_pyproject_path()
+        if pyproject_path is None:
+            raise RuntimeError("Unable to find pyproject.toml")
+        config = tomlkit.parse(pyproject_path.read_text(encoding="utf-8"))
+
+    return _validate_config_section(
+        config.get("tool", {}).get("poetry-dynamic-versioning", {}),
+        _default_config()["tool"]["poetry-dynamic-versioning"],
+        ["tool", "poetry-dynamic-versioning"],
+    )
+
+
+def _validate_config_section(
+    config: Mapping, default: Mapping, path: Sequence[str]
+) -> Sequence[str]:
+    errors = []
+
+    for (key, value) in config.items():
+        if key not in default:
+            escaped_key = key if "." not in key else '"{}"'.format(key)
+            errors.append("Unknown key: " + ".".join([*path, escaped_key]))
+        elif isinstance(value, dict) and isinstance(config.get(key), dict):
+            errors.extend(_validate_config_section(config[key], default[key], [*path, key]))
+
+    return errors
+
+
 def _escape_branch(value: Optional[str]) -> Optional[str]:
     if value is None:
         return None

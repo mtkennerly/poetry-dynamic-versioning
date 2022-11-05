@@ -1,3 +1,9 @@
+## Unreleased
+
+* Added:
+  * The plugin now prints a warning if its configuration is invalid.
+    Right now, this just checks for unknown keys.
+
 ## v0.20.0 (2022-10-18)
 
 * Changed:
