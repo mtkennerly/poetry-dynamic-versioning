@@ -1,4 +1,4 @@
-## Unreleased
+## v0.21.0 (2022-11-07)
 
 * Added:
   * The plugin now prints a warning if its configuration is invalid.
