@@ -1,4 +1,4 @@
-## Unreleased
+## v0.21.1 (2022-11-08)
 
 * Fixed:
   * Invalid config warning was printed to stdout instead of stderr.
