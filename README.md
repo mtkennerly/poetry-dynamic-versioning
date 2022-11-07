@@ -190,6 +190,8 @@ In your pyproject.toml file, you may configure the following options:
     current branch. This is only used for Git currently.
   * `full-commit` (boolean, default: false): If true, get the full commit hash
     instead of the short form. This is only used for Git and Mercurial.
+  * `strict` (boolean, default: false):
+    If true, then fail instead of falling back to 0.0.0 when there are no tags.
 * `[tool.poetry-dynamic-versioning.substitution]`: Insert the dynamic version
   into additional files other than just pyproject.toml. These changes will be
   reverted when the plugin deactivates.

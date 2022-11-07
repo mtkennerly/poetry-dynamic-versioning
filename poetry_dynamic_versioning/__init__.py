@@ -81,6 +81,7 @@ def _default_config() -> Mapping:
                 "full-commit": False,
                 "tag-branch": None,
                 "tag-dir": "tags",
+                "strict": False,
             }
         }
     }
@@ -200,6 +201,7 @@ def _get_version(config: Mapping) -> str:
         config["tag-dir"],
         config["tag-branch"],
         config["full-commit"],
+        config["strict"],
     )
 
     if config["format-jinja"]:

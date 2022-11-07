@@ -3,6 +3,7 @@
 * Added:
   * The plugin now prints a warning if its configuration is invalid.
     Right now, this just checks for unknown keys.
+  * A `strict` option to prevent falling back to `0.0.0` when there are no tags.
 * Changed:
   * Updated Dunamai to 1.14.0+ for the latest features.
     This adds support for VCS archival files, namely ones produced by `git archive` and `hg archive`.
