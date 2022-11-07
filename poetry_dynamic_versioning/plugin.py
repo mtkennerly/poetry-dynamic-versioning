@@ -5,6 +5,7 @@ __all__ = [
 
 import functools
 import os
+import sys
 
 from cleo.commands.command import Command
 from cleo.events.console_command_event import ConsoleCommandEvent
@@ -109,9 +110,9 @@ class DynamicVersioningPlugin(ApplicationPlugin):
 
         errors = _validate_config(local)
         if errors:
-            print("poetry-dynamic-versioning configuration issues:")
+            print("poetry-dynamic-versioning configuration issues:", file=sys.stderr)
             for error in errors:
-                print("  - {}".format(error))
+                print("  - {}".format(error), file=sys.stderr)
 
         config = _get_config(local)
         if not config["enable"]:

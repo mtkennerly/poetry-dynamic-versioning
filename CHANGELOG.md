@@ -1,3 +1,8 @@
+## Unreleased
+
+* Fixed:
+  * Invalid config warning was printed to stdout instead of stderr.
+
 ## v0.21.0 (2022-11-07)
 
 * Added:

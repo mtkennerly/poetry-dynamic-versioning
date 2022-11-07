@@ -26,9 +26,9 @@ def main() -> None:
 
         errors = _validate_config()
         if errors:
-            print("Configuration issues:")
+            print("Configuration issues:", file=sys.stderr)
             for error in errors:
-                print("  - {}".format(error))
+                print("  - {}".format(error), file=sys.stderr)
 
         name = _get_and_apply_version(retain=True, force=True)
         if not name:
