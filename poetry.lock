@@ -21,7 +21,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 dev = ["coverage[toml] (>=5.0.2)", "furo", "hypothesis", "mypy", "pre-commit", "pympler", "pytest (>=4.3.0)", "pytest-mypy-plugins", "six", "sphinx", "sphinx-notfound-page", "zope.interface"]
 docs = ["furo", "sphinx", "sphinx-notfound-page", "zope.interface"]
 tests = ["coverage[toml] (>=5.0.2)", "hypothesis", "mypy", "pympler", "pytest (>=4.3.0)", "pytest-mypy-plugins", "six", "zope.interface"]
-tests_no_zope = ["coverage[toml] (>=5.0.2)", "hypothesis", "mypy", "pympler", "pytest (>=4.3.0)", "pytest-mypy-plugins", "six"]
+tests-no-zope = ["coverage[toml] (>=5.0.2)", "hypothesis", "mypy", "pympler", "pytest (>=4.3.0)", "pytest-mypy-plugins", "six"]
 
 [[package]]
 name = "backports.entry-points-selectable"
@@ -130,7 +130,7 @@ optional = true
 python-versions = ">=3.6.0"
 
 [package.extras]
-unicode_backport = ["unicodedata2"]
+unicode-backport = ["unicodedata2"]
 
 [[package]]
 name = "cleo"
@@ -219,7 +219,7 @@ pgp = ["gpg"]
 
 [[package]]
 name = "dunamai"
-version = "1.13.2"
+version = "1.14.0"
 description = "Dynamic version generation"
 category = "main"
 optional = false
@@ -774,7 +774,7 @@ urllib3 = ">=1.21.1,<1.27"
 
 [package.extras]
 socks = ["PySocks (>=1.5.6,!=1.5.7)"]
-use_chardet_on_py3 = ["chardet (>=3.0.2,<6)"]
+use-chardet-on-py3 = ["chardet (>=3.0.2,<6)"]
 
 [[package]]
 name = "requests-toolbelt"
@@ -925,7 +925,7 @@ plugin = ["poetry"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "f8fa1ade41ecf334e0aee7b8e7253f93c672a2257b70fa096cd8753d6777c6f3"
+content-hash = "4b9dd288e0229b0fc17ba857d837beee710d419c06d87548f35d58a5ed144a19"
 
 [metadata.files]
 "aspy.yaml" = [
@@ -1119,8 +1119,8 @@ dulwich = [
     {file = "dulwich-0.20.45.tar.gz", hash = "sha256:70710dd9ca2a442190c7e506892db074c318ac762e221f7529b8ce34802041b7"},
 ]
 dunamai = [
-    {file = "dunamai-1.13.2-py3-none-any.whl", hash = "sha256:d64974271c32d40ad097dceac43e411c87ca9f74d22ce55e03b358fa1adf624d"},
-    {file = "dunamai-1.13.2.tar.gz", hash = "sha256:3bb079c1a84b3dd04a20071e6c914308caba125af98bcef537cabed1a628d989"},
+    {file = "dunamai-1.14.0-py3-none-any.whl", hash = "sha256:1e648a3c929bd7618df6bbfeb2b3e82dc59eae130af4affa8d876eb0b02f49df"},
+    {file = "dunamai-1.14.0.tar.gz", hash = "sha256:002abe8b9273e61c03d85918181cf6f3a42940cbb99bd93c825242f3712a1331"},
 ]
 filelock = [
     {file = "filelock-3.2.1-py2.py3-none-any.whl", hash = "sha256:7f07b08d731907441ff40d0c5b81f9512cd968842e0b6264c8bd18a8ce877760"},

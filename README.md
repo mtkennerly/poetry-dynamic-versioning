@@ -254,6 +254,11 @@ but the `enable` option is not necessary.
 To activate this mode, either use `poetry dynamic-versioning` (provided by the `plugin` feature)
 or `poetry-dynamic-versioning` (standalone script with default features).
 
+## VCS archives
+Sometimes, you may only have access to an archive of a repository (e.g., a zip file) without the full history.
+The plugin can still detect a version in some of these cases.
+Refer to [the Dunamai documentation](https://github.com/mtkennerly/dunamai#vcs-archives) for more info.
+
 ## Caveats
 * When using Git, remember that lightweight tags do not store their creation time.
   Therefore, if a commit has multiple lightweight tags,

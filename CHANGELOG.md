@@ -3,6 +3,10 @@
 * Added:
   * The plugin now prints a warning if its configuration is invalid.
     Right now, this just checks for unknown keys.
+* Changed:
+  * Updated Dunamai to 1.14.0+ for the latest features.
+    This adds support for VCS archival files, namely ones produced by `git archive` and `hg archive`.
+    Refer to [the Dunamai documentation](https://github.com/mtkennerly/dunamai#vcs-archives) for more info.
 
 ## v0.20.0 (2022-10-18)
 
