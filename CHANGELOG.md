@@ -1,4 +1,4 @@
-## Unreleased
+## v0.21.2 (2022-12-16)
 
 * Fixed:
   * Line endings were not necessarily preserved because of the default behavior of `pathlib.Path.write_text`.
