@@ -275,7 +275,7 @@ def _substitute_version(name: str, version: str, folders: Sequence[_FolderConfig
             )
         if original_content != new_content:
             _state.projects[name].substitutions[file] = original_content
-            file.write_text(new_content, encoding="utf-8")
+            file.write_bytes(new_content.encode("utf-8"))
 
 
 def _apply_version(
@@ -292,7 +292,7 @@ def _apply_version(
         if not retain and not _state.cli_mode:
             pyproject["tool"]["poetry-dynamic-versioning"]["enable"] = False  # type: ignore
 
-        pyproject_path.write_text(tomlkit.dumps(pyproject), encoding="utf-8")
+        pyproject_path.write_bytes(tomlkit.dumps(pyproject).encode("utf-8"))
 
     name = pyproject["tool"]["poetry"]["name"]  # type: ignore
 
@@ -362,10 +362,10 @@ def _revert_version(retain: bool = False) -> None:
             if not retain and not _state.cli_mode:
                 pyproject["tool"]["poetry-dynamic-versioning"]["enable"] = True  # type: ignore
 
-            state.path.write_text(tomlkit.dumps(pyproject), encoding="utf-8")
+            state.path.write_bytes(tomlkit.dumps(pyproject).encode("utf-8"))
 
         if state.substitutions:
             for file, content in state.substitutions.items():
-                file.write_text(content, encoding="utf-8")
+                file.write_bytes(content.encode("utf-8"))
 
     _state.projects.clear()

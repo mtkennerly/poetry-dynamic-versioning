@@ -88,7 +88,7 @@ def test_plugin_enabled():
 def test_plugin_disabled():
     data = DUMMY_PYPROJECT.read_text("utf8")
     data = data.replace("enable = true", "enable = false")
-    DUMMY_PYPROJECT.write_text(data, "utf8")
+    DUMMY_PYPROJECT.write_bytes(data.encode("utf-8"))
 
     run("poetry build", where=DUMMY)
     artifact = next(DUMMY_DIST.glob("*.whl"))
@@ -98,7 +98,7 @@ def test_plugin_disabled():
 def test_plugin_disabled_without_plugin_section():
     data = DUMMY_PYPROJECT.read_text("utf8")
     data = data.replace("[tool.poetry-dynamic-versioning]", "[tool.poetry-dynamic-versioning-x]")
-    DUMMY_PYPROJECT.write_text(data, "utf8")
+    DUMMY_PYPROJECT.write_bytes(data.encode("utf-8"))
 
     run("poetry build", where=DUMMY)
     artifact = next(DUMMY_DIST.glob("*.whl"))
@@ -113,7 +113,7 @@ def test_plugin_disabled_without_pyproject_file():
 def test_invalid_config_for_vcs():
     data = DUMMY_PYPROJECT.read_text("utf8")
     data = data.replace('vcs = "git"', 'vcs = "invalid"')
-    DUMMY_PYPROJECT.write_text(data, "utf8")
+    DUMMY_PYPROJECT.write_bytes(data.encode("utf-8"))
 
     run("poetry build", where=DUMMY, codes=[1])
 
@@ -164,7 +164,7 @@ def test_standalone_cli_mode_and_substitution():
 def test_cli_mode_and_substitution_without_enable():
     data = DUMMY_PYPROJECT.read_text("utf8")
     data = data.replace("enable = true", "enable = false")
-    DUMMY_PYPROJECT.write_text(data, "utf8")
+    DUMMY_PYPROJECT.write_bytes(data.encode("utf-8"))
 
     run("poetry dynamic-versioning", where=DUMMY)
     # Changes persist after the command is done:
@@ -199,7 +199,7 @@ def test_poetry_core_as_build_system():
         'build-backend = "poetry_dynamic_versioning.backend"',
         data,
     )
-    pyproject.write_text(data, "utf8")
+    pyproject.write_bytes(data.encode("utf-8"))
 
     run("pip wheel . --no-build-isolation --wheel-dir dist", where=project)
     artifact = next(dist.glob("*.whl"))
@@ -210,7 +210,7 @@ def test_bumping_enabled():
     data = DUMMY_PYPROJECT.read_text("utf8")
     data = data.replace('vcs = "git"', "bump = true")
     data = data.replace('style = "semver"', 'style = "pep440"')
-    DUMMY_PYPROJECT.write_text(data, "utf8")
+    DUMMY_PYPROJECT.write_bytes(data.encode("utf-8"))
 
     run("poetry build", where=DUMMY)
     artifact = next(DUMMY_DIST.glob("*.whl"))

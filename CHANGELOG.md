@@ -1,3 +1,9 @@
+## Unreleased
+
+* Fixed:
+  * Line endings were not necessarily preserved because of the default behavior of `pathlib.Path.write_text`.
+    To avoid this, `pathlib.Path.write_bytes` is used instead now.
+
 ## v0.21.1 (2022-11-08)
 
 * Fixed:
