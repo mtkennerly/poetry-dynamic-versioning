@@ -18,7 +18,7 @@ from poetry.core.factory import Factory
 from poetry.console.application import Application
 from poetry.plugins.application_plugin import ApplicationPlugin
 
-if PackagingVersion(poetry_core_version).release >= (1, 3):
+if PackagingVersion(poetry_core_version) >= PackagingVersion("1.3.0"):
     from poetry.core.constraints.version import Version as PoetryCoreVersion
 else:
     from poetry.core.semver.version import Version as PoetryCoreVersion
