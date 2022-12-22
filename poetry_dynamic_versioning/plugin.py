@@ -11,11 +11,18 @@ from cleo.commands.command import Command
 from cleo.events.console_command_event import ConsoleCommandEvent
 from cleo.events.event_dispatcher import EventDispatcher
 from cleo.events.console_events import COMMAND, SIGNAL, TERMINATE, ERROR
+from packaging.version import Version as PackagingVersion
+from poetry.core import __version__ as poetry_core_version
 from poetry.core.poetry import Poetry
 from poetry.core.factory import Factory
-from poetry.core.semver.version import Version as PoetryCoreVersion
 from poetry.console.application import Application
 from poetry.plugins.application_plugin import ApplicationPlugin
+
+if PackagingVersion(poetry_core_version).release >= (1, 3):
+    from poetry.core.constraints.version import Version as PoetryCoreVersion
+else:
+    from poetry.core.semver.version import Version as PoetryCoreVersion
+
 
 from poetry_dynamic_versioning import (
     _get_config,
