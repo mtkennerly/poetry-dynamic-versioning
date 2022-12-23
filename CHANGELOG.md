@@ -1,3 +1,9 @@
+## v0.21.3 (2022-12-23)
+
+* Fixed:
+  * Resolved a deprecation warning when used with Poetry Core 1.3.0+.
+    ([Contributed by edgarrmondragon](https://github.com/mtkennerly/poetry-dynamic-versioning/pull/106))
+
 ## v0.21.2 (2022-12-16)
 
 * Fixed:
