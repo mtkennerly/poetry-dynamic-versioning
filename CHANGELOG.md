@@ -4,6 +4,8 @@
   * In the Poetry CLI mode and standalone script mode,
     `path` dependencies received the same dynamic version as the active project.
     This issue did not affect the build backend mode.
+* Changed:
+  * Updated Dunamai to 1.16.0+ for the latest features and bug fixes.
 
 ## v0.21.3 (2022-12-23)
 

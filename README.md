@@ -124,10 +124,10 @@ In your pyproject.toml file, you may configure the following options:
 
     Available functions:
 
-    * `bump_version` ([from Dunamai](https://github.com/mtkennerly/dunamai/blob/dc2777cdcc5eeff61c10602e33b1a0dc0bb0357b/dunamai/__init__.py#L786-L797))
-    * `serialize_pep440` ([from Dunamai](https://github.com/mtkennerly/dunamai/blob/dc2777cdcc5eeff61c10602e33b1a0dc0bb0357b/dunamai/__init__.py#L687-L710))
-    * `serialize_semver` ([from Dunamai](https://github.com/mtkennerly/dunamai/blob/dc2777cdcc5eeff61c10602e33b1a0dc0bb0357b/dunamai/__init__.py#L740-L752))
-    * `serialize_pvp` ([from Dunamai](https://github.com/mtkennerly/dunamai/blob/dc2777cdcc5eeff61c10602e33b1a0dc0bb0357b/dunamai/__init__.py#L766-L775))
+    * `bump_version` ([from Dunamai](https://github.com/mtkennerly/dunamai/blob/fe69436133d0ea2097a9fed1dbb31ec96263cf83/dunamai/__init__.py#L1965-L1977))
+    * `serialize_pep440` ([from Dunamai](https://github.com/mtkennerly/dunamai/blob/fe69436133d0ea2097a9fed1dbb31ec96263cf83/dunamai/__init__.py#L1863-L1886))
+    * `serialize_semver` ([from Dunamai](https://github.com/mtkennerly/dunamai/blob/fe69436133d0ea2097a9fed1dbb31ec96263cf83/dunamai/__init__.py#L1917-L1931))
+    * `serialize_pvp` ([from Dunamai](https://github.com/mtkennerly/dunamai/blob/fe69436133d0ea2097a9fed1dbb31ec96263cf83/dunamai/__init__.py#L1945-L1954))
 
     Simple example:
 
