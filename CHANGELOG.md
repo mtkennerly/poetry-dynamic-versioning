@@ -1,3 +1,10 @@
+## Unreleased
+
+* Fixed:
+  * In the Poetry CLI mode and standalone script mode,
+    `path` dependencies received the same dynamic version as the active project.
+    This issue did not affect the build backend mode.
+
 ## v0.21.3 (2022-12-23)
 
 * Fixed:

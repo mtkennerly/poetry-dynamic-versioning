@@ -308,7 +308,6 @@ def _get_and_apply_version(
     original: Optional[str] = None,
     pyproject: Optional[Mapping] = None,
     pyproject_path: Optional[Path] = None,
-    cd: bool = False,
     retain: bool = False,
     # fmt: off
     force: bool = False
@@ -337,13 +336,11 @@ def _get_and_apply_version(
 
     initial_dir = Path.cwd()
     target_dir = pyproject_path.parent
-    if cd:
-        os.chdir(str(target_dir))
+    os.chdir(str(target_dir))
     try:
         version = _get_version(config)
     finally:
-        if cd:
-            os.chdir(str(initial_dir))
+        os.chdir(str(initial_dir))
 
     # Condition will always be true, but it makes Mypy happy.
     if name is not None and original is not None:

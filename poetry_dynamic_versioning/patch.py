@@ -24,7 +24,6 @@ def _patch_poetry_create(factory_mod) -> None:
                 original=instance.local_config["version"],
                 pyproject=instance.pyproject.data,
                 pyproject_path=instance.pyproject.file,
-                cd=True,
             )
             if name:
                 version = _state.projects[name].version
