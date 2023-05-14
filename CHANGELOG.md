@@ -1,4 +1,4 @@
-## Unreleased
+## v0.21.5 (2023-05-15)
 
 * Fixed:
   * Compatibility with poetry-core 1.6.0+.
