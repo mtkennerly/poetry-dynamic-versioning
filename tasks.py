@@ -34,31 +34,42 @@ def build(ctx, clean=True):
 
 
 @task
-def test(ctx, unit=False, integration=False):
+def test(ctx, unit=False, integration=False, pattern=None):
     all = not unit and not integration
 
     # This ensures we use the global Poetry instead of the venv's Poetry:
     os.environ.update({"POETRY": shutil.which("poetry")})
 
+    if pattern is None:
+        pattern = ""
+    else:
+        pattern = "-k {}".format(pattern)
+
     with ctx.cd(ROOT):
         if unit or all:
-            ctx.run("poetry run pytest tests/test_unit.py")
+            ctx.run("poetry run pytest tests/test_unit.py {}".format(pattern))
         if integration or all:
-            ctx.run("poetry run pytest tests/test_integration.py")
+            ctx.run("poetry run pytest tests/test_integration.py {}".format(pattern))
 
 
 @task
-def install(ctx):
+def install(ctx, pip=False):
     with ctx.cd(ROOT):
-        uninstall(ctx)
+        uninstall(ctx, pip)
         build(ctx)
         wheel = next(ROOT.glob("dist/*.whl"))
-        ctx.run('poetry self add "{}[plugin]"'.format(wheel))
+        if pip:
+            ctx.run('pip install "{}"'.format(wheel))
+        else:
+            ctx.run('poetry self add "{}[plugin]"'.format(wheel))
 
 
 @task
-def uninstall(ctx):
+def uninstall(ctx, pip=False):
     try:
-        ctx.run("poetry self remove poetry-dynamic-versioning")
+        if pip:
+            ctx.run("pip uninstall -y poetry-dynamic-versioning")
+        else:
+            ctx.run("poetry self remove poetry-dynamic-versioning")
     except Exception:
         pass
