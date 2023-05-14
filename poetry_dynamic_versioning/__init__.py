@@ -115,6 +115,20 @@ def _get_pyproject_path(start: Path = None) -> Optional[Path]:
     return _find_higher_file("pyproject.toml", start=start)
 
 
+def _get_pyproject_path_from_poetry(pyproject) -> Path:
+    # poetry-core 1.6.0+:
+    recommended = getattr(pyproject, "path", None)
+    # poetry-core <1.6.0:
+    legacy = getattr(pyproject, "file", None)
+
+    if recommended:
+        return recommended
+    elif legacy:
+        return legacy
+    else:
+        raise RuntimeError("Unable to determine pyproject.toml path from Poetry instance")
+
+
 def _get_config(local: Mapping) -> Mapping:
     return _deep_merge_dicts(_default_config(), local)["tool"]["poetry-dynamic-versioning"]
 

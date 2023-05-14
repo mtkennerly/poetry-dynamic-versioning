@@ -27,6 +27,7 @@ else:
 from poetry_dynamic_versioning import (
     _get_config,
     _get_and_apply_version,
+    _get_pyproject_path_from_poetry,
     _state,
     _revert_version,
     _validate_config,
@@ -68,7 +69,7 @@ def _apply_version_via_plugin(poetry: Poetry, retain: bool = False, force: bool 
         name=poetry.local_config["name"],
         original=poetry.local_config["version"],
         pyproject=poetry.pyproject.data,
-        pyproject_path=poetry.pyproject.file,
+        pyproject_path=_get_pyproject_path_from_poetry(poetry.pyproject),
         retain=retain,
         force=force,
     )

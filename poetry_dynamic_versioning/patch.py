@@ -5,6 +5,7 @@ from poetry_dynamic_versioning import (
     _revert_version,
     _get_and_apply_version,
     _get_config_from_path,
+    _get_pyproject_path_from_poetry,
     _state,
 )
 
@@ -23,7 +24,7 @@ def _patch_poetry_create(factory_mod) -> None:
                 name=instance.local_config["name"],
                 original=instance.local_config["version"],
                 pyproject=instance.pyproject.data,
-                pyproject_path=instance.pyproject.file,
+                pyproject_path=_get_pyproject_path_from_poetry(instance.pyproject),
             )
             if name:
                 version = _state.projects[name].version
