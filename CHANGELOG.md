@@ -2,6 +2,8 @@
 
 * Fixed:
   * Compatibility with poetry-core 1.6.0+.
+* Changed:
+  * `CHANGELOG.md` and `tests` are now included in sdists.
 
 ## v0.21.4 (2023-02-21)
 

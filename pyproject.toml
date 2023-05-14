@@ -20,6 +20,10 @@ classifiers = [
     "Topic :: Software Development :: Version Control :: Mercurial",
     "Topic :: Software Development :: Version Control :: Bazaar",
 ]
+include = [
+    { path = "CHANGELOG.md", format = "sdist" },
+    { path = "tests", format = "sdist" },
+]
 
 [tool.poetry.dependencies]
 python = "^3.7"
