@@ -262,10 +262,9 @@ The plugin can still detect a version in some of these cases.
 Refer to [the Dunamai documentation](https://github.com/mtkennerly/dunamai#vcs-archives) for more info.
 
 ## Caveats
-* When using Git, remember that lightweight tags do not store their creation time.
-  Therefore, if a commit has multiple lightweight tags,
-  we cannot reliably determine which one should be considered the newest.
-  The solution is to use annotated tags instead.
+All of [Dunamai's caveats](https://github.com/mtkennerly/dunamai#other-notes) apply.
+In addition to those:
+
 * The dynamic version is not available during `poetry run` or `poetry shell`.
 * Regarding PEP 517 support:
 
