@@ -1,3 +1,12 @@
+## Unreleased
+
+* Added:
+  * The plugin will print a warning for shallow Git repositories
+    (and any other `Concern`s reported by Dunamai in the future).
+    This becomes an error with `strict = true`.
+* Changed:
+  * Updated Dunamai to 1.17.0+ for the latest features and bug fixes.
+
 ## v0.21.5 (2023-05-15)
 
 * Fixed:

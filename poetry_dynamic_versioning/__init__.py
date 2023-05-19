@@ -4,6 +4,7 @@ import copy
 import datetime as dt
 import os
 import re
+import sys
 from importlib import import_module
 from pathlib import Path
 from typing import Mapping, MutableMapping, Optional, Sequence
@@ -217,6 +218,9 @@ def _get_version(config: Mapping) -> str:
         config["full-commit"],
         config["strict"],
     )
+
+    for concern in version.concerns:
+        print("Warning: {}".format(concern.message()), file=sys.stderr)
 
     if config["format-jinja"]:
         if config["bump"] and version.distance > 0:
