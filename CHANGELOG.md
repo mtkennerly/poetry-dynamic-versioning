@@ -1,4 +1,4 @@
-## Unreleased
+## v0.22.0 (2023-05-19)
 
 * Added:
   * The plugin will print a warning for shallow Git repositories
