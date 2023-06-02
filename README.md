@@ -240,6 +240,8 @@ you can apply some global overrides via environment variables.
 
 * `POETRY_DYNAMIC_VERSIONING_BYPASS`:
   Use this to bypass the VCS mechanisms and use a static version instead.
+  The value of the environment variable will be used as the version
+  for the active project and any path/SSH dependencies that also use the plugin.
   This is mainly for distro package maintainers who need to patch existing releases,
   without needing access to the original repository.
 * `POETRY_DYNAMIC_VERSIONING_COMMANDS`:
