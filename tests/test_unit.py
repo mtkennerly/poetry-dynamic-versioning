@@ -85,3 +85,23 @@ def test__get_version__format_jinja_imports_with_module_and_item(config):
     config["format-jinja"] = "{{ pow(2, 3) }}"
     config["format-jinja-imports"] = [{"module": "math", "item": "pow"}]
     assert plugin._get_version(config) == "8.0"
+
+
+def test__get_override_version__bypass():
+    env = {plugin._BYPASS_ENV: "0.1.0"}
+    assert plugin._get_override_version(None, env) == "0.1.0"
+    assert plugin._get_override_version("foo", env) == "0.1.0"
+
+
+def test__get_override_version__override():
+    env = {plugin._OVERRIDE_ENV: "foo=0.1.0,bar=0.2.0"}
+    assert plugin._get_override_version(None, env) is None
+    assert plugin._get_override_version("foo", env) == "0.1.0"
+    assert plugin._get_override_version("bar", env) == "0.2.0"
+    assert plugin._get_override_version("baz", env) is None
+
+
+def test__get_override_version__combined():
+    env = {plugin._BYPASS_ENV: "0.0.0", plugin._OVERRIDE_ENV: "foo = 0.1.0, bar = 0.2.0"}
+    assert plugin._get_override_version(None, env) == "0.0.0"
+    assert plugin._get_override_version("foo", env) == "0.1.0"

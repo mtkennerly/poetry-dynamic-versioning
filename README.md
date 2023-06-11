@@ -244,6 +244,11 @@ you can apply some global overrides via environment variables.
   for the active project and any path/SSH dependencies that also use the plugin.
   This is mainly for distro package maintainers who need to patch existing releases,
   without needing access to the original repository.
+* `POETRY_DYNAMIC_VERSIONING_OVERRIDE`:
+  Use a static version for specific packages only, but leave dynamic versioning enabled otherwise.
+  For example, `pkg1 = 0.1.0, pkg2 = 0.2.0` (spaces are optional) would set pkg1 to 0.1.0 and pkg2 to 0.2.0.
+  This only affects packages for which poetry-dynamic-versioning is enabled.
+  When both variables are set, `OVERRIDE` takes precedence over `BYPASS`.
 * `POETRY_DYNAMIC_VERSIONING_COMMANDS`:
   You can set a comma-separated list of Poetry commands during which to activate the versioning.
   For example, `build,publish` will limit the dynamic versioning to those two commands.

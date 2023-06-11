@@ -1,3 +1,8 @@
+## Unreleased
+
+* Added:
+  * Support for `POETRY_DYNAMIC_VERSIONING_OVERRIDE` environment variable.
+
 ## v0.22.0 (2023-05-19)
 
 * Added:

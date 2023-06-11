@@ -12,6 +12,7 @@ from typing import Mapping, MutableMapping, Optional, Sequence
 import tomlkit
 
 _BYPASS_ENV = "POETRY_DYNAMIC_VERSIONING_BYPASS"
+_OVERRIDE_ENV = "POETRY_DYNAMIC_VERSIONING_OVERRIDE"
 
 
 class _ProjectState:
@@ -184,10 +185,31 @@ def _format_timestamp(value: Optional[dt.datetime]) -> Optional[str]:
     return value.strftime("%Y%m%d%H%M%S")
 
 
-def _get_version(config: Mapping) -> str:
-    bypass = os.environ.get(_BYPASS_ENV)
+def _get_override_version(name: Optional[str], env: Optional[Mapping] = None) -> Optional[str]:
+    env = env if env is not None else os.environ
+
+    if name is not None:
+        raw_overrides = env.get(_OVERRIDE_ENV)
+        if raw_overrides is not None:
+            pairs = raw_overrides.split(",")
+            for pair in pairs:
+                if "=" not in pair:
+                    continue
+                k, v = pair.split("=", 1)
+                if k.strip() == name:
+                    return v.strip()
+
+    bypass = env.get(_BYPASS_ENV)
     if bypass is not None:
         return bypass
+
+    return None
+
+
+def _get_version(config: Mapping, name: Optional[str] = None) -> str:
+    override = _get_override_version(name)
+    if override is not None:
+        return override
 
     import jinja2
     from dunamai import (
@@ -356,7 +378,7 @@ def _get_and_apply_version(
     target_dir = pyproject_path.parent
     os.chdir(str(target_dir))
     try:
-        version = _get_version(config)
+        version = _get_version(config, name)
     finally:
         os.chdir(str(initial_dir))
 
