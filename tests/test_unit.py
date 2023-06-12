@@ -1,10 +1,13 @@
 import os
+import textwrap
 from pathlib import Path
 
 import pytest
+import tomlkit
 from dunamai import Version
 
 import poetry_dynamic_versioning as plugin
+from poetry_dynamic_versioning import cli
 
 root = Path(__file__).parents[1]
 
@@ -105,3 +108,85 @@ def test__get_override_version__combined():
     env = {plugin._BYPASS_ENV: "0.0.0", plugin._OVERRIDE_ENV: "foo = 0.1.0, bar = 0.2.0"}
     assert plugin._get_override_version(None, env) == "0.0.0"
     assert plugin._get_override_version("foo", env) == "0.1.0"
+
+
+def test__enable_in_doc__empty():
+    doc = tomlkit.parse("")
+    updated = cli._enable_in_doc(doc)
+    assert updated[cli.Key.tool][cli.Key.pdv][cli.Key.enable] is True
+    assert updated[cli.Key.build_system][cli.Key.requires] == cli._DEFAULT_REQUIRES
+    assert updated[cli.Key.build_system][cli.Key.build_backend] == cli._DEFAULT_BUILD_BACKEND
+    assert (
+        tomlkit.dumps(updated)
+        == textwrap.dedent(
+            """
+        [tool]
+        [tool.poetry-dynamic-versioning]
+        enable = true
+
+        [build-system]
+        requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
+        build-backend = "poetry_dynamic_versioning.backend"
+    """
+        ).lstrip()
+    )
+
+
+def test__enable_in_doc__added_pdv():
+    doc = tomlkit.parse(
+        textwrap.dedent(
+            """
+        [tool]
+        foo = 1
+    """
+        )
+    )
+    updated = cli._enable_in_doc(doc)
+    assert updated[cli.Key.tool][cli.Key.pdv][cli.Key.enable] is True
+    assert updated[cli.Key.build_system][cli.Key.requires] == cli._DEFAULT_REQUIRES
+    assert updated[cli.Key.build_system][cli.Key.build_backend] == cli._DEFAULT_BUILD_BACKEND
+
+
+def test__enable_in_doc__updated_enable():
+    doc = tomlkit.parse(
+        textwrap.dedent(
+            """
+        [tool.poetry-dynamic-versioning]
+        enable = false
+    """
+        )
+    )
+    updated = cli._enable_in_doc(doc)
+    assert updated[cli.Key.tool][cli.Key.pdv][cli.Key.enable] is True
+    assert updated[cli.Key.build_system][cli.Key.requires] == cli._DEFAULT_REQUIRES
+    assert updated[cli.Key.build_system][cli.Key.build_backend] == cli._DEFAULT_BUILD_BACKEND
+
+
+def test__enable_in_doc__updated_requires():
+    doc = tomlkit.parse(
+        textwrap.dedent(
+            """
+        [build-system]
+        requires = ["foo"]
+    """
+        )
+    )
+    updated = cli._enable_in_doc(doc)
+    assert updated[cli.Key.tool][cli.Key.pdv][cli.Key.enable] is True
+    assert updated[cli.Key.build_system][cli.Key.requires] == cli._DEFAULT_REQUIRES
+    assert updated[cli.Key.build_system][cli.Key.build_backend] == cli._DEFAULT_BUILD_BACKEND
+
+
+def test__enable_in_doc__updated_build_backend():
+    doc = tomlkit.parse(
+        textwrap.dedent(
+            """
+        [build-system]
+        build-backend = ""
+    """
+        )
+    )
+    updated = cli._enable_in_doc(doc)
+    assert updated[cli.Key.tool][cli.Key.pdv][cli.Key.enable] is True
+    assert updated[cli.Key.build_system][cli.Key.requires] == cli._DEFAULT_REQUIRES
+    assert updated[cli.Key.build_system][cli.Key.build_backend] == cli._DEFAULT_BUILD_BACKEND

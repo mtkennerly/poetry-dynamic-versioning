@@ -21,12 +21,16 @@ If you've previously installed the deprecated `poetry-dynamic-versioning-plugin`
 be sure to uninstall it before proceeding.
 
 * Run: `poetry self add "poetry-dynamic-versioning[plugin]"`
-* Add this section to your pyproject.toml:
+* Run in your project: `poetry dynamic-versioning enable`
+
+  Or you can update your pyproject.toml manually:
+
   ```toml
   [tool.poetry-dynamic-versioning]
   enable = true
   ```
-* Include the plugin in the `build-system` section of pyproject.toml
+
+  Include the plugin in the `build-system` section of pyproject.toml
   for interoperability with PEP 517 build frontends:
 
   ```toml

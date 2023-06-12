@@ -5,7 +5,6 @@ __all__ = [
 
 import functools
 import os
-import sys
 
 from cleo.commands.command import Command
 from cleo.events.console_command_event import ConsoleCommandEvent
@@ -25,12 +24,12 @@ else:
 
 
 from poetry_dynamic_versioning import (
+    cli,
     _get_config,
     _get_and_apply_version,
     _get_pyproject_path_from_poetry,
     _state,
     _revert_version,
-    _validate_config,
 )
 
 _COMMAND_ENV = "POETRY_DYNAMIC_VERSIONING_COMMANDS"
@@ -61,7 +60,7 @@ def _should_apply(command: str) -> bool:
     if override is not None:
         return command in override.split(",")
     else:
-        return command not in ["run", "shell", "dynamic-versioning"]
+        return command not in ["run", "shell", cli.Command.dv, cli.Command.dv_enable]
 
 
 def _apply_version_via_plugin(poetry: Poetry, retain: bool = False, force: bool = False) -> None:
@@ -81,13 +80,12 @@ def _apply_version_via_plugin(poetry: Poetry, retain: bool = False, force: bool 
         poetry._package._version = PoetryCoreVersion.parse(version)
         poetry._package._pretty_version = version
 
+        cli.report_apply(name)
+
 
 class DynamicVersioningCommand(Command):
-    name = "dynamic-versioning"
-    description = (
-        "Apply the dynamic version to all relevant files and leave the changes in-place."
-        " This allows you to activate the plugin behavior on demand and inspect the result."
-    )
+    name = cli.Command.dv
+    description = cli.Help.main
 
     def __init__(self, application: Application):
         super().__init__()
@@ -99,6 +97,20 @@ class DynamicVersioningCommand(Command):
         return 0
 
 
+class DynamicVersioningEnableCommand(Command):
+    name = cli.Command.dv_enable
+    description = cli.Help.enable
+
+    def __init__(self, application: Application):
+        super().__init__()
+        self._application = application
+
+    def handle(self) -> int:
+        _state.cli_mode = True
+        cli.enable()
+        return 0
+
+
 class DynamicVersioningPlugin(ApplicationPlugin):
     def __init__(self):
         self._application = None
@@ -107,7 +119,10 @@ class DynamicVersioningPlugin(ApplicationPlugin):
         self._application = application
 
         application.command_loader.register_factory(
-            "dynamic-versioning", lambda: DynamicVersioningCommand(application)
+            cli.Command.dv, lambda: DynamicVersioningCommand(application)
+        )
+        application.command_loader.register_factory(
+            cli.Command.dv_enable, lambda: DynamicVersioningEnableCommand(application)
         )
 
         try:
@@ -116,11 +131,7 @@ class DynamicVersioningPlugin(ApplicationPlugin):
             # We're not in a Poetry project directory
             return
 
-        errors = _validate_config(local)
-        if errors:
-            print("poetry-dynamic-versioning configuration issues:", file=sys.stderr)
-            for error in errors:
-                print("  - {}".format(error), file=sys.stderr)
+        cli.validate(standalone=False, config=local)
 
         config = _get_config(local)
         if not config["enable"]:
