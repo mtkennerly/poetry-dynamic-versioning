@@ -219,7 +219,7 @@ In your pyproject.toml file, you may configure the following options:
 
     ```toml
     patterns = [
-        "(^__version__\\s*(?::.*?)?=\\s*['\\"])[^'\\"]*(['\\"])",
+        "(^__version__\\s*(?::.*?)?=\\s*['\"])[^'\"]*(['\"])",
         { value = "(^__version_tuple__\\s*(?::.*?)?=\\s*\\()[^)]*(\\))", mode = "tuple" },
     ]
     ```
