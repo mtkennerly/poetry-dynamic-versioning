@@ -72,7 +72,8 @@ def apply(*, standalone: bool) -> None:
     if not name:
         raise RuntimeError("Unable to determine a dynamic version")
 
-    report_apply(name)
+    if standalone:
+        report_apply(name)
 
 
 def report_apply(name: str) -> None:

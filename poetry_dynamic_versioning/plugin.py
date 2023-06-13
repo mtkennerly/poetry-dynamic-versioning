@@ -63,7 +63,9 @@ def _should_apply(command: str) -> bool:
         return command not in ["run", "shell", cli.Command.dv, cli.Command.dv_enable]
 
 
-def _apply_version_via_plugin(poetry: Poetry, retain: bool = False, force: bool = False) -> None:
+def _apply_version_via_plugin(
+    poetry: Poetry, retain: bool = False, force: bool = False, standalone: bool = False
+) -> None:
     name = _get_and_apply_version(
         name=poetry.local_config["name"],
         original=poetry.local_config["version"],
@@ -80,7 +82,8 @@ def _apply_version_via_plugin(poetry: Poetry, retain: bool = False, force: bool 
         poetry._package._version = PoetryCoreVersion.parse(version)
         poetry._package._pretty_version = version
 
-        cli.report_apply(name)
+        if standalone:
+            cli.report_apply(name)
 
 
 class DynamicVersioningCommand(Command):
@@ -93,7 +96,9 @@ class DynamicVersioningCommand(Command):
 
     def handle(self) -> int:
         _state.cli_mode = True
-        _apply_version_via_plugin(self._application.poetry, retain=True, force=True)
+        _apply_version_via_plugin(
+            self._application.poetry, retain=True, force=True, standalone=True
+        )
         return 0
 
 
