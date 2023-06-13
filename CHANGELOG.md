@@ -1,4 +1,4 @@
-## Unreleased
+## v0.23.0 (2023-06-13)
 
 * Added:
   * CLI `enable` subcommand to enable the plugin in pyproject.toml.
