@@ -3,6 +3,7 @@
 * Added:
   * CLI `enable` subcommand to enable the plugin in pyproject.toml.
   * Support for `POETRY_DYNAMIC_VERSIONING_OVERRIDE` environment variable.
+  * `mode` option for substitution to support `__version_tuple__` style.
 * Changed:
   * CLI: `poetry dynamic-versioning` now outputs a summary of the changes,
     the same way that `poetry-dynamic-versioning` already did.

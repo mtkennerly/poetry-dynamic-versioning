@@ -7,7 +7,7 @@ import re
 import sys
 from importlib import import_module
 from pathlib import Path
-from typing import Mapping, MutableMapping, Optional, Sequence
+from typing import Mapping, MutableMapping, Optional, Sequence, Union
 
 import tomlkit
 
@@ -39,8 +39,26 @@ class _State:
 _state = _State()
 
 
+class _SubPattern:
+    def __init__(self, value: str, mode: str):
+        self.value = value
+        self.mode = mode
+
+    @staticmethod
+    def from_config(config: Sequence[Union[str, Mapping]]) -> Sequence["_SubPattern"]:
+        patterns = []
+
+        for x in config:
+            if isinstance(x, str):
+                patterns.append(_SubPattern(x, mode="str"))
+            else:
+                patterns.append(_SubPattern(x["value"], mode=x.get("mode", "str")))
+
+        return patterns
+
+
 class _FolderConfig:
-    def __init__(self, path: Path, files: Sequence[str], patterns: Sequence[str]):
+    def __init__(self, path: Path, files: Sequence[str], patterns: Sequence[_SubPattern]):
         self.path = path
         self.files = files
         self.patterns = patterns
@@ -48,11 +66,15 @@ class _FolderConfig:
     @staticmethod
     def from_config(config: Mapping, root: Path) -> Sequence["_FolderConfig"]:
         files = config["substitution"]["files"]
-        patterns = config["substitution"]["patterns"]
+        patterns = _SubPattern.from_config(config["substitution"]["patterns"])
 
         main = _FolderConfig(root, files, patterns)
         extra = [
-            _FolderConfig(root / x["path"], x.get("files", files), x.get("patterns", patterns))
+            _FolderConfig(
+                root / x["path"],
+                x.get("files", files),
+                _SubPattern.from_config(x["patterns"]) if "patterns" in x else patterns,
+            )
             for x in config["substitution"]["folders"]
         ]
 
@@ -70,7 +92,13 @@ def _default_config() -> Mapping:
                 "latest-tag": False,
                 "substitution": {
                     "files": ["*.py", "*/__init__.py", "*/__version__.py", "*/_version.py"],
-                    "patterns": [r"(^__version__\s*(?::.*?)?=\s*['\"])[^'\"]*(['\"])"],
+                    "patterns": [
+                        r"(^__version__\s*(?::.*?)?=\s*['\"])[^'\"]*(['\"])",
+                        {
+                            "value": r"(^__version_tuple__\s*(?::.*?)?=\s*\()[^)]*(\))",
+                            "mode": "tuple",
+                        },
+                    ],
                     "folders": [],
                 },
                 "style": None,
@@ -296,7 +324,7 @@ def _substitute_version(name: str, version: str, folders: Sequence[_FolderConfig
         # Already ran; don't need to repeat.
         return
 
-    files = {}  # type: MutableMapping[Path, Sequence[str]]
+    files = {}  # type: MutableMapping[Path, _FolderConfig]
     for folder in folders:
         for file_glob in folder.files:
             # call str() since file_glob here could be a non-internable string
@@ -304,18 +332,44 @@ def _substitute_version(name: str, version: str, folders: Sequence[_FolderConfig
                 resolved = match.resolve()
                 if resolved in files:
                     continue
-                files[resolved] = folder.patterns
+                files[resolved] = folder
 
-    for file, patterns in files.items():
+    for file, config in files.items():
         original_content = file.read_text(encoding="utf-8")
-        new_content = original_content
-        for pattern in patterns:
-            new_content = re.sub(
-                pattern, r"\g<1>{}\g<2>".format(version), new_content, flags=re.MULTILINE
-            )
+        new_content = _substitute_version_in_text(version, original_content, config.patterns)
         if original_content != new_content:
             _state.projects[name].substitutions[file] = original_content
             file.write_bytes(new_content.encode("utf-8"))
+
+
+def _substitute_version_in_text(version: str, content: str, patterns: Sequence[_SubPattern]) -> str:
+    new_content = content
+
+    for pattern in patterns:
+        if pattern.mode == "str":
+            insert = version
+        elif pattern.mode == "tuple":
+            parts = []
+            split = version.split("+", 1)
+            split = [*re.split(r"[-.]", split[0]), *split[1:]]
+            for part in split:
+                if part == "":
+                    continue
+                try:
+                    parts.append(str(int(part)))
+                except ValueError:
+                    parts.append('"{}"'.format(part))
+            insert = ", ".join(parts)
+            if len(parts) == 1:
+                insert += ","
+        else:
+            raise ValueError("Invalid substitution mode: {}".format(pattern.mode))
+
+        new_content = re.sub(
+            pattern.value, r"\g<1>{}\g<2>".format(insert), new_content, flags=re.MULTILINE
+        )
+
+    return new_content
 
 
 def _apply_version(

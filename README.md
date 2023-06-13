@@ -44,13 +44,13 @@ be sure to uninstall it before proceeding.
 Poetry's typical `version` setting is still required in `[tool.poetry]`,
 but you are encouraged to use `version = "0.0.0"` as a standard placeholder.
 
-With the minimal configuration above, the plugin will automatically take effect
-when you run commands such as `poetry build`. It will update the version in
-pyproject.toml, then revert the change when the plugin deactivates. If you want
-to include a `__version__` variable in your code, just put a placeholder in the
-appropriate file and configure the plugin to update it (see below) if it isn't
-one of the defaults. You are encouraged to use `__version__ = "0.0.0"` as a
-standard placeholder.
+With the minimal configuration above,
+the plugin will automatically take effect when you run commands such as `poetry build`.
+It will update the version in pyproject.toml, then revert the change when the plugin deactivates.
+
+The default configuration will also update any pre-existing
+`__version__ = "0.0.0"` and `__version_tuple__ = (0, 0, 0)` placeholders in some files.
+You can configure additional substitution patterns/files as needed (see below).
 
 ## Configuration
 In your pyproject.toml file, you may configure the following options:
@@ -202,10 +202,27 @@ In your pyproject.toml file, you may configure the following options:
   * `files` (array of strings): Globs for any files that need substitutions. Default:
     `["*.py", "*/__init__.py", "*/__version__.py", "*/_version.py"]`.
     To disable substitution, set this to an empty list.
-  * `patterns` (array of strings): Regular expressions for the text to replace.
+  * `patterns` (array of strings/tables): Regular expressions for the text to replace.
     Each regular expression must have two capture groups, which are any
-    text to preserve before and after the replaced text. Default:
-    `["(^__version__\s*(?::.*?)?=\s*['\"])[^'\"]*(['\"])"]`.
+    text to preserve before and after the replaced text.
+
+    String items are interpreted as a regular expression directly.
+    Table items support these keys:
+    * `value` (string): This is the regular expression.
+    * `mode` (string, optional): This controls how the version should be inserted. Options:
+      * `str` (default): Serialize version as-is.
+        The capture groups should already include the surrounding quotation marks.
+      * `tuple`: Serialize `0.1.2.dev0+a.b` as `0, 1, 2, "dev0", "a.b"`.
+        The capture groups should already include the surrounding parentheses.
+
+    Default:
+
+    ```toml
+    patterns = [
+        "(^__version__\\s*(?::.*?)?=\\s*['\\"])[^'\\"]*(['\\"])",
+        { value = "(^__version_tuple__\\s*(?::.*?)?=\\s*\\()[^)]*(\\))", mode = "tuple" },
+    ]
+    ```
 
     Remember that the backslashes must be escaped (`\\`) in the TOML file.
   * `folders` (array of tables, default: empty): List of additional folders to

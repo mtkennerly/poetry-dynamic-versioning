@@ -149,6 +149,9 @@ def test_plugin_cli_mode_and_substitution():
     assert f'version = "{DUMMY_VERSION}"' not in DUMMY_PYPROJECT.read_text("utf8")
     assert '__version__: str = "0.0.0"' not in (DUMMY / "project" / "__init__.py").read_text("utf8")
     assert '__version__ = "0.0.0"' not in (DUMMY / "project" / "__init__.py").read_text("utf8")
+    assert "__version_tuple__ = (0, 0, 0)" not in (DUMMY / "project" / "__init__.py").read_text(
+        "utf8"
+    )
     assert "<0.0.0>" not in (DUMMY / "project" / "__init__.py").read_text("utf8")
 
 
@@ -158,6 +161,9 @@ def test_standalone_cli_mode_and_substitution():
     assert f'version = "{DUMMY_VERSION}"' not in DUMMY_PYPROJECT.read_text("utf8")
     assert '__version__: str = "0.0.0"' not in (DUMMY / "project" / "__init__.py").read_text("utf8")
     assert '__version__ = "0.0.0"' not in (DUMMY / "project" / "__init__.py").read_text("utf8")
+    assert "__version_tuple__ = (0, 0, 0)" not in (DUMMY / "project" / "__init__.py").read_text(
+        "utf8"
+    )
     assert "<0.0.0>" not in (DUMMY / "project" / "__init__.py").read_text("utf8")
 
 
@@ -171,6 +177,9 @@ def test_cli_mode_and_substitution_without_enable():
     assert f'version = "{DUMMY_VERSION}"' not in DUMMY_PYPROJECT.read_text("utf8")
     assert '__version__: str = "0.0.0"' not in (DUMMY / "project" / "__init__.py").read_text("utf8")
     assert '__version__ = "0.0.0"' not in (DUMMY / "project" / "__init__.py").read_text("utf8")
+    assert "__version_tuple__ = (0, 0, 0)" not in (DUMMY / "project" / "__init__.py").read_text(
+        "utf8"
+    )
     assert "<0.0.0>" not in (DUMMY / "project" / "__init__.py").read_text("utf8")
 
 

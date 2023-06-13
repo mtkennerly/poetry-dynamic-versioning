@@ -120,14 +120,14 @@ def test__enable_in_doc__empty():
         tomlkit.dumps(updated)
         == textwrap.dedent(
             """
-        [tool]
-        [tool.poetry-dynamic-versioning]
-        enable = true
+                [tool]
+                [tool.poetry-dynamic-versioning]
+                enable = true
 
-        [build-system]
-        requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
-        build-backend = "poetry_dynamic_versioning.backend"
-    """
+                [build-system]
+                requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
+                build-backend = "poetry_dynamic_versioning.backend"
+            """
         ).lstrip()
     )
 
@@ -136,9 +136,9 @@ def test__enable_in_doc__added_pdv():
     doc = tomlkit.parse(
         textwrap.dedent(
             """
-        [tool]
-        foo = 1
-    """
+                [tool]
+                foo = 1
+            """
         )
     )
     updated = cli._enable_in_doc(doc)
@@ -151,9 +151,9 @@ def test__enable_in_doc__updated_enable():
     doc = tomlkit.parse(
         textwrap.dedent(
             """
-        [tool.poetry-dynamic-versioning]
-        enable = false
-    """
+                [tool.poetry-dynamic-versioning]
+                enable = false
+            """
         )
     )
     updated = cli._enable_in_doc(doc)
@@ -166,9 +166,9 @@ def test__enable_in_doc__updated_requires():
     doc = tomlkit.parse(
         textwrap.dedent(
             """
-        [build-system]
-        requires = ["foo"]
-    """
+                [build-system]
+                requires = ["foo"]
+            """
         )
     )
     updated = cli._enable_in_doc(doc)
@@ -181,12 +181,56 @@ def test__enable_in_doc__updated_build_backend():
     doc = tomlkit.parse(
         textwrap.dedent(
             """
-        [build-system]
-        build-backend = ""
-    """
+                [build-system]
+                build-backend = ""
+            """
         )
     )
     updated = cli._enable_in_doc(doc)
     assert updated[cli.Key.tool][cli.Key.pdv][cli.Key.enable] is True
     assert updated[cli.Key.build_system][cli.Key.requires] == cli._DEFAULT_REQUIRES
     assert updated[cli.Key.build_system][cli.Key.build_backend] == cli._DEFAULT_BUILD_BACKEND
+
+
+def test__substitute_version_in_text__integers_only():
+    content = textwrap.dedent(
+        """
+            __version__: str = "0.0.0"
+            __version__ = "0.0.0"
+            __version_tuple__ = (0, 0, 0)
+        """
+    )
+    output = textwrap.dedent(
+        """
+            __version__: str = "0.1.2"
+            __version__ = "0.1.2"
+            __version_tuple__ = (0, 1, 2)
+        """
+    )
+    version = "0.1.2"
+    patterns = plugin._SubPattern.from_config(
+        plugin._default_config()["tool"]["poetry-dynamic-versioning"]["substitution"]["patterns"]
+    )
+    assert plugin._substitute_version_in_text(version, content, patterns) == output
+
+
+def test__substitute_version_in_text__mixed():
+    content = textwrap.dedent(
+        """
+            __version__: str = "0.0.0"
+            __version__ = "0.0.0"
+            __version_tuple__ = (0, 0, 0)
+        """
+    )
+    output = textwrap.dedent(
+        """
+            __version__: str = "0.1.2.dev0-post.4+meta.data"
+            __version__ = "0.1.2.dev0-post.4+meta.data"
+            __version_tuple__ = (0, 1, 2, "dev0", "post", 4, "meta.data")
+        """
+    )
+    version = "0.1.2.dev0-post.4+meta.data"
+    patterns = plugin._SubPattern.from_config(
+        plugin._default_config()["tool"]["poetry-dynamic-versioning"]["substitution"]["patterns"]
+    )
+    assert plugin._substitute_version_in_text(version, content, patterns) == output
