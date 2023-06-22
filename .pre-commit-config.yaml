@@ -9,8 +9,8 @@ repos:
     hooks:
       - id: forbid-tabs
   - repo: https://github.com/mtkennerly/pre-commit-hooks
-    rev: v0.1.0
+    rev: v0.3.0
     hooks:
       - id: poetry-black
-      - id: poetry-flake8
       - id: poetry-mypy
+      - id: poetry-ruff
