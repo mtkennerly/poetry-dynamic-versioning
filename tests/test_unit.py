@@ -120,7 +120,6 @@ def test__enable_in_doc__empty():
         tomlkit.dumps(updated)
         == textwrap.dedent(
             """
-                [tool]
                 [tool.poetry-dynamic-versioning]
                 enable = true
 
