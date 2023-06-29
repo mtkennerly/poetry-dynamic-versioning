@@ -33,9 +33,10 @@ from poetry_dynamic_versioning import (
 )
 
 _COMMAND_ENV = "POETRY_DYNAMIC_VERSIONING_COMMANDS"
+_COMMAND_NO_IO_ENV = "POETRY_DYNAMIC_VERSIONING_COMMANDS_NO_IO"
 
 
-def _patch_dependency_versions() -> None:
+def _patch_dependency_versions(io: bool) -> None:
     """
     The plugin system doesn't seem to expose a way to change dependency
     versions, so we patch `Factory.create_poetry()` to do the work there.
@@ -48,7 +49,7 @@ def _patch_dependency_versions() -> None:
     @functools.wraps(Factory.create_poetry)
     def patched_create_poetry(*args, **kwargs):
         instance = original_create_poetry(*args, **kwargs)
-        _apply_version_via_plugin(instance)
+        _apply_version_via_plugin(instance, io=io)
         return instance
 
     Factory.create_poetry = patched_create_poetry
@@ -63,8 +64,22 @@ def _should_apply(command: str) -> bool:
         return command not in ["run", "shell", cli.Command.dv, cli.Command.dv_enable]
 
 
+def _should_apply_with_io(command: str) -> bool:
+    override = os.environ.get(_COMMAND_NO_IO_ENV)
+    if override is not None:
+        return command not in override.split(",")
+    else:
+        return command not in ["version"]
+
+
 def _apply_version_via_plugin(
-    poetry: Poetry, retain: bool = False, force: bool = False, standalone: bool = False
+    poetry: Poetry,
+    retain: bool = False,
+    force: bool = False,
+    standalone: bool = False,
+    # fmt: off
+    io: bool = True
+    # fmt: on
 ) -> None:
     name = _get_and_apply_version(
         name=poetry.local_config["name"],
@@ -73,6 +88,7 @@ def _apply_version_via_plugin(
         pyproject_path=_get_pyproject_path_from_poetry(poetry.pyproject),
         retain=retain,
         force=force,
+        io=io,
     )
     if name:
         version = _state.projects[name].version
@@ -153,13 +169,18 @@ class DynamicVersioningPlugin(ApplicationPlugin):
         if not _should_apply(event.command.name):
             return
 
-        _apply_version_via_plugin(self._application.poetry)
-        _patch_dependency_versions()
+        io = _should_apply_with_io(event.command.name)
+
+        _apply_version_via_plugin(self._application.poetry, io=io)
+        _patch_dependency_versions(io)
 
     def _revert_version(
         self, event: ConsoleCommandEvent, kind: str, dispatcher: EventDispatcher
     ) -> None:
         if not _should_apply(event.command.name):
+            return
+
+        if not _should_apply_with_io(event.command.name):
             return
 
         _revert_version()

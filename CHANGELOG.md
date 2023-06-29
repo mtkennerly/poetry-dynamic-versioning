@@ -1,3 +1,8 @@
+## Unreleased
+
+* Changed:
+  * During `poetry version`, the plugin still activates, but no longer modifies pyproject.toml.
+
 ## v0.23.0 (2023-06-13)
 
 * Added:

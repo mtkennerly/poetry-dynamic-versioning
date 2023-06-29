@@ -403,8 +403,9 @@ def _get_and_apply_version(
     pyproject: Optional[Mapping] = None,
     pyproject_path: Optional[Path] = None,
     retain: bool = False,
+    force: bool = False,
     # fmt: off
-    force: bool = False
+    io: bool = True
     # fmt: on
 ) -> Optional[str]:
     if name is not None and name in _state.projects:
@@ -439,7 +440,8 @@ def _get_and_apply_version(
     # Condition will always be true, but it makes Mypy happy.
     if name is not None and original is not None:
         _state.projects[name] = _ProjectState(pyproject_path, original, version)
-        _apply_version(version, config, pyproject_path, retain)
+        if io:
+            _apply_version(version, config, pyproject_path, retain)
 
     return name
 
