@@ -275,6 +275,7 @@ you can apply some global overrides via environment variables.
   For example, `build,publish` will limit the dynamic versioning to those two commands.
 * `POETRY_DYNAMIC_VERSIONING_COMMANDS_NO_IO`:
   Comma-separated list of Poetry commands during which the plugin should **not** directly modify files.
+  The plugin will still set the dynamic version in memory so that Poetry itself can write it as needed.
   Default: `version`.
 
 ## Command line mode
@@ -296,7 +297,9 @@ Refer to [the Dunamai documentation](https://github.com/mtkennerly/dunamai#vcs-a
 All of [Dunamai's caveats](https://github.com/mtkennerly/dunamai#other-notes) apply.
 In addition to those:
 
-* The dynamic version is not available during `poetry run` or `poetry shell`.
+* The dynamic version is not available during `poetry run` or `poetry shell`
+  because of a [Poetry design choice](https://github.com/python-poetry/poetry/issues/8092)
+  that prevents the plugin from cleaning up after itself.
 * Regarding PEP 517 support:
 
   `pip wheel .` and `pip install .` will work with new enough Pip versions

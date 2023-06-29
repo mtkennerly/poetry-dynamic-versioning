@@ -1,5 +1,9 @@
-## Unreleased
+## v0.24.0 (2023-06-30)
 
+* Added:
+  * `POETRY_DYNAMIC_VERSIONING_COMMANDS_NO_IO`
+    environment variable to prevent the plugin from modifying files during certain commands.
+    The plugin still sets the dynamic version in memory so that Poetry itself can write it as needed.
 * Changed:
   * During `poetry version`, the plugin still activates, but no longer modifies pyproject.toml.
 
