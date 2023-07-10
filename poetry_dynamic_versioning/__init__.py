@@ -299,7 +299,7 @@ def _get_version(config: Mapping, name: Optional[str] = None) -> str:
 
         if Concern.ShallowRepository in version.concerns and version.vcs == Vcs.Git:
             retry = True
-            _run_cmd("git fetch --tags")
+            _run_cmd("git fetch --unshallow")
 
         if retry:
             version = _get_version_from_dunamai(vcs, pattern, config)
