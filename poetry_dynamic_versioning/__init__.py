@@ -4,10 +4,12 @@ import copy
 import datetime as dt
 import os
 import re
+import shlex
+import subprocess
 import sys
 from importlib import import_module
 from pathlib import Path
-from typing import Mapping, MutableMapping, Optional, Sequence, Union
+from typing import Mapping, MutableMapping, Optional, Sequence, Tuple, Union
 
 import tomlkit
 
@@ -112,6 +114,7 @@ def _default_config() -> Mapping:
                 "tag-branch": None,
                 "tag-dir": "tags",
                 "strict": False,
+                "fix-shallow-repository": False,
             }
         }
     }
@@ -213,6 +216,22 @@ def _format_timestamp(value: Optional[dt.datetime]) -> Optional[str]:
     return value.strftime("%Y%m%d%H%M%S")
 
 
+def _run_cmd(command: str, codes: Sequence[int] = (0,)) -> Tuple[int, str]:
+    result = subprocess.run(
+        shlex.split(command),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+    )
+    output = result.stdout.decode().strip()
+    if codes and result.returncode not in codes:
+        raise RuntimeError(
+            "The command '{}' returned code {}. Output:\n{}".format(
+                command, result.returncode, output
+            )
+        )
+    return (result.returncode, output)
+
+
 def _get_override_version(name: Optional[str], env: Optional[Mapping] = None) -> Optional[str]:
     env = env if env is not None else os.environ
 
@@ -234,6 +253,20 @@ def _get_override_version(name: Optional[str], env: Optional[Mapping] = None) ->
     return None
 
 
+def _get_version_from_dunamai(vcs, pattern, config, *, strict: Optional[bool] = None):
+    from dunamai import Version
+
+    return Version.from_vcs(
+        vcs,
+        pattern,
+        config["latest-tag"],
+        config["tag-dir"],
+        config["tag-branch"],
+        config["full-commit"],
+        config["strict"] if strict is None else strict,
+    )
+
+
 def _get_version(config: Mapping, name: Optional[str] = None) -> str:
     override = _get_override_version(name)
     if override is not None:
@@ -243,13 +276,13 @@ def _get_version(config: Mapping, name: Optional[str] = None) -> str:
     from dunamai import (
         bump_version,
         check_version,
+        Concern,
         Pattern,
         serialize_pep440,
         serialize_pvp,
         serialize_semver,
         Style,
         Vcs,
-        Version,
     )
 
     vcs = Vcs(config["vcs"])
@@ -259,15 +292,19 @@ def _get_version(config: Mapping, name: Optional[str] = None) -> str:
 
     pattern = config["pattern"] if config["pattern"] is not None else Pattern.Default
 
-    version = Version.from_vcs(
-        vcs,
-        pattern,
-        config["latest-tag"],
-        config["tag-dir"],
-        config["tag-branch"],
-        config["full-commit"],
-        config["strict"],
-    )
+    if config["fix-shallow-repository"]:
+        # We start without strict so we can inspect the concerns.
+        version = _get_version_from_dunamai(vcs, pattern, config, strict=False)
+        retry = config["strict"]
+
+        if Concern.ShallowRepository in version.concerns and version.vcs == Vcs.Git:
+            retry = True
+            _run_cmd("git fetch --tags")
+
+        if retry:
+            version = _get_version_from_dunamai(vcs, pattern, config)
+    else:
+        version = _get_version_from_dunamai(vcs, pattern, config)
 
     for concern in version.concerns:
         print("Warning: {}".format(concern.message()), file=sys.stderr)

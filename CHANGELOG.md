@@ -1,3 +1,11 @@
+## Unreleased
+
+* Added:
+  * `fix-shallow-repository` option to attempt to automatically fix shallow repositories.
+    Currently, this only supports Git and will run `git fetch --tags`.
+* Changed:
+  * Updated Dunamai to 1.18.0+ for the latest features.
+
 ## v0.24.0 (2023-06-30)
 
 * Added:
