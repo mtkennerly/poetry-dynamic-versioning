@@ -273,6 +273,8 @@ you can apply some global overrides via environment variables.
 * `POETRY_DYNAMIC_VERSIONING_COMMANDS`:
   You can set a comma-separated list of Poetry commands during which to activate the versioning.
   For example, `build,publish` will limit the dynamic versioning to those two commands.
+  Similarly, setting `POETRY_DYNAMIC_VERSIONING_COMMANDS=""` will disable the dynamic versioning altogether,
+  which is useful in isolated environments like Docker where versions may not be computable and not needed anymore.
 * `POETRY_DYNAMIC_VERSIONING_COMMANDS_NO_IO`:
   Comma-separated list of Poetry commands during which the plugin should **not** directly modify files.
   The plugin will still set the dynamic version in memory so that Poetry itself can write it as needed.
