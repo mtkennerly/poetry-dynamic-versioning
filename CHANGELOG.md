@@ -1,4 +1,4 @@
-## Unreleased
+## v0.25.0 (2023-07-11)
 
 * Added:
   * `fix-shallow-repository` option to attempt to automatically fix shallow repositories.
