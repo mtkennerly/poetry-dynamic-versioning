@@ -1,4 +1,4 @@
-## Unreleased
+## v1.0.0 (2023-08-18)
 
 * Fixed:
   * Running `poetry dynamic-versioning` followed by `poetry build`
