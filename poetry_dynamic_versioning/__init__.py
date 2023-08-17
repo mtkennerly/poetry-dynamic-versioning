@@ -414,16 +414,15 @@ def _apply_version(
 ) -> None:
     pyproject = tomlkit.parse(pyproject_path.read_text(encoding="utf-8"))
 
-    if pyproject["tool"]["poetry"]["version"] != version:  # type: ignore
-        pyproject["tool"]["poetry"]["version"] = version  # type: ignore
+    pyproject["tool"]["poetry"]["version"] = version  # type: ignore
 
-        # Disable the plugin in case we're building a source distribution,
-        # which won't have access to the VCS info at install time.
-        # We revert this later when we deactivate.
-        if not retain and not _state.cli_mode:
-            pyproject["tool"]["poetry-dynamic-versioning"]["enable"] = False  # type: ignore
+    # Disable the plugin in case we're building a source distribution,
+    # which won't have access to the VCS info at install time.
+    # We revert this later when we deactivate.
+    if not retain and not _state.cli_mode:
+        pyproject["tool"]["poetry-dynamic-versioning"]["enable"] = False  # type: ignore
 
-        pyproject_path.write_bytes(tomlkit.dumps(pyproject).encode("utf-8"))
+    pyproject_path.write_bytes(tomlkit.dumps(pyproject).encode("utf-8"))
 
     name = pyproject["tool"]["poetry"]["name"]  # type: ignore
 
@@ -485,14 +484,13 @@ def _get_and_apply_version(
 
 def _revert_version(retain: bool = False) -> None:
     for project, state in _state.projects.items():
-        if state.original_version != state.version:
-            pyproject = tomlkit.parse(state.path.read_text(encoding="utf-8"))
-            pyproject["tool"]["poetry"]["version"] = state.original_version  # type: ignore
+        pyproject = tomlkit.parse(state.path.read_text(encoding="utf-8"))
+        pyproject["tool"]["poetry"]["version"] = state.original_version  # type: ignore
 
-            if not retain and not _state.cli_mode:
-                pyproject["tool"]["poetry-dynamic-versioning"]["enable"] = True  # type: ignore
+        if not retain and not _state.cli_mode:
+            pyproject["tool"]["poetry-dynamic-versioning"]["enable"] = True  # type: ignore
 
-            state.path.write_bytes(tomlkit.dumps(pyproject).encode("utf-8"))
+        state.path.write_bytes(tomlkit.dumps(pyproject).encode("utf-8"))
 
         if state.substitutions:
             for file, content in state.substitutions.items():

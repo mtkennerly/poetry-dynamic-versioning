@@ -1,3 +1,9 @@
+## Unreleased
+
+* Fixed:
+  * Running `poetry dynamic-versioning` followed by `poetry build`
+    would leave the plugin enabled in the sdist's pyproject.toml.
+
 ## v0.25.0 (2023-07-11)
 
 * Added:

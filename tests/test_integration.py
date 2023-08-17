@@ -3,10 +3,12 @@ import re
 import shlex
 import shutil
 import subprocess
+import tarfile
 from pathlib import Path
 from typing import Optional, Sequence, Tuple
 
 import pytest
+import tomlkit
 
 ROOT = Path(__file__).parent.parent
 DIST = ROOT / "dist"
@@ -181,6 +183,17 @@ def test_cli_mode_and_substitution_without_enable():
         "utf8"
     )
     assert "<0.0.0>" not in (DUMMY / "project" / "__init__.py").read_text("utf8")
+
+
+def test_cli_mode_plus_build_will_disable_plugin():
+    run("poetry dynamic-versioning", where=DUMMY)
+    run("poetry build", where=DUMMY)
+    artifact = next(DUMMY_DIST.glob("*.tar.gz"))
+    with tarfile.open(artifact, "r:gz") as f:
+        item = "{}/pyproject.toml".format(artifact.name.replace(".tar.gz", ""))
+        content = f.extractfile(item).read()
+        parsed = tomlkit.parse(content)
+        assert parsed["tool"]["poetry-dynamic-versioning"]["enable"] is False
 
 
 def test_dependency_versions():
