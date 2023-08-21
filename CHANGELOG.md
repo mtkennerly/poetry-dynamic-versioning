@@ -1,4 +1,4 @@
-## Unreleased
+## v1.0.1 (2023-08-21)
 
 * Fixed:
   * Compatibility with poetry-core 1.7.0, which removed the `poetry.core.semver` module.
