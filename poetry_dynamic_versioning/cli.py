@@ -14,7 +14,7 @@ from poetry_dynamic_versioning import (
     _validate_config,
 )
 
-_DEFAULT_REQUIRES = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
+_DEFAULT_REQUIRES = ["poetry-core>=1.0.0", "poetry-dynamic-versioning>=1.0.0,<2.0.0"]
 _DEFAULT_BUILD_BACKEND = "poetry_dynamic_versioning.backend"
 
 

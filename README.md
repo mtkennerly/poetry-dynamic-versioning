@@ -35,7 +35,7 @@ be sure to uninstall it before proceeding.
 
   ```toml
   [build-system]
-  requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
+  requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning>=1.0.0,<2.0.0"]
   build-backend = "poetry_dynamic_versioning.backend"
   ```
 

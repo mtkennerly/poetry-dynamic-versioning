@@ -2,6 +2,8 @@
 
 * Fixed:
   * Compatibility with poetry-core 1.7.0, which removed the `poetry.core.semver` module.
+  * The `enable` command now constrains the plugin version to `>=1.0.0,<2.0.0`
+    to protect against any potential API changes.
 
 ## v1.0.0 (2023-08-18)
 
