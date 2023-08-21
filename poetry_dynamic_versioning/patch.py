@@ -11,7 +11,10 @@ from poetry_dynamic_versioning import (
 
 
 def _patch_poetry_create(factory_mod) -> None:
-    from poetry.core.semver.version import Version as PoetryVersion
+    try:
+        from poetry.core.constraints.version import Version as PoetryVersion
+    except ImportError:
+        from poetry.core.semver.version import Version as PoetryVersion
 
     original_poetry_create = getattr(factory_mod, "Factory").create_poetry
 
