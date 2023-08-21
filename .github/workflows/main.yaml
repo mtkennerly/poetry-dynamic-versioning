@@ -34,6 +34,9 @@ jobs:
           - '1.4.2'
           - '1.5.1'
           - '1.6.0'
+        exclude:
+          - python-version: '3.7'
+            poetry-version: '1.6.0'
     steps:
       - uses: actions/checkout@v3
         with:
