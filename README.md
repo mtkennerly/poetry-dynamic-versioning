@@ -41,7 +41,7 @@ be sure to uninstall it before proceeding.
 
   This is a thin wrapper around `poetry.core.masonry.api`.
 
-Poetry's typical `version` setting is still required in `[tool.poetry]`,
+Poetry still requires the `tool.poetry.version` field to be present in pyproject.toml,
 but you are encouraged to use `version = "0.0.0"` as a standard placeholder.
 
 With the minimal configuration above,
