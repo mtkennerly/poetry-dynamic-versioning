@@ -124,7 +124,7 @@ def test__enable_in_doc__empty():
                 enable = true
 
                 [build-system]
-                requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
+                requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning>=1.0.0,<2.0.0"]
                 build-backend = "poetry_dynamic_versioning.backend"
             """
         ).lstrip()
