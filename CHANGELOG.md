@@ -1,3 +1,10 @@
+## Unreleased
+
+* Added:
+  * `tool.poetry-dynamic-versioning.files` config section.
+    This allows you to create a file in a default state before applying substitutions to it.
+    You can also leave the substitutions in place when the plugin deactivates.
+
 ## v1.0.1 (2023-08-21)
 
 * Fixed:

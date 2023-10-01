@@ -7,6 +7,7 @@ import re
 import shlex
 import subprocess
 import sys
+import textwrap
 from importlib import import_module
 from pathlib import Path
 from typing import Mapping, MutableMapping, Optional, Sequence, Tuple, Union
@@ -103,6 +104,7 @@ def _default_config() -> Mapping:
                     ],
                     "folders": [],
                 },
+                "files": {},
                 "style": None,
                 "metadata": None,
                 "format": None,
@@ -192,6 +194,9 @@ def _validate_config(config: Optional[Mapping] = None) -> Sequence[str]:
 def _validate_config_section(
     config: Mapping, default: Mapping, path: Sequence[str]
 ) -> Sequence[str]:
+    if not default:
+        return []
+
     errors = []
 
     for (key, value) in config.items():
@@ -426,6 +431,14 @@ def _apply_version(
 
     name = pyproject["tool"]["poetry"]["name"]  # type: ignore
 
+    for file_name, file_info in config["files"].items():
+        full_file = pyproject_path.parent.joinpath(file_name)
+        if "initial-content" in file_info:
+            if not full_file.parent.exists():
+                full_file.parent.mkdir()
+            initial = textwrap.dedent(file_info["initial-content"])
+            full_file.write_bytes(initial.encode("utf-8"))
+
     _substitute_version(
         name,  # type: ignore
         version,
@@ -493,7 +506,17 @@ def _revert_version(retain: bool = False) -> None:
         state.path.write_bytes(tomlkit.dumps(pyproject).encode("utf-8"))
 
         if state.substitutions:
+            config = _get_config(pyproject)
+
+            persistent = []
+            for file, file_info in config["files"].items():
+                if file_info.get("persistent-substitution"):
+                    persistent.append(state.path.parent.joinpath(file))
+
             for file, content in state.substitutions.items():
+                if file in persistent:
+                    continue
+
                 file.write_bytes(content.encode("utf-8"))
 
     _state.projects.clear()

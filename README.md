@@ -248,6 +248,30 @@ In your pyproject.toml file, you may configure the following options:
 
     This will check the default file globs (e.g., `./*.py`)
     as well as the same file globs inside of `src` (e.g., `./src/*.py`).
+* `[tool.poetry-dynamic-versioning.files]` (table, default: empty):
+  This section lets you tweak the behavior for individual files.
+  Each table key is a path to a specific file (no globs) relative to the project root.
+  Each nested table supports these fields:
+
+  * `persistent-substitution` (boolean, optional):
+    If true, then do not revert any substitutions applied to this file.
+    This is primarily useful for editable installs, if you need the version to remain in a file ignored by your VCS.
+  * `initial-content` (string, optional):
+    Set the file content before the substitution phase.
+    The file will be created or overwritten as necessary.
+    Common leading whitespace will be stripped from each line.
+
+  Example:
+
+  ```toml
+  [tool.poetry-dynamic-versioning.files."package/_version.py"]
+  persistent-substitution = true
+  initial-content = """
+    # These version placeholders will be replaced later during substitution.
+    __version__ = "0.0.0"
+    __version_tuple__ = (0, 0, 0)
+  """
+  ```
 
 Simple example:
 
