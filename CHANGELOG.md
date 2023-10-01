@@ -1,4 +1,4 @@
-## Unreleased
+## v1.1.0 (2023-10-01)
 
 * Added:
   * `tool.poetry-dynamic-versioning.files` config section.
