@@ -1,3 +1,11 @@
+## Unreleased
+
+* Fixed:
+  * Custom substitutions in pyproject.toml weren't cleaned up correctly.
+    This was because the plugin would record the "original" content of the file
+    after the `version` and `enable` fields had already been changed.
+    Now, substitutions are reverted first before reverting `version` and `enable`.
+
 ## v1.1.0 (2023-10-01)
 
 * Added:

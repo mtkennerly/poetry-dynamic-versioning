@@ -498,12 +498,6 @@ def _get_and_apply_version(
 def _revert_version(retain: bool = False) -> None:
     for project, state in _state.projects.items():
         pyproject = tomlkit.parse(state.path.read_text(encoding="utf-8"))
-        pyproject["tool"]["poetry"]["version"] = state.original_version  # type: ignore
-
-        if not retain and not _state.cli_mode:
-            pyproject["tool"]["poetry-dynamic-versioning"]["enable"] = True  # type: ignore
-
-        state.path.write_bytes(tomlkit.dumps(pyproject).encode("utf-8"))
 
         if state.substitutions:
             config = _get_config(pyproject)
@@ -518,5 +512,15 @@ def _revert_version(retain: bool = False) -> None:
                     continue
 
                 file.write_bytes(content.encode("utf-8"))
+
+            # Reread pyproject.toml in case the substitutions affected it.
+            pyproject = tomlkit.parse(state.path.read_text(encoding="utf-8"))
+
+        pyproject["tool"]["poetry"]["version"] = state.original_version  # type: ignore
+
+        if not retain and not _state.cli_mode:
+            pyproject["tool"]["poetry-dynamic-versioning"]["enable"] = True  # type: ignore
+
+        state.path.write_bytes(tomlkit.dumps(pyproject).encode("utf-8"))
 
     _state.projects.clear()
