@@ -1,4 +1,4 @@
-## Unreleased
+## v1.1.1 (2023-10-27)
 
 * Fixed:
   * Custom substitutions in pyproject.toml weren't cleaned up correctly.
