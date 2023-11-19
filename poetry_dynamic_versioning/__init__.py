@@ -12,7 +12,20 @@ from importlib import import_module
 from pathlib import Path
 from typing import Mapping, MutableMapping, Optional, Sequence, Tuple, Union
 
+import jinja2
 import tomlkit
+from dunamai import (
+    bump_version,
+    check_version,
+    Concern,
+    Pattern,
+    serialize_pep440,
+    serialize_pvp,
+    serialize_semver,
+    Style,
+    Vcs,
+    Version,
+)
 
 _BYPASS_ENV = "POETRY_DYNAMIC_VERSIONING_BYPASS"
 _OVERRIDE_ENV = "POETRY_DYNAMIC_VERSIONING_OVERRIDE"
@@ -258,9 +271,9 @@ def _get_override_version(name: Optional[str], env: Optional[Mapping] = None) ->
     return None
 
 
-def _get_version_from_dunamai(vcs, pattern, config, *, strict: Optional[bool] = None):
-    from dunamai import Version
-
+def _get_version_from_dunamai(
+    vcs: Vcs, pattern: Union[str, Pattern], config: Mapping, *, strict: Optional[bool] = None
+):
     return Version.from_vcs(
         vcs,
         pattern,
@@ -276,19 +289,6 @@ def _get_version(config: Mapping, name: Optional[str] = None) -> str:
     override = _get_override_version(name)
     if override is not None:
         return override
-
-    import jinja2
-    from dunamai import (
-        bump_version,
-        check_version,
-        Concern,
-        Pattern,
-        serialize_pep440,
-        serialize_pvp,
-        serialize_semver,
-        Style,
-        Vcs,
-    )
 
     vcs = Vcs(config["vcs"])
     style = config["style"]
