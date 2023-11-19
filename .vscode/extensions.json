@@ -2,6 +2,7 @@
   "recommendations": [
     "codezombiech.gitignore",
     "EditorConfig.EditorConfig",
+    "ms-python.mypy-type-checker",
     "ms-python.python",
     "redhat.vscode-yaml",
     "sidneys1.gitconfig",

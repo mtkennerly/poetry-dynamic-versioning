@@ -30,6 +30,76 @@ from dunamai import (
 _BYPASS_ENV = "POETRY_DYNAMIC_VERSIONING_BYPASS"
 _OVERRIDE_ENV = "POETRY_DYNAMIC_VERSIONING_OVERRIDE"
 
+if sys.version_info >= (3, 8):
+    from typing import TypedDict
+
+    _SubstitutionPattern = TypedDict(
+        "_SubstitutionPattern",
+        {
+            "value": str,
+            "mode": Optional[str],
+        },
+    )
+
+    _SubstitutionFolder = TypedDict(
+        "_SubstitutionFolder",
+        {
+            "path": str,
+            "files": Optional[Sequence[str]],
+            "patterns": Optional[Sequence[Union[str, _SubstitutionPattern]]],
+        },
+    )
+
+    _Substitution = TypedDict(
+        "_Substitution",
+        {
+            "files": Sequence[str],
+            "patterns": Sequence[Union[str, _SubstitutionPattern]],
+            "folders": Sequence[_SubstitutionFolder],
+        },
+    )
+
+    _File = TypedDict(
+        "_File", {"persistent-substitution": Optional[bool], "initial-content": Optional[str]}
+    )
+
+    _JinjaImport = TypedDict(
+        "_JinjaImport",
+        {
+            "module": str,
+            "item": Optional[str],
+        },
+    )
+
+    _Config = TypedDict(
+        "_Config",
+        {
+            "enable": bool,
+            "vcs": str,
+            "dirty": bool,
+            "pattern": Optional[str],
+            "latest-tag": bool,
+            "substitution": _Substitution,
+            "files": Mapping[str, _File],
+            "style": Optional[str],
+            "metadata": Optional[bool],
+            "format": Optional[str],
+            "format-jinja": Optional[str],
+            "format-jinja-imports": Sequence[_JinjaImport],
+            "bump": bool,
+            "tagged-metadata": bool,
+            "full-commit": bool,
+            "tag-branch": Optional[str],
+            "tag-dir": str,
+            "strict": bool,
+            "fix-shallow-repository": bool,
+        },
+    )
+else:
+
+    class _Config(Mapping):
+        pass
+
 
 class _ProjectState:
     def __init__(
@@ -37,12 +107,14 @@ class _ProjectState:
         path: Path,
         original_version: str,
         version: str,
-        substitutions: MutableMapping[Path, str] = None,
+        substitutions: Optional[MutableMapping[Path, str]] = None,
     ) -> None:
         self.path = path
         self.original_version = original_version
         self.version = version
-        self.substitutions = {} if substitutions is None else substitutions
+        self.substitutions = (
+            {} if substitutions is None else substitutions
+        )  # type: MutableMapping[Path, str]
 
 
 class _State:
@@ -80,7 +152,7 @@ class _FolderConfig:
         self.patterns = patterns
 
     @staticmethod
-    def from_config(config: Mapping, root: Path) -> Sequence["_FolderConfig"]:
+    def from_config(config: _Config, root: Path) -> Sequence["_FolderConfig"]:
         files = config["substitution"]["files"]
         patterns = _SubPattern.from_config(config["substitution"]["patterns"])
 
@@ -88,8 +160,8 @@ class _FolderConfig:
         extra = [
             _FolderConfig(
                 root / x["path"],
-                x.get("files", files),
-                _SubPattern.from_config(x["patterns"]) if "patterns" in x else patterns,
+                x["files"] if x["files"] is not None else files,
+                _SubPattern.from_config(x["patterns"]) if x["patterns"] is not None else patterns,
             )
             for x in config["substitution"]["folders"]
         ]
@@ -145,7 +217,7 @@ def _deep_merge_dicts(base: Mapping, addition: Mapping) -> Mapping:
     return result
 
 
-def _find_higher_file(*names: str, start: Path = None) -> Optional[Path]:
+def _find_higher_file(*names: str, start: Optional[Path] = None) -> Optional[Path]:
     # Note: We need to make sure we get a pathlib object. Many tox poetry
     # helpers will pass us a string and not a pathlib object. See issue #40.
     if start is None:
@@ -159,7 +231,7 @@ def _find_higher_file(*names: str, start: Path = None) -> Optional[Path]:
     return None
 
 
-def _get_pyproject_path(start: Path = None) -> Optional[Path]:
+def _get_pyproject_path(start: Optional[Path] = None) -> Optional[Path]:
     return _find_higher_file("pyproject.toml", start=start)
 
 
@@ -177,11 +249,31 @@ def _get_pyproject_path_from_poetry(pyproject) -> Path:
         raise RuntimeError("Unable to determine pyproject.toml path from Poetry instance")
 
 
-def _get_config(local: Mapping) -> Mapping:
-    return _deep_merge_dicts(_default_config(), local)["tool"]["poetry-dynamic-versioning"]
+def _get_config(local: Mapping) -> _Config:
+    def initialize(data, key):
+        if isinstance(data, dict) and key not in data:
+            data[key] = None
+
+    merged = _deep_merge_dicts(_default_config(), local)["tool"][
+        "poetry-dynamic-versioning"
+    ]  # type: _Config
+
+    # Add default values so we don't have to worry about missing keys
+    for x in merged["files"].values():
+        initialize(x, "initial-content")
+        initialize(x, "persistent-substitution")
+    for x in merged["format-jinja-imports"]:
+        initialize(x, "item")
+    for x in merged["substitution"]["folders"]:
+        initialize(x, "files")
+        initialize(x, "patterns")
+    for x in merged["substitution"]["patterns"]:
+        initialize(x, "mode")
+
+    return merged
 
 
-def _get_config_from_path(start: Path = None) -> Mapping:
+def _get_config_from_path(start: Optional[Path] = None) -> Mapping:
     pyproject_path = _get_pyproject_path(start)
     if pyproject_path is None:
         return _default_config()["tool"]["poetry-dynamic-versioning"]
@@ -272,7 +364,7 @@ def _get_override_version(name: Optional[str], env: Optional[Mapping] = None) ->
 
 
 def _get_version_from_dunamai(
-    vcs: Vcs, pattern: Union[str, Pattern], config: Mapping, *, strict: Optional[bool] = None
+    vcs: Vcs, pattern: Union[str, Pattern], config: _Config, *, strict: Optional[bool] = None
 ):
     return Version.from_vcs(
         vcs,
@@ -285,17 +377,17 @@ def _get_version_from_dunamai(
     )
 
 
-def _get_version(config: Mapping, name: Optional[str] = None) -> str:
+def _get_version(config: _Config, name: Optional[str] = None) -> str:
     override = _get_override_version(name)
     if override is not None:
         return override
 
     vcs = Vcs(config["vcs"])
-    style = config["style"]
-    if style is not None:
-        style = Style(style)
+    style = Style(config["style"]) if config["style"] is not None else None
 
-    pattern = config["pattern"] if config["pattern"] is not None else Pattern.Default
+    pattern = (
+        config["pattern"] if config["pattern"] is not None else Pattern.Default
+    )  # type: Union[str, Pattern]
 
     if config["fix-shallow-repository"]:
         # We start without strict so we can inspect the concerns.
@@ -339,7 +431,7 @@ def _get_version(config: Mapping, name: Optional[str] = None) -> str:
         for entry in config["format-jinja-imports"]:
             if "module" in entry:
                 module = import_module(entry["module"])
-                if "item" in entry:
+                if entry["item"] is not None:
                     custom_context[entry["item"]] = getattr(module, entry["item"])
                 else:
                     custom_context[entry["module"]] = module
@@ -415,7 +507,7 @@ def _substitute_version_in_text(version: str, content: str, patterns: Sequence[_
 
 
 def _apply_version(
-    version: str, config: Mapping, pyproject_path: Path, retain: bool = False
+    version: str, config: _Config, pyproject_path: Path, retain: bool = False
 ) -> None:
     pyproject = tomlkit.parse(pyproject_path.read_text(encoding="utf-8"))
 
@@ -433,7 +525,8 @@ def _apply_version(
 
     for file_name, file_info in config["files"].items():
         full_file = pyproject_path.parent.joinpath(file_name)
-        if "initial-content" in file_info:
+
+        if file_info["initial-content"] is not None:
             if not full_file.parent.exists():
                 full_file.parent.mkdir()
             initial = textwrap.dedent(file_info["initial-content"])
@@ -504,7 +597,7 @@ def _revert_version(retain: bool = False) -> None:
 
             persistent = []
             for file, file_info in config["files"].items():
-                if file_info.get("persistent-substitution"):
+                if file_info["persistent-substitution"]:
                     persistent.append(state.path.parent.joinpath(file))
 
             for file, content in state.substitutions.items():

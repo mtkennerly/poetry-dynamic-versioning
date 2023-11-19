@@ -51,6 +51,9 @@ poetry-dynamic-versioning = "poetry_dynamic_versioning.plugin:DynamicVersioningP
 [tool.black]
 line-length = 100
 
+[tool.mypy]
+allow_redefinition = true
+
 [tool.ruff]
 line-length = 100
 extend-select = ["W605", "N"]

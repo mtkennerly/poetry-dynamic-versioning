@@ -80,7 +80,7 @@ def test__get_version__format_jinja_with_enforced_style(config):
 
 def test__get_version__format_jinja_imports_with_module_only(config):
     config["format-jinja"] = "{{ math.pow(2, 2) }}"
-    config["format-jinja-imports"] = [{"module": "math"}]
+    config["format-jinja-imports"] = [{"module": "math", "item": None}]
     assert plugin._get_version(config) == "4.0"
 
 
