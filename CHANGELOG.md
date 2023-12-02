@@ -1,5 +1,7 @@
 ## Unreleased
 
+* Added:
+  * `initial-content-jinja` option in `tool.poetry-dynamic-versioning.files` section.
 * Fixed:
   * Line ending style was not preserved in some cases because of the default behavior of `pathlib.Path.read_text`.
     To avoid this, `pathlib.Path.read_bytes` is used instead now.

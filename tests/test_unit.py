@@ -50,7 +50,7 @@ def test__get_config_from_path__with_plugin_customizations():
 
 
 def test__get_version__defaults(config):
-    assert plugin._get_version(config) == Version.from_git().serialize()
+    assert plugin._get_version(config)[0] == Version.from_git().serialize()
 
 
 def test__get_version__invalid_vcs(config):
@@ -68,7 +68,7 @@ def test__get_version__invalid_style(config):
 def test__get_version__format_jinja(config):
     os.environ["FOO"] = "foo"
     config["format-jinja"] = "{% if true %}v1+{{ env['FOO'] }}{% endif %}"
-    assert plugin._get_version(config) == "v1+foo"
+    assert plugin._get_version(config)[0] == "v1+foo"
 
 
 def test__get_version__format_jinja_with_enforced_style(config):
@@ -81,13 +81,13 @@ def test__get_version__format_jinja_with_enforced_style(config):
 def test__get_version__format_jinja_imports_with_module_only(config):
     config["format-jinja"] = "{{ math.pow(2, 2) }}"
     config["format-jinja-imports"] = [{"module": "math", "item": None}]
-    assert plugin._get_version(config) == "4.0"
+    assert plugin._get_version(config)[0] == "4.0"
 
 
 def test__get_version__format_jinja_imports_with_module_and_item(config):
     config["format-jinja"] = "{{ pow(2, 3) }}"
     config["format-jinja-imports"] = [{"module": "math", "item": "pow"}]
-    assert plugin._get_version(config) == "8.0"
+    assert plugin._get_version(config)[0] == "8.0"
 
 
 def test__get_override_version__bypass():

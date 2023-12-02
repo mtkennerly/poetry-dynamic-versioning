@@ -260,6 +260,13 @@ In your pyproject.toml file, you may configure the following options:
     Set the file content before the substitution phase.
     The file will be created or overwritten as necessary.
     Common leading whitespace will be stripped from each line.
+  * `initial-content-jinja` (string, optional):
+    Same as `initial-content`, but using Jinja formatting.
+    If both options are set, this one takes priority.
+    You can use the same imports from `format-jinja-imports` and the same variables from `format-jinja`,
+    with this additional variable:
+
+    * `formatted_version` (string) - version formatted by either the `format` or `format-jinja` option
 
   Example:
 

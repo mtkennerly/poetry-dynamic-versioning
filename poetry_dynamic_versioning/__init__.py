@@ -60,7 +60,12 @@ if sys.version_info >= (3, 8):
     )
 
     _File = TypedDict(
-        "_File", {"persistent-substitution": Optional[bool], "initial-content": Optional[str]}
+        "_File",
+        {
+            "persistent-substitution": Optional[bool],
+            "initial-content": Optional[str],
+            "initial-content-jinja": Optional[str],
+        },
     )
 
     _JinjaImport = TypedDict(
@@ -254,6 +259,9 @@ def _get_config(local: Mapping) -> _Config:
         if isinstance(data, dict) and key not in data:
             data[key] = None
 
+    if isinstance(local, tomlkit.TOMLDocument):
+        local = local.unwrap()
+
     merged = _deep_merge_dicts(_default_config(), local)["tool"][
         "poetry-dynamic-versioning"
     ]  # type: _Config
@@ -261,6 +269,7 @@ def _get_config(local: Mapping) -> _Config:
     # Add default values so we don't have to worry about missing keys
     for x in merged["files"].values():
         initialize(x, "initial-content")
+        initialize(x, "initial-content-jinja")
         initialize(x, "persistent-substitution")
     for x in merged["format-jinja-imports"]:
         initialize(x, "item")
@@ -326,6 +335,45 @@ def _format_timestamp(value: Optional[dt.datetime]) -> Optional[str]:
     return value.strftime("%Y%m%d%H%M%S")
 
 
+def _render_jinja(
+    version: Version, template: str, config: _Config, extra: Optional[Mapping] = None
+) -> str:
+    if extra is None:
+        extra = {}
+
+    if config["bump"] and version.distance > 0:
+        version = version.bump()
+    default_context = {
+        "base": version.base,
+        "version": version,
+        "stage": version.stage,
+        "revision": version.revision,
+        "distance": version.distance,
+        "commit": version.commit,
+        "dirty": version.dirty,
+        "branch": version.branch,
+        "branch_escaped": _escape_branch(version.branch),
+        "timestamp": _format_timestamp(version.timestamp),
+        "env": os.environ,
+        "bump_version": bump_version,
+        "tagged_metadata": version.tagged_metadata,
+        "serialize_pep440": serialize_pep440,
+        "serialize_pvp": serialize_pvp,
+        "serialize_semver": serialize_semver,
+        **extra,
+    }
+    custom_context = {}  # type: dict
+    for entry in config["format-jinja-imports"]:
+        if "module" in entry:
+            module = import_module(entry["module"])
+            if entry["item"] is not None:
+                custom_context[entry["item"]] = getattr(module, entry["item"])
+            else:
+                custom_context[entry["module"]] = module
+    serialized = jinja2.Template(template).render(**default_context, **custom_context)
+    return serialized
+
+
 def _run_cmd(command: str, codes: Sequence[int] = (0,)) -> Tuple[int, str]:
     result = subprocess.run(
         shlex.split(command),
@@ -365,7 +413,7 @@ def _get_override_version(name: Optional[str], env: Optional[Mapping] = None) ->
 
 def _get_version_from_dunamai(
     vcs: Vcs, pattern: Union[str, Pattern], config: _Config, *, strict: Optional[bool] = None
-):
+) -> Version:
     return Version.from_vcs(
         vcs,
         pattern,
@@ -377,10 +425,10 @@ def _get_version_from_dunamai(
     )
 
 
-def _get_version(config: _Config, name: Optional[str] = None) -> str:
+def _get_version(config: _Config, name: Optional[str] = None) -> Tuple[str, Version]:
     override = _get_override_version(name)
     if override is not None:
-        return override
+        return (override, Version.parse(override))
 
     vcs = Vcs(config["vcs"])
     style = Style(config["style"]) if config["style"] is not None else None
@@ -407,37 +455,7 @@ def _get_version(config: _Config, name: Optional[str] = None) -> str:
         print("Warning: {}".format(concern.message()), file=sys.stderr)
 
     if config["format-jinja"]:
-        if config["bump"] and version.distance > 0:
-            version = version.bump()
-        default_context = {
-            "base": version.base,
-            "version": version,
-            "stage": version.stage,
-            "revision": version.revision,
-            "distance": version.distance,
-            "commit": version.commit,
-            "dirty": version.dirty,
-            "branch": version.branch,
-            "branch_escaped": _escape_branch(version.branch),
-            "timestamp": _format_timestamp(version.timestamp),
-            "env": os.environ,
-            "bump_version": bump_version,
-            "tagged_metadata": version.tagged_metadata,
-            "serialize_pep440": serialize_pep440,
-            "serialize_pvp": serialize_pvp,
-            "serialize_semver": serialize_semver,
-        }
-        custom_context = {}  # type: dict
-        for entry in config["format-jinja-imports"]:
-            if "module" in entry:
-                module = import_module(entry["module"])
-                if entry["item"] is not None:
-                    custom_context[entry["item"]] = getattr(module, entry["item"])
-                else:
-                    custom_context[entry["module"]] = module
-        serialized = jinja2.Template(config["format-jinja"]).render(
-            **default_context, **custom_context
-        )
+        serialized = _render_jinja(version, config["format-jinja"], config)
         if style is not None:
             check_version(serialized, style)
     else:
@@ -450,7 +468,7 @@ def _get_version(config: _Config, name: Optional[str] = None) -> str:
             tagged_metadata=config["tagged-metadata"],
         )
 
-    return serialized
+    return (serialized, version)
 
 
 def _substitute_version(name: str, version: str, folders: Sequence[_FolderConfig]) -> None:
@@ -507,7 +525,7 @@ def _substitute_version_in_text(version: str, content: str, patterns: Sequence[_
 
 
 def _apply_version(
-    version: str, config: _Config, pyproject_path: Path, retain: bool = False
+    version: str, instance: Version, config: _Config, pyproject_path: Path, retain: bool = False
 ) -> None:
     pyproject = tomlkit.parse(pyproject_path.read_bytes().decode("utf-8"))
 
@@ -526,7 +544,19 @@ def _apply_version(
     for file_name, file_info in config["files"].items():
         full_file = pyproject_path.parent.joinpath(file_name)
 
-        if file_info["initial-content"] is not None:
+        if file_info["initial-content-jinja"] is not None:
+            if not full_file.parent.exists():
+                full_file.parent.mkdir()
+            initial = textwrap.dedent(
+                _render_jinja(
+                    instance,
+                    file_info["initial-content-jinja"],
+                    config,
+                    {"formatted_version": version},
+                )
+            )
+            full_file.write_bytes(initial.encode("utf-8"))
+        elif file_info["initial-content"] is not None:
             if not full_file.parent.exists():
                 full_file.parent.mkdir()
             initial = textwrap.dedent(file_info["initial-content"])
@@ -575,7 +605,7 @@ def _get_and_apply_version(
     target_dir = pyproject_path.parent
     os.chdir(str(target_dir))
     try:
-        version = _get_version(config, name)
+        version, instance = _get_version(config, name)
     finally:
         os.chdir(str(initial_dir))
 
@@ -583,7 +613,7 @@ def _get_and_apply_version(
     if name is not None and original is not None:
         _state.projects[name] = _ProjectState(pyproject_path, original, version)
         if io:
-            _apply_version(version, config, pyproject_path, retain)
+            _apply_version(version, instance, config, pyproject_path, retain)
 
     return name
 
