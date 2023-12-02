@@ -1,4 +1,4 @@
-## Unreleased
+## v1.2.0 (2023-12-02)
 
 * Added:
   * `initial-content-jinja` option in `tool.poetry-dynamic-versioning.files` section.
