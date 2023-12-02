@@ -90,7 +90,7 @@ def enable() -> None:
     pyproject_path = _get_pyproject_path()
     if pyproject_path is None:
         raise RuntimeError("Unable to find pyproject.toml")
-    config = tomlkit.parse(pyproject_path.read_text(encoding="utf-8"))
+    config = tomlkit.parse(pyproject_path.read_bytes().decode("utf-8"))
 
     config = _enable_in_doc(config)
     pyproject_path.write_bytes(tomlkit.dumps(config).encode("utf-8"))

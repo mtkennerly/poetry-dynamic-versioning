@@ -88,7 +88,7 @@ def test_plugin_enabled():
 
 
 def test_plugin_disabled():
-    data = DUMMY_PYPROJECT.read_text("utf8")
+    data = DUMMY_PYPROJECT.read_bytes().decode("utf-8")
     data = data.replace("enable = true", "enable = false")
     DUMMY_PYPROJECT.write_bytes(data.encode("utf-8"))
 
@@ -98,7 +98,7 @@ def test_plugin_disabled():
 
 
 def test_plugin_disabled_without_plugin_section():
-    data = DUMMY_PYPROJECT.read_text("utf8")
+    data = DUMMY_PYPROJECT.read_bytes().decode("utf-8")
     data = data.replace("[tool.poetry-dynamic-versioning]", "[tool.poetry-dynamic-versioning-x]")
     DUMMY_PYPROJECT.write_bytes(data.encode("utf-8"))
 
@@ -113,7 +113,7 @@ def test_plugin_disabled_without_pyproject_file():
 
 
 def test_invalid_config_for_vcs():
-    data = DUMMY_PYPROJECT.read_text("utf8")
+    data = DUMMY_PYPROJECT.read_bytes().decode("utf-8")
     data = data.replace('vcs = "git"', 'vcs = "invalid"')
     DUMMY_PYPROJECT.write_bytes(data.encode("utf-8"))
 
@@ -125,7 +125,7 @@ def test_keep_pyproject_modifications():
     # Using --optional to avoid actually installing the package
     run(f"poetry add --optional {package}", where=DUMMY)
     # Make sure pyproject.toml contains the new package dependency
-    data = DUMMY_PYPROJECT.read_text("utf8")
+    data = DUMMY_PYPROJECT.read_bytes().decode("utf-8")
     assert package in data
 
 
@@ -133,7 +133,7 @@ def test_poetry_run():
     # The original version is restored before the command runs:
     run(f"poetry run grep 'version = \"{DUMMY_VERSION}\"' pyproject.toml", where=DUMMY)
     # Make sure original version number is still in place:
-    data = DUMMY_PYPROJECT.read_text("utf8")
+    data = DUMMY_PYPROJECT.read_bytes().decode("utf-8")
     assert f'version = "{DUMMY_VERSION}"' in data
 
 
@@ -141,48 +141,60 @@ def test_poetry_run():
 def test_poetry_shell():
     # Make sure original version number is still in place afterwards:
     run("poetry shell", where=DUMMY)
-    data = DUMMY_PYPROJECT.read_text("utf8")
+    data = DUMMY_PYPROJECT.read_bytes().decode("utf-8")
     assert f'version = "{DUMMY_VERSION}"' in data
 
 
 def test_plugin_cli_mode_and_substitution():
     run("poetry dynamic-versioning", where=DUMMY)
     # Changes persist after the command is done:
-    assert f'version = "{DUMMY_VERSION}"' not in DUMMY_PYPROJECT.read_text("utf8")
-    assert '__version__: str = "0.0.0"' not in (DUMMY / "project" / "__init__.py").read_text("utf8")
-    assert '__version__ = "0.0.0"' not in (DUMMY / "project" / "__init__.py").read_text("utf8")
+    assert f'version = "{DUMMY_VERSION}"' not in DUMMY_PYPROJECT.read_bytes().decode("utf-8")
+    assert '__version__: str = "0.0.0"' not in (
+        DUMMY / "project" / "__init__.py"
+    ).read_bytes().decode("utf-8")
+    assert '__version__ = "0.0.0"' not in (DUMMY / "project" / "__init__.py").read_bytes().decode(
+        "utf-8"
+    )
     assert "__version_tuple__ = (0, 0, 0)" not in (DUMMY / "project" / "__init__.py").read_text(
         "utf8"
     )
-    assert "<0.0.0>" not in (DUMMY / "project" / "__init__.py").read_text("utf8")
+    assert "<0.0.0>" not in (DUMMY / "project" / "__init__.py").read_bytes().decode("utf-8")
 
 
 def test_standalone_cli_mode_and_substitution():
     run("poetry-dynamic-versioning", where=DUMMY)
     # Changes persist after the command is done:
-    assert f'version = "{DUMMY_VERSION}"' not in DUMMY_PYPROJECT.read_text("utf8")
-    assert '__version__: str = "0.0.0"' not in (DUMMY / "project" / "__init__.py").read_text("utf8")
-    assert '__version__ = "0.0.0"' not in (DUMMY / "project" / "__init__.py").read_text("utf8")
+    assert f'version = "{DUMMY_VERSION}"' not in DUMMY_PYPROJECT.read_bytes().decode("utf-8")
+    assert '__version__: str = "0.0.0"' not in (
+        DUMMY / "project" / "__init__.py"
+    ).read_bytes().decode("utf-8")
+    assert '__version__ = "0.0.0"' not in (DUMMY / "project" / "__init__.py").read_bytes().decode(
+        "utf-8"
+    )
     assert "__version_tuple__ = (0, 0, 0)" not in (DUMMY / "project" / "__init__.py").read_text(
         "utf8"
     )
-    assert "<0.0.0>" not in (DUMMY / "project" / "__init__.py").read_text("utf8")
+    assert "<0.0.0>" not in (DUMMY / "project" / "__init__.py").read_bytes().decode("utf-8")
 
 
 def test_cli_mode_and_substitution_without_enable():
-    data = DUMMY_PYPROJECT.read_text("utf8")
+    data = DUMMY_PYPROJECT.read_bytes().decode("utf-8")
     data = data.replace("enable = true", "enable = false")
     DUMMY_PYPROJECT.write_bytes(data.encode("utf-8"))
 
     run("poetry dynamic-versioning", where=DUMMY)
     # Changes persist after the command is done:
-    assert f'version = "{DUMMY_VERSION}"' not in DUMMY_PYPROJECT.read_text("utf8")
-    assert '__version__: str = "0.0.0"' not in (DUMMY / "project" / "__init__.py").read_text("utf8")
-    assert '__version__ = "0.0.0"' not in (DUMMY / "project" / "__init__.py").read_text("utf8")
+    assert f'version = "{DUMMY_VERSION}"' not in DUMMY_PYPROJECT.read_bytes().decode("utf-8")
+    assert '__version__: str = "0.0.0"' not in (
+        DUMMY / "project" / "__init__.py"
+    ).read_bytes().decode("utf-8")
+    assert '__version__ = "0.0.0"' not in (DUMMY / "project" / "__init__.py").read_bytes().decode(
+        "utf-8"
+    )
     assert "__version_tuple__ = (0, 0, 0)" not in (DUMMY / "project" / "__init__.py").read_text(
         "utf8"
     )
-    assert "<0.0.0>" not in (DUMMY / "project" / "__init__.py").read_text("utf8")
+    assert "<0.0.0>" not in (DUMMY / "project" / "__init__.py").read_bytes().decode("utf-8")
 
 
 def test_cli_mode_plus_build_will_disable_plugin():
@@ -210,7 +222,7 @@ def test_poetry_core_as_build_system():
     dist = project / "dist"
     pyproject = project / "pyproject.toml"
 
-    data = pyproject.read_text("utf8")
+    data = pyproject.read_bytes().decode("utf-8")
     data = re.sub(
         r"requires = .*",
         'requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]',
@@ -229,7 +241,7 @@ def test_poetry_core_as_build_system():
 
 
 def test_bumping_enabled():
-    data = DUMMY_PYPROJECT.read_text("utf8")
+    data = DUMMY_PYPROJECT.read_bytes().decode("utf-8")
     data = data.replace('vcs = "git"', "bump = true")
     data = data.replace('style = "semver"', 'style = "pep440"')
     DUMMY_PYPROJECT.write_bytes(data.encode("utf-8"))
