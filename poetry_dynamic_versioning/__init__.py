@@ -277,7 +277,7 @@ def _get_config_from_path(start: Optional[Path] = None) -> Mapping:
     pyproject_path = _get_pyproject_path(start)
     if pyproject_path is None:
         return _default_config()["tool"]["poetry-dynamic-versioning"]
-    pyproject = tomlkit.parse(pyproject_path.read_text(encoding="utf-8"))
+    pyproject = tomlkit.parse(pyproject_path.read_bytes().decode("utf-8"))
     result = _get_config(pyproject)
     return result
 
@@ -287,7 +287,7 @@ def _validate_config(config: Optional[Mapping] = None) -> Sequence[str]:
         pyproject_path = _get_pyproject_path()
         if pyproject_path is None:
             raise RuntimeError("Unable to find pyproject.toml")
-        config = tomlkit.parse(pyproject_path.read_text(encoding="utf-8"))
+        config = tomlkit.parse(pyproject_path.read_bytes().decode("utf-8"))
 
     return _validate_config_section(
         config.get("tool", {}).get("poetry-dynamic-versioning", {}),
@@ -469,7 +469,7 @@ def _substitute_version(name: str, version: str, folders: Sequence[_FolderConfig
                 files[resolved] = folder
 
     for file, config in files.items():
-        original_content = file.read_text(encoding="utf-8")
+        original_content = file.read_bytes().decode("utf-8")
         new_content = _substitute_version_in_text(version, original_content, config.patterns)
         if original_content != new_content:
             _state.projects[name].substitutions[file] = original_content
@@ -509,7 +509,7 @@ def _substitute_version_in_text(version: str, content: str, patterns: Sequence[_
 def _apply_version(
     version: str, config: _Config, pyproject_path: Path, retain: bool = False
 ) -> None:
-    pyproject = tomlkit.parse(pyproject_path.read_text(encoding="utf-8"))
+    pyproject = tomlkit.parse(pyproject_path.read_bytes().decode("utf-8"))
 
     pyproject["tool"]["poetry"]["version"] = version  # type: ignore
 
@@ -559,7 +559,7 @@ def _get_and_apply_version(
             raise RuntimeError("Unable to find pyproject.toml")
 
     if pyproject is None:
-        pyproject = tomlkit.parse(pyproject_path.read_text(encoding="utf-8"))
+        pyproject = tomlkit.parse(pyproject_path.read_bytes().decode("utf-8"))
 
     if name is None or original is None:
         name = pyproject["tool"]["poetry"]["name"]
@@ -590,7 +590,7 @@ def _get_and_apply_version(
 
 def _revert_version(retain: bool = False) -> None:
     for project, state in _state.projects.items():
-        pyproject = tomlkit.parse(state.path.read_text(encoding="utf-8"))
+        pyproject = tomlkit.parse(state.path.read_bytes().decode("utf-8"))
 
         if state.substitutions:
             config = _get_config(pyproject)
@@ -607,7 +607,7 @@ def _revert_version(retain: bool = False) -> None:
                 file.write_bytes(content.encode("utf-8"))
 
             # Reread pyproject.toml in case the substitutions affected it.
-            pyproject = tomlkit.parse(state.path.read_text(encoding="utf-8"))
+            pyproject = tomlkit.parse(state.path.read_bytes().decode("utf-8"))
 
         pyproject["tool"]["poetry"]["version"] = state.original_version  # type: ignore
 

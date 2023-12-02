@@ -1,3 +1,10 @@
+## Unreleased
+
+* Fixed:
+  * Line ending style was not preserved in some cases because of the default behavior of `pathlib.Path.read_text`.
+    To avoid this, `pathlib.Path.read_bytes` is used instead now.
+    ([Contributed by nardi](https://github.com/mtkennerly/poetry-dynamic-versioning/pull/157))
+
 ## v1.1.1 (2023-10-27)
 
 * Fixed:
