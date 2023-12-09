@@ -60,7 +60,6 @@ In your pyproject.toml file, you may configure the following options:
   * `enable` (boolean, default: false):
     Since the plugin has to be installed globally,
     this setting is an opt-in per project.
-    This setting will likely be removed once plugins are officially supported.
   * `vcs` (string, default: `any`):
     This is the version control system to check for a version.
     One of: `any`, `git`, `mercurial`, `darcs`, `bazaar`, `subversion`, `fossil`, `pijul`.
