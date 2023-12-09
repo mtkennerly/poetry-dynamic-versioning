@@ -1,8 +1,8 @@
 ## Development
 This project is managed using [Poetry](https://poetry.eustace.io).
 
-* If you want to take advantage of the default VSCode integration, then first
-  configure Poetry to make its virtual environment in the repository:
+* If you want to take advantage of the default VSCode integration,
+  then first configure Poetry to make its virtual environment in the repository:
   ```
   poetry config virtualenvs.in-project true
   ```
