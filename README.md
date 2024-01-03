@@ -271,6 +271,10 @@ In your pyproject.toml file, you may configure the following options:
   Each table key is a path to a specific file (no globs) relative to the project root.
   Each nested table supports these fields:
 
+  If you use these options to generate a file that's ignored by your VCS,
+  but you also want the generated file to be included in the output of `poetry build`,
+  then you'll need to name the file explicitly in your `tool.poetry.include` config.
+
   * `persistent-substitution` (boolean, optional):
     If true, then do not revert any substitutions applied to this file.
     This is primarily useful for editable installs, if you need the version to remain in a file ignored by your VCS.
