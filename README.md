@@ -23,7 +23,7 @@ be sure to uninstall it before proceeding.
 Install the poetry plugin (Pick one of the options below):
 1. `poetry self add "poetry-dynamic-versioning[plugin]"`
 2. `pipx inject poetry poetry-dynamic-versioning[plugin]` - Use if you installed poetry with pipx
-3. See the [poetry plugin documentation](https://python-poetry.org/docs/master/plugins/#using-plugins) for up to date documentation.
+3. See the [poetry plugin documentation](https://python-poetry.org/docs/master/plugins/#using-plugins) for up to date documentation
 
 After poetry plugin installation:
 * Run in your project: `poetry dynamic-versioning enable`
