@@ -20,12 +20,13 @@ so you should migrate to the standardized plugin and Poetry 1.2.0+.
 If you've previously installed the deprecated `poetry-dynamic-versioning-plugin` package,
 be sure to uninstall it before proceeding.
 
-Install the poetry plugin (Pick one of the options below):
-1. `poetry self add "poetry-dynamic-versioning[plugin]"`
-2. `pipx inject poetry poetry-dynamic-versioning[plugin]` - Use if you installed poetry with pipx
-3. See the [poetry plugin documentation](https://python-poetry.org/docs/master/plugins/#using-plugins) for up to date documentation
+* Install the plugin using one of the options below:
 
-After poetry plugin installation:
+  * In most cases: `poetry self add "poetry-dynamic-versioning[plugin]"`
+  * If you installed Poetry with Pipx: `pipx inject poetry "poetry-dynamic-versioning[plugin]"`
+
+  See the [Poetry plugin documentation](https://python-poetry.org/docs/plugins/#using-plugins)
+  for more information about these options.
 * Run in your project: `poetry dynamic-versioning enable`
 
   Or you can update your pyproject.toml manually:
