@@ -1,3 +1,8 @@
+## Unreleased
+
+* Changed:
+  * Updated Dunamai to 1.21.0+ for the latest features.
+
 ## v1.2.0 (2023-12-02)
 
 * Added:

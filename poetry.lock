@@ -489,13 +489,13 @@ pgp = ["gpg"]
 
 [[package]]
 name = "dunamai"
-version = "1.18.0"
+version = "1.21.0"
 description = "Dynamic version generation"
 optional = false
-python-versions = ">=3.5,<4.0"
+python-versions = ">=3.5"
 files = [
-    {file = "dunamai-1.18.0-py3-none-any.whl", hash = "sha256:f9284a9f4048f0b809d11539896e78bde94c05b091b966a04a44ab4c48df03ce"},
-    {file = "dunamai-1.18.0.tar.gz", hash = "sha256:5200598561ea5ba956a6174c36e402e92206c6a6aa4a93a6c5cb8003ee1e0997"},
+    {file = "dunamai-1.21.0-py3-none-any.whl", hash = "sha256:aceb7693e637f8114cbc547c818f746c953c8858c1023735efe3ec2d1f4b0571"},
+    {file = "dunamai-1.21.0.tar.gz", hash = "sha256:28d4bf5e8e2f3fe5d6a4de61b05c4c70afaa7c6df55fe0204bb5b6b53761e4bc"},
 ]
 
 [package.dependencies]
@@ -1759,4 +1759,4 @@ plugin = ["poetry"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.7"
-content-hash = "db838b7a255e8aa6dd2b991a3ab74ef9a06864cbee52c1df594e131bf6f331fd"
+content-hash = "e3f287a8f3fbe0a3ce2bcbf253baeca1e37094b9d300cb43c2348e2d35259902"
