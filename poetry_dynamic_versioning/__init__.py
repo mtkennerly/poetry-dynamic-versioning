@@ -83,6 +83,7 @@ if sys.version_info >= (3, 8):
             "vcs": str,
             "dirty": bool,
             "pattern": Optional[str],
+            "pattern-prefix": Optional[str],
             "latest-tag": bool,
             "substitution": _Substitution,
             "files": Mapping[str, _File],
@@ -98,6 +99,7 @@ if sys.version_info >= (3, 8):
             "tag-dir": str,
             "strict": bool,
             "fix-shallow-repository": bool,
+            "ignore-untracked": bool,
         },
     )
 else:
@@ -182,6 +184,7 @@ def _default_config() -> Mapping:
                 "vcs": "any",
                 "dirty": False,
                 "pattern": None,
+                "pattern-prefix": None,
                 "latest-tag": False,
                 "substitution": {
                     "files": ["*.py", "*/__init__.py", "*/__version__.py", "*/_version.py"],
@@ -207,6 +210,7 @@ def _default_config() -> Mapping:
                 "tag-dir": "tags",
                 "strict": False,
                 "fix-shallow-repository": False,
+                "ignore-untracked": False,
             }
         }
     }
@@ -415,13 +419,15 @@ def _get_version_from_dunamai(
     vcs: Vcs, pattern: Union[str, Pattern], config: _Config, *, strict: Optional[bool] = None
 ) -> Version:
     return Version.from_vcs(
-        vcs,
-        pattern,
-        config["latest-tag"],
-        config["tag-dir"],
-        config["tag-branch"],
-        config["full-commit"],
-        config["strict"] if strict is None else strict,
+        vcs=vcs,
+        pattern=pattern,
+        latest_tag=config["latest-tag"],
+        tag_dir=config["tag-dir"],
+        tag_branch=config["tag-branch"],
+        full_commit=config["full-commit"],
+        strict=config["strict"] if strict is None else strict,
+        pattern_prefix=config["pattern-prefix"],
+        ignore_untracked=config["ignore-untracked"],
     )
 
 

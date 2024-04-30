@@ -102,6 +102,10 @@ In your pyproject.toml file, you may configure the following options:
     ```
 
     Remember that backslashes must be escaped (`\\`) in the TOML file.
+  * `pattern-prefix` (string):
+    This will be inserted after the pattern's start anchor (`^`).
+    For example, to match tags like `some-package-v1.2.3`,
+    you can keep the default pattern and set the prefix to `some-package-`.
   * `format` (string, default: unset):
     This defines a custom output format for the version. Available substitutions:
 
@@ -215,6 +219,8 @@ In your pyproject.toml file, you may configure the following options:
   * `fix-shallow-repository` (boolean, default: false):
     If true, then automatically try to fix shallow repositories.
     Currently, this only supports Git and will run `git fetch --unshallow`.
+  * `ignore-untracked` (boolean, default: false):
+    If true, ignore untracked files when determining whether the repository is dirty.
 * `[tool.poetry-dynamic-versioning.substitution]`:
   Insert the dynamic version into additional files other than just pyproject.toml.
   These changes will be reverted when the plugin deactivates.

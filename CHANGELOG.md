@@ -1,5 +1,7 @@
 ## Unreleased
 
+* Added:
+  * `pattern-prefix` and `ignore-untracked` options.
 * Changed:
   * Updated Dunamai to 1.21.0+ for the latest features.
 
