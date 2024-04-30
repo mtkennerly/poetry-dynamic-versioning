@@ -1,4 +1,4 @@
-## Unreleased
+## v1.3.0 (2024-04-29)
 
 * Added:
   * `pattern-prefix` option to add a prefix to the version tag pattern.
