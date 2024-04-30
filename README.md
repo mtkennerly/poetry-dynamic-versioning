@@ -313,6 +313,17 @@ In your pyproject.toml file, you may configure the following options:
     __version_tuple__ = (0, 0, 0)
   """
   ```
+* `[tool.poetry-dynamic-versioning.from-file]`:
+  This section lets you read the version from a file instead of the VCS.
+
+  * `source` (string):
+    If set, read the version from this file.
+    It must be a path relative to the location of pyproject.toml.
+    By default, the plugin will read the entire content of the file,
+    without leading and trailing whitespace.
+  * `pattern` (string):
+    If set, use this regular expression to extract the version from the file.
+    The first capture group must contain the version.
 
 Simple example:
 

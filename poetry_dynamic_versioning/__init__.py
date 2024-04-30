@@ -76,6 +76,14 @@ if sys.version_info >= (3, 8):
         },
     )
 
+    _FromFile = TypedDict(
+        "_FromFile",
+        {
+            "source": Optional[str],
+            "pattern": Optional[str],
+        },
+    )
+
     _Config = TypedDict(
         "_Config",
         {
@@ -100,6 +108,7 @@ if sys.version_info >= (3, 8):
             "strict": bool,
             "fix-shallow-repository": bool,
             "ignore-untracked": bool,
+            "from-file": _FromFile,
         },
     )
 else:
@@ -211,6 +220,10 @@ def _default_config() -> Mapping:
                 "strict": False,
                 "fix-shallow-repository": False,
                 "ignore-untracked": False,
+                "from-file": {
+                    "source": None,
+                    "pattern": None,
+                },
             }
         }
     }
@@ -415,6 +428,28 @@ def _get_override_version(name: Optional[str], env: Optional[Mapping] = None) ->
     return None
 
 
+def _get_version_from_file(config: _Config) -> Optional[str]:
+    source = config["from-file"]["source"]
+    pattern = config["from-file"]["pattern"]
+
+    if source is None:
+        return None
+
+    pyproject_path = _get_pyproject_path()
+    if pyproject_path is None:
+        raise RuntimeError("Unable to find pyproject.toml")
+
+    content = pyproject_path.parent.joinpath(source).read_bytes().decode("utf-8").strip()
+
+    if pattern is None:
+        return content
+
+    result = re.search(pattern, content, re.MULTILINE)
+    if result is None:
+        raise ValueError("File '{}' did not contain a match for '{}'".format(source, pattern))
+    return result.group(1)
+
+
 def _get_version_from_dunamai(
     vcs: Vcs, pattern: Union[str, Pattern], config: _Config, *, strict: Optional[bool] = None
 ) -> Version:
@@ -433,6 +468,10 @@ def _get_version_from_dunamai(
 
 def _get_version(config: _Config, name: Optional[str] = None) -> Tuple[str, Version]:
     override = _get_override_version(name)
+    if override is not None:
+        return (override, Version.parse(override))
+
+    override = _get_version_from_file(config)
     if override is not None:
         return (override, Version.parse(override))
 
