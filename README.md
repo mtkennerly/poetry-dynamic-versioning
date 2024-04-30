@@ -358,6 +358,9 @@ you can apply some global overrides via environment variables.
   Comma-separated list of Poetry commands during which the plugin should **not** directly modify files.
   The plugin will still set the dynamic version in memory so that Poetry itself can write it as needed.
   Default: `version`.
+* `POETRY_DYNAMIC_VERSIONING_DEBUG`:
+  If this is set to `1`, then some debug logs will be printed to stderr.
+  Right now, this logs some cases where substitution doesn't find anything to change.
 
 ## Command line mode
 The plugin also has a command line mode for execution on demand.

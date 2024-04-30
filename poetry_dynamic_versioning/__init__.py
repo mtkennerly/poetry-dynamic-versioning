@@ -29,6 +29,7 @@ from dunamai import (
 
 _BYPASS_ENV = "POETRY_DYNAMIC_VERSIONING_BYPASS"
 _OVERRIDE_ENV = "POETRY_DYNAMIC_VERSIONING_OVERRIDE"
+_DEBUG_ENV = "POETRY_DYNAMIC_VERSIONING_DEBUG"
 
 if sys.version_info >= (3, 8):
     from typing import TypedDict
@@ -237,6 +238,13 @@ def _deep_merge_dicts(base: Mapping, addition: Mapping) -> Mapping:
         else:
             result[key] = value
     return result
+
+
+def _debug(message: str) -> None:
+    enabled = os.environ.get(_DEBUG_ENV) == "1"
+
+    if enabled:
+        print(message, file=sys.stderr)
 
 
 def _find_higher_file(*names: str, start: Optional[Path] = None) -> Optional[Path]:
@@ -524,12 +532,22 @@ def _substitute_version(name: str, version: str, folders: Sequence[_FolderConfig
     files = {}  # type: MutableMapping[Path, _FolderConfig]
     for folder in folders:
         for file_glob in folder.files:
+            i = 0
+
             # call str() since file_glob here could be a non-internable string
             for match in folder.path.glob(str(file_glob)):
+                i += 1
                 resolved = match.resolve()
                 if resolved in files:
                     continue
                 files[resolved] = folder
+
+            if i == 0:
+                _debug(
+                    "No files found for substitution with glob '{}' in folder '{}'".format(
+                        file_glob, folder.path
+                    )
+                )
 
     for file, config in files.items():
         original_content = file.read_bytes().decode("utf-8")
@@ -537,6 +555,8 @@ def _substitute_version(name: str, version: str, folders: Sequence[_FolderConfig
         if original_content != new_content:
             _state.projects[name].substitutions[file] = original_content
             file.write_bytes(new_content.encode("utf-8"))
+        else:
+            _debug("No changes made during substitution in file '{}'".format(file))
 
 
 def _substitute_version_in_text(version: str, content: str, patterns: Sequence[_SubPattern]) -> str:

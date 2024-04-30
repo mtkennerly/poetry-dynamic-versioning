@@ -4,6 +4,7 @@
   * `pattern-prefix` option to add a prefix to the version tag pattern.
   * `ignore-untracked` option to control the detection of dirty state.
   * `from-file` config section to read a version from a file instead of the VCS.
+  * `POETRY_DYNAMIC_VERSIONING_DEBUG` environment variable for some logging.
 * Changed:
   * Updated Dunamai to 1.21.0+ for the latest features.
 
