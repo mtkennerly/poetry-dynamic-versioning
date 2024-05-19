@@ -590,7 +590,7 @@ def _substitute_version_in_text(version: str, content: str, patterns: Sequence[_
 
 
 def _apply_version(
-    version: str, instance: Version, config: _Config, pyproject_path: Path, retain: bool = False
+    name: str, version: str, instance: Version, config: _Config, pyproject_path: Path, retain: bool = False
 ) -> None:
     pyproject = tomlkit.parse(pyproject_path.read_bytes().decode("utf-8"))
 
@@ -603,8 +603,6 @@ def _apply_version(
         pyproject["tool"]["poetry-dynamic-versioning"]["enable"] = False  # type: ignore
 
     pyproject_path.write_bytes(tomlkit.dumps(pyproject).encode("utf-8"))
-
-    name = pyproject["tool"]["poetry"]["name"]  # type: ignore
 
     for file_name, file_info in config["files"].items():
         full_file = pyproject_path.parent.joinpath(file_name)
@@ -678,7 +676,7 @@ def _get_and_apply_version(
     if name is not None and original is not None:
         _state.projects[name] = _ProjectState(pyproject_path, original, version)
         if io:
-            _apply_version(version, instance, config, pyproject_path, retain)
+            _apply_version(name, version, instance, config, pyproject_path, retain)
 
     return name
 
