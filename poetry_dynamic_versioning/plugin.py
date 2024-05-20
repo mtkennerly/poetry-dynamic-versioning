@@ -83,7 +83,7 @@ def _apply_version_via_plugin(
 ) -> None:
     project_section = poetry.pyproject.data.get("project", {})
     name = _get_and_apply_version(
-        name=project_section.get("name") or poetry.local_config("name"),
+        name=poetry.local_config.get("name") or project_section.get("name"),
         original=poetry.local_config["version"],
         pyproject=poetry.pyproject.data,
         pyproject_path=_get_pyproject_path_from_poetry(poetry.pyproject),
