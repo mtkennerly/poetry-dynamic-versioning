@@ -633,9 +633,7 @@ def _apply_version(
 
 
 def _get_and_apply_version(
-    name: Optional[str] = None,
-    original: Optional[str] = None,
-    pyproject: Optional[Mapping] = None,
+    pyproject: Mapping,
     pyproject_path: Optional[Path] = None,
     retain: bool = False,
     force: bool = False,
@@ -643,6 +641,15 @@ def _get_and_apply_version(
     io: bool = True
     # fmt: on
 ) -> Optional[str]:
+    poetry_section = pyproject.get("tool", {}).get("poetry", {})
+    project_section = pyproject.get("project", {})
+
+    name = poetry_section.get("name") or project_section.get("name")
+    original = poetry_section.get("version")
+
+    if not original:
+        raise RuntimeError("No version found in section 'tool.poetry'")
+
     if name is not None and name in _state.projects:
         return name
 
