@@ -296,7 +296,7 @@ def test_pep621_without_dynamic_version():
     data = re.sub(r"dynamic = .*", "dynamic = []", data)
     dummy_pyproject.write_bytes(data.encode("utf-8"))
 
-    run("poetry-dynamic-versioning", where=dummy)
+    run("poetry-dynamic-versioning", codes=[1], where=dummy)
     assert "version =" not in dummy_pyproject.read_bytes().decode("utf-8")
     assert '__version__ = "0.0.0"' in (
         dummy / "project_pep621" / "__init__.py"
