@@ -282,9 +282,9 @@ def test_pep621_with_dynamic_version():
 
     run("poetry-dynamic-versioning", where=dummy)
     assert f'version = "{version}"' in dummy_pyproject.read_bytes().decode("utf-8")
-    assert f'__version__ = "{version}"' in (dummy / "project" / "__init__.py").read_bytes().decode(
-        "utf-8"
-    )
+    assert f'__version__ = "{version}"' in (
+        dummy / "project_pep621" / "__init__.py"
+    ).read_bytes().decode("utf-8")
 
 
 @pytest.mark.skipif("USE_PEP621" not in os.environ, reason="Requires Poetry with PEP-621 support")
@@ -292,8 +292,12 @@ def test_pep621_without_dynamic_version():
     dummy = ROOT / "tests" / "project-pep621"
     dummy_pyproject = dummy / "pyproject.toml"
 
+    data = dummy_pyproject.read_bytes().decode("utf-8")
+    data = re.sub(r"dynamic = .*", "dynamic = []", data)
+    dummy_pyproject.write_bytes(data.encode("utf-8"))
+
     run("poetry-dynamic-versioning", where=dummy)
     assert "version =" not in dummy_pyproject.read_bytes().decode("utf-8")
-    assert '__version__ = "0.0.0"' in (dummy / "project" / "__init__.py").read_bytes().decode(
-        "utf-8"
-    )
+    assert '__version__ = "0.0.0"' in (
+        dummy / "project_pep621" / "__init__.py"
+    ).read_bytes().decode("utf-8")
