@@ -124,7 +124,10 @@ def test_invalid_config_for_vcs():
 def test_keep_pyproject_modifications():
     package = "cachy"
     # Using --optional to avoid actually installing the package
-    run(f"poetry add --optional {package}", where=DUMMY)
+    if "USE_PEP621" in os.environ:
+        run(f"poetry add --optional main {package}", where=DUMMY)
+    else:
+        run(f"poetry add --optional {package}", where=DUMMY)
     # Make sure pyproject.toml contains the new package dependency
     data = DUMMY_PYPROJECT.read_bytes().decode("utf-8")
     assert package in data

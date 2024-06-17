@@ -603,11 +603,15 @@ def _apply_version(
     instance: Version,
     config: _Config,
     pyproject_path: Path,
+    mode: _Mode,
     retain: bool = False,
 ) -> None:
     pyproject = tomlkit.parse(pyproject_path.read_bytes().decode("utf-8"))
 
-    pyproject["tool"]["poetry"]["version"] = version  # type: ignore
+    if mode == _Mode.Classic:
+        pyproject["tool"]["poetry"]["version"] = version  # type: ignore
+    elif mode == _Mode.Pep621:
+        pyproject["project"]["version"] = version  # type: ignore
 
     # Disable the plugin in case we're building a source distribution,
     # which won't have access to the VCS info at install time.
@@ -694,13 +698,15 @@ def _get_and_apply_version(
         os.chdir(str(initial_dir))
 
     if classic and name is not None and original is not None:
-        _state.projects[name] = _ProjectState(pyproject_path, original, version, _Mode.Classic)
+        mode = _Mode.Classic
+        _state.projects[name] = _ProjectState(pyproject_path, original, version, mode)
         if io:
-            _apply_version(name, version, instance, config, pyproject_path, retain)
+            _apply_version(name, version, instance, config, pyproject_path, mode, retain)
     elif pep621 and name is not None:
-        _state.projects[name] = _ProjectState(pyproject_path, original, version, _Mode.Pep621)
+        mode = _Mode.Pep621
+        _state.projects[name] = _ProjectState(pyproject_path, original, version, mode)
         if io:
-            _apply_version(name, version, instance, config, pyproject_path, retain)
+            _apply_version(name, version, instance, config, pyproject_path, mode, retain)
 
     return name
 
