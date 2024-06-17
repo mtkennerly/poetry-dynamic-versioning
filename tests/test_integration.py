@@ -17,6 +17,9 @@ DUMMY = ROOT / "tests" / "project"
 DUMMY_DIST = DUMMY / "dist"
 DUMMY_PYPROJECT = DUMMY / "pyproject.toml"
 
+DUMMY_PEP621 = ROOT / "tests" / "project-pep621"
+DUMMY_PEP621_PYPROJECT = DUMMY_PEP621 / "pyproject.toml"
+
 DUMMY_VERSION = "0.0.999"
 DEPENDENCY_DYNAMIC_VERSION = "0.0.888"
 
@@ -75,11 +78,12 @@ def before_all():
 
 @pytest.fixture(autouse=True)
 def before_each():
-    run(f"git checkout -- {DUMMY.as_posix()}")
-    delete(DUMMY / "dist")
-    delete(DUMMY / "poetry.lock")
-    for file in DUMMY.glob("*.whl"):
-        delete(file)
+    for project in [DUMMY, DUMMY_PEP621]:
+        run(f"git checkout -- {project.as_posix()}")
+        delete(project / "dist")
+        delete(project / "poetry.lock")
+        for file in project.glob("*.whl"):
+            delete(file)
 
 
 def test_plugin_enabled():
@@ -275,29 +279,23 @@ def test_plugin_show():
 
 @pytest.mark.skipif("USE_PEP621" not in os.environ, reason="Requires Poetry with PEP-621 support")
 def test_pep621_with_dynamic_version():
-    dummy = ROOT / "tests" / "project-pep621"
-    dummy_pyproject = dummy / "pyproject.toml"
-
     version = dunamai.Version.from_git().serialize()
 
-    run("poetry-dynamic-versioning", where=dummy)
-    assert f'version = "{version}"' in dummy_pyproject.read_bytes().decode("utf-8")
+    run("poetry-dynamic-versioning", where=DUMMY_PEP621)
+    assert f'version = "{version}"' in DUMMY_PEP621_PYPROJECT.read_bytes().decode("utf-8")
     assert f'__version__ = "{version}"' in (
-        dummy / "project_pep621" / "__init__.py"
+        DUMMY_PEP621 / "project_pep621" / "__init__.py"
     ).read_bytes().decode("utf-8")
 
 
 @pytest.mark.skipif("USE_PEP621" not in os.environ, reason="Requires Poetry with PEP-621 support")
 def test_pep621_without_dynamic_version():
-    dummy = ROOT / "tests" / "project-pep621"
-    dummy_pyproject = dummy / "pyproject.toml"
-
-    data = dummy_pyproject.read_bytes().decode("utf-8")
+    data = DUMMY_PEP621_PYPROJECT.read_bytes().decode("utf-8")
     data = re.sub(r"dynamic = .*", "dynamic = []", data)
-    dummy_pyproject.write_bytes(data.encode("utf-8"))
+    DUMMY_PEP621_PYPROJECT.write_bytes(data.encode("utf-8"))
 
-    run("poetry-dynamic-versioning", codes=[1], where=dummy)
-    assert "version =" not in dummy_pyproject.read_bytes().decode("utf-8")
+    run("poetry-dynamic-versioning", codes=[1], where=DUMMY_PEP621)
+    assert "version =" not in DUMMY_PEP621_PYPROJECT.read_bytes().decode("utf-8")
     assert '__version__ = "0.0.0"' in (
-        dummy / "project_pep621" / "__init__.py"
+        DUMMY_PEP621 / "project_pep621" / "__init__.py"
     ).read_bytes().decode("utf-8")
