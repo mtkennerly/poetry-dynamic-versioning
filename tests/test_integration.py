@@ -285,6 +285,7 @@ def test_pep621_with_dynamic_version():
     run("poetry-dynamic-versioning", where=DUMMY_PEP621)
     pyproject = tomlkit.parse(DUMMY_PEP621_PYPROJECT.read_bytes().decode("utf-8"))
     assert pyproject["project"]["version"] == version
+    assert "version" not in pyproject["project"]["dynamic"]
     assert f'__version__ = "{version}"' in (
         DUMMY_PEP621 / "project_pep621" / "__init__.py"
     ).read_bytes().decode("utf-8")
@@ -297,6 +298,7 @@ def test_pep621_with_dynamic_version_and_cleanup():
     run("poetry build", where=DUMMY_PEP621)
     pyproject = tomlkit.parse(DUMMY_PEP621_PYPROJECT.read_bytes().decode("utf-8"))
     assert "version" not in pyproject["project"]
+    assert "version" in pyproject["project"]["dynamic"]
     assert '__version__ = "0.0.0"' in (
         DUMMY_PEP621 / "project_pep621" / "__init__.py"
     ).read_bytes().decode("utf-8")

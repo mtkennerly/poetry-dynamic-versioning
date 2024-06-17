@@ -131,12 +131,14 @@ class _ProjectState:
         original_version: Optional[str],
         version: str,
         mode: _Mode,
+        dynamic_index: Optional[int],
         substitutions: Optional[MutableMapping[Path, str]] = None,
     ) -> None:
         self.path = path
         self.original_version = original_version
         self.version = version
         self.mode = mode
+        self.dynamic_index = dynamic_index
         self.substitutions = (
             {} if substitutions is None else substitutions
         )  # type: MutableMapping[Path, str]
@@ -611,6 +613,7 @@ def _apply_version(
     if mode == _Mode.Classic:
         pyproject["tool"]["poetry"]["version"] = version  # type: ignore
     elif mode == _Mode.Pep621:
+        pyproject["project"]["dynamic"].remove("version")  # type: ignore
         pyproject["project"]["version"] = version  # type: ignore
 
     # Disable the plugin in case we're building a source distribution,
@@ -669,16 +672,22 @@ def _get_and_apply_version(
         and "poetry" in pyproject["tool"]
         and "name" in pyproject["tool"]["poetry"]
     )
-    pep621 = "project" in pyproject and "name" in pyproject["project"]
+    pep621 = (
+        "project" in pyproject
+        and "name" in pyproject["project"]
+        and "dynamic" in pyproject["project"]
+        and "version" in pyproject["project"]["dynamic"]
+        and "version" not in pyproject["project"]
+    )
 
     if classic:
         name = pyproject["tool"]["poetry"]["name"]
         original = pyproject["tool"]["poetry"]["version"]
+        dynamic_index = None
     elif pep621:
         name = pyproject["project"]["name"]
         original = pyproject["project"].get("version")
-        if "version" not in pyproject["project"].get("dynamic", []):
-            return name if name in _state.projects else None
+        dynamic_index = pyproject["project"]["dynamic"].index("version")
     else:
         return name if name in _state.projects else None
 
@@ -699,12 +708,16 @@ def _get_and_apply_version(
 
     if classic and name is not None and original is not None:
         mode = _Mode.Classic
-        _state.projects[name] = _ProjectState(pyproject_path, original, version, mode)
+        _state.projects[name] = _ProjectState(
+            pyproject_path, original, version, mode, dynamic_index
+        )
         if io:
             _apply_version(name, version, instance, config, pyproject_path, mode, retain)
     elif pep621 and name is not None:
         mode = _Mode.Pep621
-        _state.projects[name] = _ProjectState(pyproject_path, original, version, mode)
+        _state.projects[name] = _ProjectState(
+            pyproject_path, original, version, mode, dynamic_index
+        )
         if io:
             _apply_version(name, version, instance, config, pyproject_path, mode, retain)
 
@@ -733,11 +746,13 @@ def _revert_version(retain: bool = False) -> None:
             pyproject = tomlkit.parse(state.path.read_bytes().decode("utf-8"))
 
         if state.mode == _Mode.Classic:
-            pyproject["tool"]["poetry"]["version"] = state.original_version  # type: ignore
-        elif state.mode == _Mode.Pep621:
             if state.original_version is not None:
-                pyproject["project"]["version"] = state.original_version  # type: ignore
-            elif "version" in pyproject["project"]:  # type: ignore
+                pyproject["tool"]["poetry"]["version"] = state.original_version  # type: ignore
+        elif state.mode == _Mode.Pep621:
+            if state.dynamic_index is not None:
+                index = state.dynamic_index
+                pyproject["project"]["dynamic"].insert(index, "version")  # type: ignore
+            if "version" in pyproject["project"]:  # type: ignore
                 pyproject["project"].pop("version")  # type: ignore
 
         if not retain and not _state.cli_mode:
