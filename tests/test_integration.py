@@ -18,6 +18,7 @@ DUMMY_DIST = DUMMY / "dist"
 DUMMY_PYPROJECT = DUMMY / "pyproject.toml"
 
 DUMMY_PEP621 = ROOT / "tests" / "project-pep621"
+DUMMY_PEP621_DIST = DUMMY_PEP621 / "dist"
 DUMMY_PEP621_PYPROJECT = DUMMY_PEP621 / "pyproject.toml"
 
 DUMMY_VERSION = "0.0.999"
@@ -286,6 +287,20 @@ def test_pep621_with_dynamic_version():
     assert f'__version__ = "{version}"' in (
         DUMMY_PEP621 / "project_pep621" / "__init__.py"
     ).read_bytes().decode("utf-8")
+
+
+@pytest.mark.skipif("USE_PEP621" not in os.environ, reason="Requires Poetry with PEP-621 support")
+def test_pep621_with_dynamic_version_and_cleanup():
+    version = dunamai.Version.from_git().serialize()
+
+    run("poetry build", where=DUMMY_PEP621)
+    assert 'version = "0.0.0"' in DUMMY_PEP621_PYPROJECT.read_bytes().decode("utf-8")
+    assert '__version__ = "0.0.0"' in (
+        DUMMY_PEP621 / "project_pep621" / "__init__.py"
+    ).read_bytes().decode("utf-8")
+
+    artifact = next(DUMMY_PEP621_DIST.glob("*.whl"))
+    assert f"-{version}-" in artifact.name
 
 
 @pytest.mark.skipif("USE_PEP621" not in os.environ, reason="Requires Poetry with PEP-621 support")
