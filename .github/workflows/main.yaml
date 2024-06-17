@@ -53,6 +53,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+      - if: ${{ startsWith(matrix.poetry-version, 'git') }}
+        run: |
+          echo "USE_PEP621=1" >> $GITHUB_ENV
       - run: |
           pip install pipx
           pipx install ${{ startsWith(matrix.poetry-version, 'git') && matrix.poetry-version || format('poetry=={0}', matrix.poetry-version) }}

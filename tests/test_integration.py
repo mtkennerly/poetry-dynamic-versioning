@@ -7,6 +7,7 @@ import tarfile
 from pathlib import Path
 from typing import Optional, Sequence, Tuple
 
+import dunamai
 import pytest
 import tomlkit
 
@@ -267,3 +268,29 @@ def test_plugin_show():
     # Just skip it for now.
     if "CI" not in os.environ:
         assert "poetry-dynamic-versioning" in out
+
+
+@pytest.mark.skipif("USE_PEP621" not in os.environ, reason="Requires Poetry with PEP-621 support")
+def test_pep621_with_dynamic_version():
+    dummy = ROOT / "tests" / "project-pep621"
+    dummy_pyproject = dummy / "pyproject.toml"
+
+    version = dunamai.Version.from_git().serialize()
+
+    run("poetry-dynamic-versioning", where=dummy)
+    assert f'version = "{version}"' in dummy_pyproject.read_bytes().decode("utf-8")
+    assert f'__version__ = "{version}"' in (dummy / "project" / "__init__.py").read_bytes().decode(
+        "utf-8"
+    )
+
+
+@pytest.mark.skipif("USE_PEP621" not in os.environ, reason="Requires Poetry with PEP-621 support")
+def test_pep621_without_dynamic_version():
+    dummy = ROOT / "tests" / "project-pep621"
+    dummy_pyproject = dummy / "pyproject.toml"
+
+    run("poetry-dynamic-versioning", where=dummy)
+    assert "version =" not in dummy_pyproject.read_bytes().decode("utf-8")
+    assert '__version__ = "0.0.0"' in (dummy / "project" / "__init__.py").read_bytes().decode(
+        "utf-8"
+    )

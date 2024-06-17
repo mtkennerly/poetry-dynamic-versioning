@@ -8,6 +8,7 @@ import shlex
 import subprocess
 import sys
 import textwrap
+from enum import Enum
 from importlib import import_module
 from pathlib import Path
 from typing import Mapping, MutableMapping, Optional, Sequence, Tuple, Union
@@ -118,17 +119,24 @@ else:
         pass
 
 
+class _Mode(Enum):
+    Classic = "classic"
+    Pep621 = "pep621"
+
+
 class _ProjectState:
     def __init__(
         self,
         path: Path,
-        original_version: str,
+        original_version: Optional[str],
         version: str,
+        mode: _Mode,
         substitutions: Optional[MutableMapping[Path, str]] = None,
     ) -> None:
         self.path = path
         self.original_version = original_version
         self.version = version
+        self.mode = mode
         self.substitutions = (
             {} if substitutions is None else substitutions
         )  # type: MutableMapping[Path, str]
@@ -590,7 +598,12 @@ def _substitute_version_in_text(version: str, content: str, patterns: Sequence[_
 
 
 def _apply_version(
-    name: str, version: str, instance: Version, config: _Config, pyproject_path: Path, retain: bool = False
+    name: str,
+    version: str,
+    instance: Version,
+    config: _Config,
+    pyproject_path: Path,
+    retain: bool = False,
 ) -> None:
     pyproject = tomlkit.parse(pyproject_path.read_bytes().decode("utf-8"))
 
@@ -633,26 +646,12 @@ def _apply_version(
 
 
 def _get_and_apply_version(
-    pyproject: Mapping,
+    pyproject: Optional[Mapping] = None,
     pyproject_path: Optional[Path] = None,
     retain: bool = False,
     force: bool = False,
-    # fmt: off
-    io: bool = True
-    # fmt: on
+    io: bool = True,
 ) -> Optional[str]:
-    poetry_section = pyproject.get("tool", {}).get("poetry", {})
-    project_section = pyproject.get("project", {})
-
-    name = poetry_section.get("name") or project_section.get("name")
-    original = poetry_section.get("version")
-
-    if not original:
-        raise RuntimeError("No version found in section 'tool.poetry'")
-
-    if name is not None and name in _state.projects:
-        return name
-
     if pyproject_path is None:
         pyproject_path = _get_pyproject_path()
         if pyproject_path is None:
@@ -661,11 +660,26 @@ def _get_and_apply_version(
     if pyproject is None:
         pyproject = tomlkit.parse(pyproject_path.read_bytes().decode("utf-8"))
 
-    if name is None or original is None:
+    classic = (
+        "tool" in pyproject
+        and "poetry" in pyproject["tool"]
+        and "name" in pyproject["tool"]["poetry"]
+    )
+    pep621 = "project" in pyproject and "name" in pyproject["project"]
+
+    if classic:
         name = pyproject["tool"]["poetry"]["name"]
         original = pyproject["tool"]["poetry"]["version"]
-        if name in _state.projects:
-            return name
+    elif pep621:
+        name = pyproject["project"]["name"]
+        original = pyproject["project"].get("version")
+        if "version" not in pyproject["project"].get("dynamic", []):
+            return name if name in _state.projects else None
+    else:
+        return name if name in _state.projects else None
+
+    if name in _state.projects:
+        return name
 
     config = _get_config(pyproject)
     if not config["enable"] and not force:
@@ -679,9 +693,12 @@ def _get_and_apply_version(
     finally:
         os.chdir(str(initial_dir))
 
-    # Condition will always be true, but it makes Mypy happy.
-    if name is not None and original is not None:
-        _state.projects[name] = _ProjectState(pyproject_path, original, version)
+    if classic and name is not None and original is not None:
+        _state.projects[name] = _ProjectState(pyproject_path, original, version, _Mode.Classic)
+        if io:
+            _apply_version(name, version, instance, config, pyproject_path, retain)
+    elif pep621 and name is not None:
+        _state.projects[name] = _ProjectState(pyproject_path, original, version, _Mode.Pep621)
         if io:
             _apply_version(name, version, instance, config, pyproject_path, retain)
 
@@ -709,7 +726,13 @@ def _revert_version(retain: bool = False) -> None:
             # Reread pyproject.toml in case the substitutions affected it.
             pyproject = tomlkit.parse(state.path.read_bytes().decode("utf-8"))
 
-        pyproject["tool"]["poetry"]["version"] = state.original_version  # type: ignore
+        if state.mode == _Mode.Classic:
+            pyproject["tool"]["poetry"]["version"] = state.original_version  # type: ignore
+        elif state.mode == _Mode.Pep621:
+            if state.original_version is not None:
+                pyproject["project"]["version"] = state.original_version  # type: ignore
+            elif "version" in pyproject["project"]:  # type: ignore
+                pyproject["project"].pop("version")  # type: ignore
 
         if not retain and not _state.cli_mode:
             pyproject["tool"]["poetry-dynamic-versioning"]["enable"] = True  # type: ignore

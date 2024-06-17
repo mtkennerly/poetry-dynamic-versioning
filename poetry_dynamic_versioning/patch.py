@@ -24,8 +24,6 @@ def _patch_poetry_create(factory_mod) -> None:
 
         if not _state.cli_mode:
             name = _get_and_apply_version(
-                name=instance.local_config["name"],
-                original=instance.local_config["version"],
                 pyproject=instance.pyproject.data,
                 pyproject_path=_get_pyproject_path_from_poetry(instance.pyproject),
             )
