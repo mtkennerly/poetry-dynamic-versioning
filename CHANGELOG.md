@@ -1,3 +1,26 @@
+## Unreleased
+
+* Added:
+  * The plugin now supports Poetry's upcoming PEP-621 functionality.
+    More info here: https://github.com/python-poetry/poetry/issues/3332
+
+    If your pyproject.toml defines `tool.poetry.name`,
+    then the plugin will preserve its existing behavior.
+
+    However, if your pyproject.toml:
+
+    * does not define `tool.poetry.name`
+    * defines `project.name`
+    * defines `project.dynamic` to include `"version"`
+    * does not define `project.version`
+
+    ...then the plugin will enable its PEP-621 functionality.
+
+    Because PEP-621 support is not yet released and finalized in Poetry itself,
+    it is also subject to change in the plugin.
+
+    ([Prototyped by edgarrmondragon](https://github.com/mtkennerly/poetry-dynamic-versioning/pull/181))
+
 ## v1.3.0 (2024-04-29)
 
 * Added:
