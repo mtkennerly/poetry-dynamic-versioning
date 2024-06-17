@@ -7,6 +7,7 @@ import tarfile
 from pathlib import Path
 from typing import Optional, Sequence, Tuple
 
+import dunamai
 import pytest
 import tomlkit
 
@@ -15,6 +16,10 @@ DIST = ROOT / "dist"
 DUMMY = ROOT / "tests" / "project"
 DUMMY_DIST = DUMMY / "dist"
 DUMMY_PYPROJECT = DUMMY / "pyproject.toml"
+
+DUMMY_PEP621 = ROOT / "tests" / "project-pep621"
+DUMMY_PEP621_DIST = DUMMY_PEP621 / "dist"
+DUMMY_PEP621_PYPROJECT = DUMMY_PEP621 / "pyproject.toml"
 
 DUMMY_VERSION = "0.0.999"
 DEPENDENCY_DYNAMIC_VERSION = "0.0.888"
@@ -74,11 +79,12 @@ def before_all():
 
 @pytest.fixture(autouse=True)
 def before_each():
-    run(f"git checkout -- {DUMMY.as_posix()}")
-    delete(DUMMY / "dist")
-    delete(DUMMY / "poetry.lock")
-    for file in DUMMY.glob("*.whl"):
-        delete(file)
+    for project in [DUMMY, DUMMY_PEP621]:
+        run(f"git checkout -- {project.as_posix()}")
+        delete(project / "dist")
+        delete(project / "poetry.lock")
+        for file in project.glob("*.whl"):
+            delete(file)
 
 
 def test_plugin_enabled():
@@ -123,7 +129,10 @@ def test_invalid_config_for_vcs():
 def test_keep_pyproject_modifications():
     package = "cachy"
     # Using --optional to avoid actually installing the package
-    run(f"poetry add --optional {package}", where=DUMMY)
+    if "USE_PEP621" in os.environ:
+        run(f"poetry add --optional main {package}", where=DUMMY)
+    else:
+        run(f"poetry add --optional {package}", where=DUMMY)
     # Make sure pyproject.toml contains the new package dependency
     data = DUMMY_PYPROJECT.read_bytes().decode("utf-8")
     assert package in data
@@ -267,3 +276,46 @@ def test_plugin_show():
     # Just skip it for now.
     if "CI" not in os.environ:
         assert "poetry-dynamic-versioning" in out
+
+
+@pytest.mark.skipif("USE_PEP621" not in os.environ, reason="Requires Poetry with PEP-621 support")
+def test_pep621_with_dynamic_version():
+    version = dunamai.Version.from_git().serialize()
+
+    run("poetry-dynamic-versioning", where=DUMMY_PEP621)
+    pyproject = tomlkit.parse(DUMMY_PEP621_PYPROJECT.read_bytes().decode("utf-8"))
+    assert pyproject["project"]["version"] == version
+    assert "version" not in pyproject["project"]["dynamic"]
+    assert f'__version__ = "{version}"' in (
+        DUMMY_PEP621 / "project_pep621" / "__init__.py"
+    ).read_bytes().decode("utf-8")
+
+
+@pytest.mark.skipif("USE_PEP621" not in os.environ, reason="Requires Poetry with PEP-621 support")
+def test_pep621_with_dynamic_version_and_cleanup():
+    version = dunamai.Version.from_git().serialize()
+
+    run("poetry build", where=DUMMY_PEP621)
+    pyproject = tomlkit.parse(DUMMY_PEP621_PYPROJECT.read_bytes().decode("utf-8"))
+    assert "version" not in pyproject["project"]
+    assert "version" in pyproject["project"]["dynamic"]
+    assert '__version__ = "0.0.0"' in (
+        DUMMY_PEP621 / "project_pep621" / "__init__.py"
+    ).read_bytes().decode("utf-8")
+
+    artifact = next(DUMMY_PEP621_DIST.glob("*.whl"))
+    assert f"-{version}-" in artifact.name
+
+
+@pytest.mark.skipif("USE_PEP621" not in os.environ, reason="Requires Poetry with PEP-621 support")
+def test_pep621_without_dynamic_version():
+    pyproject = tomlkit.parse(DUMMY_PEP621_PYPROJECT.read_bytes().decode("utf-8"))
+    pyproject["project"]["dynamic"] = []
+    DUMMY_PEP621_PYPROJECT.write_bytes(tomlkit.dumps(pyproject).encode("utf-8"))
+
+    run("poetry-dynamic-versioning", codes=[1], where=DUMMY_PEP621)
+    pyproject = tomlkit.parse(DUMMY_PEP621_PYPROJECT.read_bytes().decode("utf-8"))
+    assert "version" not in pyproject["project"]
+    assert '__version__ = "0.0.0"' in (
+        DUMMY_PEP621 / "project_pep621" / "__init__.py"
+    ).read_bytes().decode("utf-8")

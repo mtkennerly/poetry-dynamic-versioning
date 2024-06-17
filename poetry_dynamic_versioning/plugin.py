@@ -82,8 +82,6 @@ def _apply_version_via_plugin(
     # fmt: on
 ) -> None:
     name = _get_and_apply_version(
-        name=poetry.local_config["name"],
-        original=poetry.local_config["version"],
         pyproject=poetry.pyproject.data,
         pyproject_path=_get_pyproject_path_from_poetry(poetry.pyproject),
         retain=retain,

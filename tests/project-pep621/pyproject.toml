@@ -1,0 +1,15 @@
+[project]
+name = "project-pep621"
+dynamic = ["version"]
+
+[tool.poetry]
+# The plugin itself doesn't need this, but Poetry does:
+# https://github.com/python-poetry/poetry-core/blob/c80dcc53793316104862d2c3ac888dde3c263b08/tests/test_factory.py#L39-L42
+version = "0.0.0"
+
+[tool.poetry-dynamic-versioning]
+enable = true
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
