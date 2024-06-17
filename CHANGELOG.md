@@ -1,4 +1,4 @@
-## Unreleased
+## v1.4.0 (2024-06-17)
 
 * Added:
   * The plugin now supports Poetry's upcoming PEP-621 functionality.
