@@ -283,7 +283,8 @@ def test_pep621_with_dynamic_version():
     version = dunamai.Version.from_git().serialize()
 
     run("poetry-dynamic-versioning", where=DUMMY_PEP621)
-    assert f'version = "{version}"' in DUMMY_PEP621_PYPROJECT.read_bytes().decode("utf-8")
+    pyproject = tomlkit.parse(DUMMY_PEP621_PYPROJECT.read_bytes().decode("utf-8"))
+    assert pyproject["project"]["version"] == version
     assert f'__version__ = "{version}"' in (
         DUMMY_PEP621 / "project_pep621" / "__init__.py"
     ).read_bytes().decode("utf-8")
@@ -294,7 +295,8 @@ def test_pep621_with_dynamic_version_and_cleanup():
     version = dunamai.Version.from_git().serialize()
 
     run("poetry build", where=DUMMY_PEP621)
-    assert 'version = "0.0.0"' in DUMMY_PEP621_PYPROJECT.read_bytes().decode("utf-8")
+    pyproject = tomlkit.parse(DUMMY_PEP621_PYPROJECT.read_bytes().decode("utf-8"))
+    assert "version" not in pyproject["project"]
     assert '__version__ = "0.0.0"' in (
         DUMMY_PEP621 / "project_pep621" / "__init__.py"
     ).read_bytes().decode("utf-8")
@@ -305,12 +307,13 @@ def test_pep621_with_dynamic_version_and_cleanup():
 
 @pytest.mark.skipif("USE_PEP621" not in os.environ, reason="Requires Poetry with PEP-621 support")
 def test_pep621_without_dynamic_version():
-    data = DUMMY_PEP621_PYPROJECT.read_bytes().decode("utf-8")
-    data = re.sub(r"dynamic = .*", "dynamic = []", data)
-    DUMMY_PEP621_PYPROJECT.write_bytes(data.encode("utf-8"))
+    pyproject = tomlkit.parse(DUMMY_PEP621_PYPROJECT.read_bytes().decode("utf-8"))
+    pyproject["project"]["dynamic"] = []
+    DUMMY_PEP621_PYPROJECT.write_bytes(tomlkit.dumps(pyproject).encode("utf-8"))
 
     run("poetry-dynamic-versioning", codes=[1], where=DUMMY_PEP621)
-    assert "version =" not in DUMMY_PEP621_PYPROJECT.read_bytes().decode("utf-8")
+    pyproject = tomlkit.parse(DUMMY_PEP621_PYPROJECT.read_bytes().decode("utf-8"))
+    assert "version" not in pyproject["project"]
     assert '__version__ = "0.0.0"' in (
         DUMMY_PEP621 / "project_pep621" / "__init__.py"
     ).read_bytes().decode("utf-8")
