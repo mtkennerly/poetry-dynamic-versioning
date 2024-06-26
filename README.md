@@ -101,7 +101,14 @@ In your pyproject.toml file, you may configure the following options:
     poetry run python -c "import dunamai; print(dunamai.Pattern.Default.regex())"
     ```
 
-    Remember that backslashes must be escaped (`\\`) in the TOML file.
+    Remember that backslashes must be escaped in the TOML file.
+
+    ```toml
+    # Regular expression:
+    pattern = '(?P<base>\d+\.\d+\.\d+)'
+    # Named preset:
+    pattern = "default-unprefixed"
+    ```
   * `pattern-prefix` (string):
     This will be inserted after the pattern's start anchor (`^`).
     For example, to match tags like `some-package-v1.2.3`,
@@ -249,12 +256,12 @@ In your pyproject.toml file, you may configure the following options:
 
     ```toml
     patterns = [
-        "(^__version__\\s*(?::.*?)?=\\s*['\"])[^'\"]*(['\"])",
-        { value = "(^__version_tuple__\\s*(?::.*?)?=\\s*\\()[^)]*(\\))", mode = "tuple" },
+        '''(^__version__\s*(?::.*?)?=\s*['"])[^'"]*(['"])''',
+        { value = '''(^__version_tuple__\s*(?::.*?)?=\s*\()[^)]*(\))''', mode = "tuple" },
     ]
     ```
 
-    Remember that the backslashes must be escaped (`\\`) in the TOML file.
+    Remember that the backslashes must be escaped in the TOML file.
   * `folders` (array of tables, default: empty):
     List of additional folders to check for substitutions.
 
