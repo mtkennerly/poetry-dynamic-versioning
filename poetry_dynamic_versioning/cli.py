@@ -108,9 +108,7 @@ def _enable_in_doc(doc: tomlkit.TOMLDocument) -> tomlkit.TOMLDocument:
         doc[Key.tool][Key.pdv].update(pdv_table)  # type: ignore
 
     build_system_table = (
-        tomlkit.table()
-        .add(Key.requires, _DEFAULT_REQUIRES)
-        .add(Key.build_backend, _DEFAULT_BUILD_BACKEND)
+        tomlkit.table().add(Key.requires, _DEFAULT_REQUIRES).add(Key.build_backend, _DEFAULT_BUILD_BACKEND)
     )
 
     if doc.get(Key.build_system) is None:

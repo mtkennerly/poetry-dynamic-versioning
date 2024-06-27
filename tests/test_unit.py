@@ -26,9 +26,7 @@ def test__deep_merge_dicts():
 
 def test__find_higher_file():
     assert plugin._find_higher_file("pyproject.toml", start=root) == root / "pyproject.toml"
-    assert (
-        plugin._find_higher_file("pyproject.toml", start=root / "tests") == root / "pyproject.toml"
-    )
+    assert plugin._find_higher_file("pyproject.toml", start=root / "tests") == root / "pyproject.toml"
     assert (
         plugin._find_higher_file("pyproject.toml", start=root / "tests" / "project")
         == root / "tests" / "project" / "pyproject.toml"

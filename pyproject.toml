@@ -49,13 +49,13 @@ poetry-dynamic-versioning = 'poetry_dynamic_versioning.__main__:main'
 poetry-dynamic-versioning = "poetry_dynamic_versioning.plugin:DynamicVersioningPlugin"
 
 [tool.black]
-line-length = 100
+line-length = 120
 
 [tool.mypy]
 allow_redefinition = true
 
 [tool.ruff]
-line-length = 100
+line-length = 120
 extend-select = ["W605", "N"]
 
 [build-system]

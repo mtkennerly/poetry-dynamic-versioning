@@ -139,9 +139,7 @@ class _ProjectState:
         self.version = version
         self.mode = mode
         self.dynamic_index = dynamic_index
-        self.substitutions = (
-            {} if substitutions is None else substitutions
-        )  # type: MutableMapping[Path, str]
+        self.substitutions = {} if substitutions is None else substitutions  # type: MutableMapping[Path, str]
 
 
 class _State:
@@ -297,9 +295,7 @@ def _get_config(local: Mapping) -> _Config:
     if isinstance(local, tomlkit.TOMLDocument):
         local = local.unwrap()
 
-    merged = _deep_merge_dicts(_default_config(), local)["tool"][
-        "poetry-dynamic-versioning"
-    ]  # type: _Config
+    merged = _deep_merge_dicts(_default_config(), local)["tool"]["poetry-dynamic-versioning"]  # type: _Config
 
     # Add default values so we don't have to worry about missing keys
     for x in merged["files"].values():
@@ -340,9 +336,7 @@ def _validate_config(config: Optional[Mapping] = None) -> Sequence[str]:
     )
 
 
-def _validate_config_section(
-    config: Mapping, default: Mapping, path: Sequence[str]
-) -> Sequence[str]:
+def _validate_config_section(config: Mapping, default: Mapping, path: Sequence[str]) -> Sequence[str]:
     if not default:
         return []
 
@@ -370,9 +364,7 @@ def _format_timestamp(value: Optional[dt.datetime]) -> Optional[str]:
     return value.strftime("%Y%m%d%H%M%S")
 
 
-def _render_jinja(
-    version: Version, template: str, config: _Config, extra: Optional[Mapping] = None
-) -> str:
+def _render_jinja(version: Version, template: str, config: _Config, extra: Optional[Mapping] = None) -> str:
     if extra is None:
         extra = {}
 
@@ -417,11 +409,7 @@ def _run_cmd(command: str, codes: Sequence[int] = (0,)) -> Tuple[int, str]:
     )
     output = result.stdout.decode().strip()
     if codes and result.returncode not in codes:
-        raise RuntimeError(
-            "The command '{}' returned code {}. Output:\n{}".format(
-                command, result.returncode, output
-            )
-        )
+        raise RuntimeError("The command '{}' returned code {}. Output:\n{}".format(command, result.returncode, output))
     return (result.returncode, output)
 
 
@@ -496,9 +484,7 @@ def _get_version(config: _Config, name: Optional[str] = None) -> Tuple[str, Vers
     vcs = Vcs(config["vcs"])
     style = Style(config["style"]) if config["style"] is not None else None
 
-    pattern = (
-        config["pattern"] if config["pattern"] is not None else Pattern.Default
-    )  # type: Union[str, Pattern]
+    pattern = config["pattern"] if config["pattern"] is not None else Pattern.Default  # type: Union[str, Pattern]
 
     if config["fix-shallow-repository"]:
         # We start without strict so we can inspect the concerns.
@@ -553,11 +539,7 @@ def _substitute_version(name: str, version: str, folders: Sequence[_FolderConfig
                 files[resolved] = folder
 
             if i == 0:
-                _debug(
-                    "No files found for substitution with glob '{}' in folder '{}'".format(
-                        file_glob, folder.path
-                    )
-                )
+                _debug("No files found for substitution with glob '{}' in folder '{}'".format(file_glob, folder.path))
 
     for file, config in files.items():
         original_content = file.read_bytes().decode("utf-8")
@@ -592,9 +574,7 @@ def _substitute_version_in_text(version: str, content: str, patterns: Sequence[_
         else:
             raise ValueError("Invalid substitution mode: {}".format(pattern.mode))
 
-        new_content = re.sub(
-            pattern.value, r"\g<1>{}\g<2>".format(insert), new_content, flags=re.MULTILINE
-        )
+        new_content = re.sub(pattern.value, r"\g<1>{}\g<2>".format(insert), new_content, flags=re.MULTILINE)
 
     return new_content
 
@@ -667,11 +647,7 @@ def _get_and_apply_version(
     if pyproject is None:
         pyproject = tomlkit.parse(pyproject_path.read_bytes().decode("utf-8"))
 
-    classic = (
-        "tool" in pyproject
-        and "poetry" in pyproject["tool"]
-        and "name" in pyproject["tool"]["poetry"]
-    )
+    classic = "tool" in pyproject and "poetry" in pyproject["tool"] and "name" in pyproject["tool"]["poetry"]
     pep621 = (
         "project" in pyproject
         and "name" in pyproject["project"]
@@ -708,16 +684,12 @@ def _get_and_apply_version(
 
     if classic and name is not None and original is not None:
         mode = _Mode.Classic
-        _state.projects[name] = _ProjectState(
-            pyproject_path, original, version, mode, dynamic_index
-        )
+        _state.projects[name] = _ProjectState(pyproject_path, original, version, mode, dynamic_index)
         if io:
             _apply_version(name, version, instance, config, pyproject_path, mode, retain)
     elif pep621 and name is not None:
         mode = _Mode.Pep621
-        _state.projects[name] = _ProjectState(
-            pyproject_path, original, version, mode, dynamic_index
-        )
+        _state.projects[name] = _ProjectState(pyproject_path, original, version, mode, dynamic_index)
         if io:
             _apply_version(name, version, instance, config, pyproject_path, mode, retain)
 

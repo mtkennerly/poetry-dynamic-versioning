@@ -110,9 +110,7 @@ class DynamicVersioningCommand(Command):
 
     def handle(self) -> int:
         _state.cli_mode = True
-        _apply_version_via_plugin(
-            self._application.poetry, retain=True, force=True, standalone=True
-        )
+        _apply_version_via_plugin(self._application.poetry, retain=True, force=True, standalone=True)
         return 0
 
 
@@ -137,9 +135,7 @@ class DynamicVersioningPlugin(ApplicationPlugin):
     def activate(self, application: Application) -> None:
         self._application = application
 
-        application.command_loader.register_factory(
-            cli.Command.dv, lambda: DynamicVersioningCommand(application)
-        )
+        application.command_loader.register_factory(cli.Command.dv, lambda: DynamicVersioningCommand(application))
         application.command_loader.register_factory(
             cli.Command.dv_enable, lambda: DynamicVersioningEnableCommand(application)
         )
@@ -161,9 +157,7 @@ class DynamicVersioningPlugin(ApplicationPlugin):
         application.event_dispatcher.add_listener(TERMINATE, self._revert_version)
         application.event_dispatcher.add_listener(ERROR, self._revert_version)
 
-    def _apply_version(
-        self, event: ConsoleCommandEvent, kind: str, dispatcher: EventDispatcher
-    ) -> None:
+    def _apply_version(self, event: ConsoleCommandEvent, kind: str, dispatcher: EventDispatcher) -> None:
         if not _should_apply(event.command.name):
             return
 
@@ -172,9 +166,7 @@ class DynamicVersioningPlugin(ApplicationPlugin):
         _apply_version_via_plugin(self._application.poetry, io=io)
         _patch_dependency_versions(io)
 
-    def _revert_version(
-        self, event: ConsoleCommandEvent, kind: str, dispatcher: EventDispatcher
-    ) -> None:
+    def _revert_version(self, event: ConsoleCommandEvent, kind: str, dispatcher: EventDispatcher) -> None:
         if not _should_apply(event.command.name):
             return
 

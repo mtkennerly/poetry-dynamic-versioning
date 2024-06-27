@@ -47,11 +47,7 @@ def run(
     )
     output = result.stdout.decode("utf-8", errors="ignore").strip()
     if codes and result.returncode not in codes:
-        raise RuntimeError(
-            "The command '{}' returned code {}. Output:\n{}".format(
-                command, result.returncode, output
-            )
-        )
+        raise RuntimeError("The command '{}' returned code {}. Output:\n{}".format(command, result.returncode, output))
     return (result.returncode, output)
 
 
@@ -158,15 +154,9 @@ def test_plugin_cli_mode_and_substitution():
     run("poetry dynamic-versioning", where=DUMMY)
     # Changes persist after the command is done:
     assert f'version = "{DUMMY_VERSION}"' not in DUMMY_PYPROJECT.read_bytes().decode("utf-8")
-    assert '__version__: str = "0.0.0"' not in (
-        DUMMY / "project" / "__init__.py"
-    ).read_bytes().decode("utf-8")
-    assert '__version__ = "0.0.0"' not in (DUMMY / "project" / "__init__.py").read_bytes().decode(
-        "utf-8"
-    )
-    assert "__version_tuple__ = (0, 0, 0)" not in (DUMMY / "project" / "__init__.py").read_text(
-        "utf8"
-    )
+    assert '__version__: str = "0.0.0"' not in (DUMMY / "project" / "__init__.py").read_bytes().decode("utf-8")
+    assert '__version__ = "0.0.0"' not in (DUMMY / "project" / "__init__.py").read_bytes().decode("utf-8")
+    assert "__version_tuple__ = (0, 0, 0)" not in (DUMMY / "project" / "__init__.py").read_text("utf8")
     assert "<0.0.0>" not in (DUMMY / "project" / "__init__.py").read_bytes().decode("utf-8")
 
 
@@ -174,15 +164,9 @@ def test_standalone_cli_mode_and_substitution():
     run("poetry-dynamic-versioning", where=DUMMY)
     # Changes persist after the command is done:
     assert f'version = "{DUMMY_VERSION}"' not in DUMMY_PYPROJECT.read_bytes().decode("utf-8")
-    assert '__version__: str = "0.0.0"' not in (
-        DUMMY / "project" / "__init__.py"
-    ).read_bytes().decode("utf-8")
-    assert '__version__ = "0.0.0"' not in (DUMMY / "project" / "__init__.py").read_bytes().decode(
-        "utf-8"
-    )
-    assert "__version_tuple__ = (0, 0, 0)" not in (DUMMY / "project" / "__init__.py").read_text(
-        "utf8"
-    )
+    assert '__version__: str = "0.0.0"' not in (DUMMY / "project" / "__init__.py").read_bytes().decode("utf-8")
+    assert '__version__ = "0.0.0"' not in (DUMMY / "project" / "__init__.py").read_bytes().decode("utf-8")
+    assert "__version_tuple__ = (0, 0, 0)" not in (DUMMY / "project" / "__init__.py").read_text("utf8")
     assert "<0.0.0>" not in (DUMMY / "project" / "__init__.py").read_bytes().decode("utf-8")
 
 
@@ -194,15 +178,9 @@ def test_cli_mode_and_substitution_without_enable():
     run("poetry dynamic-versioning", where=DUMMY)
     # Changes persist after the command is done:
     assert f'version = "{DUMMY_VERSION}"' not in DUMMY_PYPROJECT.read_bytes().decode("utf-8")
-    assert '__version__: str = "0.0.0"' not in (
-        DUMMY / "project" / "__init__.py"
-    ).read_bytes().decode("utf-8")
-    assert '__version__ = "0.0.0"' not in (DUMMY / "project" / "__init__.py").read_bytes().decode(
-        "utf-8"
-    )
-    assert "__version_tuple__ = (0, 0, 0)" not in (DUMMY / "project" / "__init__.py").read_text(
-        "utf8"
-    )
+    assert '__version__: str = "0.0.0"' not in (DUMMY / "project" / "__init__.py").read_bytes().decode("utf-8")
+    assert '__version__ = "0.0.0"' not in (DUMMY / "project" / "__init__.py").read_bytes().decode("utf-8")
+    assert "__version_tuple__ = (0, 0, 0)" not in (DUMMY / "project" / "__init__.py").read_text("utf8")
     assert "<0.0.0>" not in (DUMMY / "project" / "__init__.py").read_bytes().decode("utf-8")
 
 
@@ -286,9 +264,9 @@ def test_pep621_with_dynamic_version():
     pyproject = tomlkit.parse(DUMMY_PEP621_PYPROJECT.read_bytes().decode("utf-8"))
     assert pyproject["project"]["version"] == version
     assert "version" not in pyproject["project"]["dynamic"]
-    assert f'__version__ = "{version}"' in (
-        DUMMY_PEP621 / "project_pep621" / "__init__.py"
-    ).read_bytes().decode("utf-8")
+    assert f'__version__ = "{version}"' in (DUMMY_PEP621 / "project_pep621" / "__init__.py").read_bytes().decode(
+        "utf-8"
+    )
 
 
 @pytest.mark.skipif("USE_PEP621" not in os.environ, reason="Requires Poetry with PEP-621 support")
@@ -299,9 +277,7 @@ def test_pep621_with_dynamic_version_and_cleanup():
     pyproject = tomlkit.parse(DUMMY_PEP621_PYPROJECT.read_bytes().decode("utf-8"))
     assert "version" not in pyproject["project"]
     assert "version" in pyproject["project"]["dynamic"]
-    assert '__version__ = "0.0.0"' in (
-        DUMMY_PEP621 / "project_pep621" / "__init__.py"
-    ).read_bytes().decode("utf-8")
+    assert '__version__ = "0.0.0"' in (DUMMY_PEP621 / "project_pep621" / "__init__.py").read_bytes().decode("utf-8")
 
     artifact = next(DUMMY_PEP621_DIST.glob("*.whl"))
     assert f"-{version}-" in artifact.name
@@ -316,6 +292,4 @@ def test_pep621_without_dynamic_version():
     run("poetry-dynamic-versioning", codes=[1], where=DUMMY_PEP621)
     pyproject = tomlkit.parse(DUMMY_PEP621_PYPROJECT.read_bytes().decode("utf-8"))
     assert "version" not in pyproject["project"]
-    assert '__version__ = "0.0.0"' in (
-        DUMMY_PEP621 / "project_pep621" / "__init__.py"
-    ).read_bytes().decode("utf-8")
+    assert '__version__ = "0.0.0"' in (DUMMY_PEP621 / "project_pep621" / "__init__.py").read_bytes().decode("utf-8")
