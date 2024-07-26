@@ -1,4 +1,5 @@
 import os
+import shlex
 import shutil
 from pathlib import Path
 
@@ -9,6 +10,14 @@ PYPROJECT = ROOT / "pyproject.toml"
 
 NORMAL_PYPROJECT = ROOT / "pyproject.patch.toml"
 DEPRECATED_PYPROJECT = ROOT / "pyproject.plugin.toml"
+
+
+def get_version() -> str:
+    for line in (ROOT / "pyproject.toml").read_text("utf-8").splitlines():
+        if line.startswith("version ="):
+            return line.replace("version = ", "").strip('"')
+
+    return "0.0.0"
 
 
 @task
@@ -73,3 +82,36 @@ def uninstall(ctx, pip=False):
             ctx.run("poetry self remove poetry-dynamic-versioning")
     except Exception:
         pass
+
+
+@task
+def docs(ctx):
+    version = get_version()
+    manpage = "docs/poetry-dynamic-versioning.1"
+
+    args = [
+        "poetry",
+        "run",
+        "argparse-manpage",
+        "--pyfile",
+        "poetry_dynamic_versioning/cli.py",
+        "--function",
+        "get_parser",
+        "--project-name",
+        "poetry-dynamic-versioning",
+        "--prog",
+        "poetry-dynamic-versioning",
+        "--version",
+        version,
+        "--author",
+        '"Matthew T. Kennerly (mtkennerly)"',
+        "--url",
+        "https://github.com/mtkennerly/poetry-dynamic-versioning",
+        "--format",
+        "single-commands-section",
+        "--output",
+        manpage,
+        "--manual-title",
+        "poetry-dynamic-versioning",
+    ]
+    ctx.run(shlex.join(args))

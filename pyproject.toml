@@ -41,6 +41,7 @@ pre-commit = "^1.16"
 black = "^22.8"
 mypy = "^0.971"
 ruff = {version = "^0.0.272", python = "^3.7"}
+argparse-manpage = "^4.6"
 
 [tool.poetry.scripts]
 poetry-dynamic-versioning = 'poetry_dynamic_versioning.__main__:main'

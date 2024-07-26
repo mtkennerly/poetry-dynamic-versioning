@@ -45,13 +45,17 @@ class Help:
     )
 
 
-def parse_args(argv=None) -> argparse.Namespace:
+def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=Help.main)
 
     subparsers = parser.add_subparsers(dest="cmd", title="subcommands")
     subparsers.add_parser(Command.enable, help=Help.enable)
 
-    return parser.parse_args(argv)
+    return parser
+
+
+def parse_args(argv=None) -> argparse.Namespace:
+    return get_parser().parse_args(argv)
 
 
 def validate(*, standalone: bool, config: Optional[Mapping] = None) -> None:

@@ -1,0 +1,25 @@
+.TH POETRY\-DYNAMIC\-VERSIONING "1" "2024\-07\-26" "poetry\-dynamic\-versioning 1.4.0" "poetry\-dynamic\-versioning"
+.SH NAME
+poetry\-dynamic\-versioning
+.SH SYNOPSIS
+.B poetry\-dynamic\-versioning
+[-h] {enable} ...
+.SH DESCRIPTION
+Apply the dynamic version to all relevant files and leave the changes in\-place. This allows you to activate the plugin behavior on demand and inspect the result. Your configuration will be detected from pyproject.toml as normal.
+
+.SH
+SUBCOMMANDS
+.SS \fBpoetry\-dynamic\-versioning enable\fR
+Update pyproject.toml to enable the plugin using a typical configuration. The output may not be suitable for more complex use cases.
+
+usage: poetry\-dynamic\-versioning enable [\-h]
+
+.SH AUTHOR
+.nf
+'Matthew T. Kennerly (mtkennerly)'
+.fi
+
+.SH DISTRIBUTION
+The latest version of poetry\-dynamic\-versioning may be downloaded from
+.UR https://github.com/mtkennerly/poetry\-dynamic\-versioning
+.UE
