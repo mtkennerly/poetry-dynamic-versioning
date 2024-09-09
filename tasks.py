@@ -62,22 +62,26 @@ def test(ctx, unit=False, integration=False, pattern=None):
 
 
 @task
-def install(ctx, pip=False):
+def install(ctx, pip=False, pipx=False):
     with ctx.cd(ROOT):
-        uninstall(ctx, pip)
+        uninstall(ctx, pip, pipx)
         build(ctx)
         wheel = next(ROOT.glob("dist/*.whl"))
         if pip:
-            ctx.run('pip install "{}"'.format(wheel))
+            ctx.run('pip install "{}[plugin]"'.format(wheel))
+        elif pipx:
+            ctx.run('pipx inject poetry "{}[plugin]"'.format(wheel))
         else:
             ctx.run('poetry self add "{}[plugin]"'.format(wheel))
 
 
 @task
-def uninstall(ctx, pip=False):
+def uninstall(ctx, pip=False, pipx=False):
     try:
         if pip:
             ctx.run("pip uninstall -y poetry-dynamic-versioning")
+        elif pipx:
+            ctx.run("pipx runpip poetry uninstall -y poetry-dynamic-versioning")
         else:
             ctx.run("poetry self remove poetry-dynamic-versioning")
     except Exception:
