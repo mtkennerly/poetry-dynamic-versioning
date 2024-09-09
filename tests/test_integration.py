@@ -263,15 +263,10 @@ def test_bypass():
     assert "-1.2.3-" in artifact.name
 
 
+@pytest.mark.skipif("CI" in os.environ, reason="CI uses Pipx, which doesn't play nice with this 'poetry self'")
 def test_plugin_show():
     _, out = run("poetry self show")
-
-    # This is flaky during CI for some reason.
-    # There's no error from Poetry, but the plugin isn't always listed,
-    # even though it's installed and usable.
-    # Just skip it for now.
-    if "CI" not in os.environ:
-        assert "poetry-dynamic-versioning" in out
+    assert "poetry-dynamic-versioning" in out
 
 
 @pytest.mark.skipif("USE_PEP621" not in os.environ, reason="Requires Poetry with PEP-621 support")
