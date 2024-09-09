@@ -58,19 +58,37 @@ def delete(path: Path) -> None:
         path.unlink()
 
 
+def install_plugin(artifact: str) -> None:
+    pipx = os.environ.get("POETRY_DYNAMIC_VERSIONING_TEST_INSTALLATION") == "pipx"
+
+    if pipx:
+        run(f'pipx inject poetry "{artifact}[plugin]"')
+    else:
+        run(f'poetry self add "{artifact}[plugin]"')
+
+
+def uninstall_plugin() -> None:
+    pipx = os.environ.get("POETRY_DYNAMIC_VERSIONING_TEST_INSTALLATION") == "pipx"
+
+    if pipx:
+        run("pipx uninject poetry poetry-dynamic-versioning", codes=[0, 1])
+    else:
+        run("poetry self remove poetry-dynamic-versioning", codes=[0, 1])
+
+
 @pytest.fixture(scope="module", autouse=True)
 def before_all():
-    run("poetry self remove poetry-dynamic-versioning", codes=[0, 1])
+    uninstall_plugin()
     delete(DIST)
     delete(DUMMY / ".venv")
     run("poetry build", where=ROOT)
     artifact = next(DIST.glob("*.whl"))
-    run(f'poetry self add "{artifact}[plugin]"')
+    install_plugin(artifact)
 
     yield
 
     run(f'git checkout -- "{DUMMY.as_posix()}" "{ROOT.as_posix()}/tests/dependency-*"')
-    run("poetry self remove poetry-dynamic-versioning", codes=[0, 1])
+    uninstall_plugin()
 
 
 @pytest.fixture(autouse=True)

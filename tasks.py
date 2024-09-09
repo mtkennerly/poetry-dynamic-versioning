@@ -43,11 +43,14 @@ def build(ctx, clean=True):
 
 
 @task
-def test(ctx, unit=False, integration=False, pattern=None):
+def test(ctx, unit=False, integration=False, pattern=None, pipx=False):
     all = not unit and not integration
 
     # This ensures we use the global Poetry instead of the venv's Poetry:
     os.environ.update({"POETRY": shutil.which("poetry")})
+
+    if pipx:
+        os.environ.update({"POETRY_DYNAMIC_VERSIONING_TEST_INSTALLATION": "pipx"})
 
     if pattern is None:
         pattern = ""
@@ -81,7 +84,7 @@ def uninstall(ctx, pip=False, pipx=False):
         if pip:
             ctx.run("pip uninstall -y poetry-dynamic-versioning")
         elif pipx:
-            ctx.run("pipx runpip poetry uninstall -y poetry-dynamic-versioning")
+            ctx.run("pipx uninject poetry poetry-dynamic-versioning")
         else:
             ctx.run("poetry self remove poetry-dynamic-versioning")
     except Exception:

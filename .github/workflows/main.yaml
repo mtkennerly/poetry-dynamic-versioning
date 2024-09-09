@@ -56,4 +56,4 @@ jobs:
           pipx install invoke
 
           poetry install --extras plugin
-          invoke test
+          invoke test --pipx
