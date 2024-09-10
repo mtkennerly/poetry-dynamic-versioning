@@ -111,9 +111,6 @@ def test__get_override_version__combined():
 def test__enable_in_doc__empty():
     doc = tomlkit.parse("")
     updated = cli._enable_in_doc(doc)
-    assert updated[cli.Key.tool][cli.Key.pdv][cli.Key.enable] is True
-    assert updated[cli.Key.build_system][cli.Key.requires] == cli._DEFAULT_REQUIRES
-    assert updated[cli.Key.build_system][cli.Key.build_backend] == cli._DEFAULT_BUILD_BACKEND
     assert (
         tomlkit.dumps(updated)
         == textwrap.dedent(
@@ -139,9 +136,19 @@ def test__enable_in_doc__added_pdv():
         )
     )
     updated = cli._enable_in_doc(doc)
-    assert updated[cli.Key.tool][cli.Key.pdv][cli.Key.enable] is True
-    assert updated[cli.Key.build_system][cli.Key.requires] == cli._DEFAULT_REQUIRES
-    assert updated[cli.Key.build_system][cli.Key.build_backend] == cli._DEFAULT_BUILD_BACKEND
+    assert tomlkit.dumps(updated) == textwrap.dedent(
+        """
+            [tool]
+            foo = 1
+
+            [tool.poetry-dynamic-versioning]
+            enable = true
+
+            [build-system]
+            requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning>=1.0.0,<2.0.0"]
+            build-backend = "poetry_dynamic_versioning.backend"
+        """
+    )
 
 
 def test__enable_in_doc__updated_enable():
@@ -154,9 +161,16 @@ def test__enable_in_doc__updated_enable():
         )
     )
     updated = cli._enable_in_doc(doc)
-    assert updated[cli.Key.tool][cli.Key.pdv][cli.Key.enable] is True
-    assert updated[cli.Key.build_system][cli.Key.requires] == cli._DEFAULT_REQUIRES
-    assert updated[cli.Key.build_system][cli.Key.build_backend] == cli._DEFAULT_BUILD_BACKEND
+    assert tomlkit.dumps(updated) == textwrap.dedent(
+        """
+            [tool.poetry-dynamic-versioning]
+            enable = true
+
+            [build-system]
+            requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning>=1.0.0,<2.0.0"]
+            build-backend = "poetry_dynamic_versioning.backend"
+        """
+    )
 
 
 def test__enable_in_doc__updated_requires():
@@ -169,9 +183,16 @@ def test__enable_in_doc__updated_requires():
         )
     )
     updated = cli._enable_in_doc(doc)
-    assert updated[cli.Key.tool][cli.Key.pdv][cli.Key.enable] is True
-    assert updated[cli.Key.build_system][cli.Key.requires] == cli._DEFAULT_REQUIRES
-    assert updated[cli.Key.build_system][cli.Key.build_backend] == cli._DEFAULT_BUILD_BACKEND
+    assert tomlkit.dumps(updated) == textwrap.dedent(
+        """
+            [build-system]
+            requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning>=1.0.0,<2.0.0"]
+            build-backend = "poetry_dynamic_versioning.backend"
+
+            [tool.poetry-dynamic-versioning]
+            enable = true
+        """
+    )
 
 
 def test__enable_in_doc__updated_build_backend():
@@ -184,9 +205,49 @@ def test__enable_in_doc__updated_build_backend():
         )
     )
     updated = cli._enable_in_doc(doc)
-    assert updated[cli.Key.tool][cli.Key.pdv][cli.Key.enable] is True
-    assert updated[cli.Key.build_system][cli.Key.requires] == cli._DEFAULT_REQUIRES
-    assert updated[cli.Key.build_system][cli.Key.build_backend] == cli._DEFAULT_BUILD_BACKEND
+    assert tomlkit.dumps(updated) == textwrap.dedent(
+        """
+            [build-system]
+            build-backend = "poetry_dynamic_versioning.backend"
+            requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning>=1.0.0,<2.0.0"]
+
+            [tool.poetry-dynamic-versioning]
+            enable = true
+        """
+    )
+
+
+def test__enable_in_doc__out_of_order_tables():
+    doc = tomlkit.parse(
+        textwrap.dedent(
+            """
+                [tool.poetry]
+                name = "foo"
+
+                [build-system]
+                build-backend = ""
+
+                [tool.poetry.dependencies]
+                python = "^3.10"
+            """
+        )
+    )
+    updated = cli._enable_in_doc(doc)
+    assert tomlkit.dumps(updated) == textwrap.dedent(
+        """
+            [tool.poetry]
+            name = "foo"
+
+            [tool.poetry-dynamic-versioning]
+            enable = true
+            [build-system]
+            build-backend = "poetry_dynamic_versioning.backend"
+            requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning>=1.0.0,<2.0.0"]
+
+            [tool.poetry.dependencies]
+            python = "^3.10"
+        """
+    )
 
 
 def test__substitute_version_in_text__integers_only():

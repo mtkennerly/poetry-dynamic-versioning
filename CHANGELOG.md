@@ -1,3 +1,8 @@
+## Unreleased
+
+* Fixed:
+  * The `enable` command would fail when the pyproject.toml tables were out of order.
+
 ## v1.4.0 (2024-06-17)
 
 * Added:

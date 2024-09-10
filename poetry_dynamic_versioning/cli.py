@@ -105,9 +105,9 @@ def _enable_in_doc(doc: tomlkit.TOMLDocument) -> tomlkit.TOMLDocument:
     tool_table = tomlkit.table().add(Key.pdv, pdv_table)
 
     if doc.get(Key.tool) is None:
-        doc.add(Key.tool, tool_table)
+        doc[Key.tool] = tool_table
     elif doc[Key.tool].get(Key.pdv) is None:  # type: ignore
-        doc[Key.tool].add(Key.pdv, pdv_table)  # type: ignore
+        doc[Key.tool][Key.pdv] = pdv_table  # type: ignore
     else:
         doc[Key.tool][Key.pdv].update(pdv_table)  # type: ignore
 
@@ -116,7 +116,7 @@ def _enable_in_doc(doc: tomlkit.TOMLDocument) -> tomlkit.TOMLDocument:
     )
 
     if doc.get(Key.build_system) is None:
-        doc.add(Key.build_system, build_system_table)
+        doc[Key.build_system] = build_system_table
     else:
         doc[Key.build_system].update(build_system_table)  # type: ignore
 
