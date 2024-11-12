@@ -70,5 +70,8 @@ jobs:
           pipx install ${{ startsWith(matrix.poetry-version, 'git') && matrix.poetry-version || format('poetry=={0}', matrix.poetry-version) }}
           pipx install invoke
 
-          poetry install --extras plugin
+          # We could use `poetry install --extras plugin`,
+          # but Poetry may decide to install a different version than `matrix.poetry-version`.
+          poetry install
+          poetry run pip install ${{ startsWith(matrix.poetry-version, 'git') && matrix.poetry-version || format('poetry=={0}', matrix.poetry-version) }}
           invoke test --pipx
