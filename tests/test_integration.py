@@ -62,9 +62,9 @@ def install_plugin(artifact: str) -> None:
     pipx = os.environ.get("POETRY_DYNAMIC_VERSIONING_TEST_INSTALLATION") == "pipx"
 
     if pipx:
-        run(f'pipx inject poetry "{artifact}"')
+        run(f'pipx inject poetry "{artifact}[plugin]"')
     else:
-        run(f'poetry self add "{artifact}"')
+        run(f'poetry self add "{artifact}[plugin]"')
 
 
 def uninstall_plugin() -> None:
