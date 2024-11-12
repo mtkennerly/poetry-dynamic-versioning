@@ -71,6 +71,5 @@ jobs:
           pipx install invoke
 
           poetry install
-          ls -la ./.venv/bin
-          ./.venv/bin/pip3 install ${{ startsWith(matrix.poetry-version, 'git') && matrix.poetry-version || format('poetry=={0}', matrix.poetry-version) }}
+          poetry run pip install ${{ startsWith(matrix.poetry-version, 'git') && matrix.poetry-version || format('poetry=={0}', matrix.poetry-version) }}
           invoke test --pipx
