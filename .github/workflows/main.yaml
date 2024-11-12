@@ -70,5 +70,5 @@ jobs:
           pipx install ${{ startsWith(matrix.poetry-version, 'git') && matrix.poetry-version || format('poetry=={0}', matrix.poetry-version) }}
           pipx install invoke
 
-          poetry install --extras plugin
+          poetry install
           invoke test --pipx
