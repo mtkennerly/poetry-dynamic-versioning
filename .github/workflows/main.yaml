@@ -42,7 +42,7 @@ jobs:
         unlocked: [false]
         include:
           - python-version: '3.11'
-            poetry-version: 'git+https://github.com/radoering/poetry.git@pep621-support'
+            poetry-version: 'git+https://github.com/python-poetry/poetry.git@main'
             experimental: true
           - python-version: '3.12'
             poetry-version: '1.8.4'
