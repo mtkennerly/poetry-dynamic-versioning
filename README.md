@@ -7,6 +7,15 @@ Many different version control systems are supported, including Git and Mercuria
 please refer to the Dunamai page for the full list
 (and minimum supported version where applicable).
 
+Once the plugin is set up,
+you can create tags in your version control system (e.g., `git tag v0.1.0 -m "New release"`),
+and the plugin will automatically insert that version into relevant files
+(like `pyproject.toml` or `*.py` files with a `__version__`  line)
+for the duration of Poetry commands such as `poetry build`,
+then revert the changes afterwards to keep your repository clean.
+The plugin aims to inject a static copy of the version into build artifacts (sdists/wheels)
+without the need to manually edit and commit changed files in your repository.
+
 `poetry-dynamic-versioning` provides a build backend that patches Poetry Core
 to enable the versioning system in PEP 517 build frontends.
 When installed with the `plugin` feature (i.e., `poetry-dynamic-versioning[plugin]`),
