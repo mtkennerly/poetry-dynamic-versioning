@@ -31,16 +31,28 @@ be sure to uninstall it before proceeding.
 
 * Install the plugin using one of the options below:
 
-  * In most cases: `poetry self add "poetry-dynamic-versioning[plugin]"`
-  * If you installed Poetry with Pipx: `pipx inject poetry "poetry-dynamic-versioning[plugin]"`
+  * For Poetry 2.0.0+, add this to your pyproject.toml and then run `poetry install`:
+    ```toml
+    [tool.poetry.requires-plugins]
+    poetry-dynamic-versioning = { version = ">=1.0.0,<2.0.0", extras = ["plugin"] }
+    ```
+  * For older Poetry versions, depending on how you installed Poetry:
+    * In most cases: `poetry self add "poetry-dynamic-versioning[plugin]"`
+    * If you installed Poetry with Pipx: `pipx inject poetry "poetry-dynamic-versioning[plugin]"`
 
   See the [Poetry plugin documentation](https://python-poetry.org/docs/plugins/#using-plugins)
   for more information about these options.
-* Run in your project: `poetry dynamic-versioning enable`
+* Run this in your project: `poetry dynamic-versioning enable`
 
-  Or you can update your pyproject.toml manually:
+  Or you can update your pyproject.toml manually to include these fields:
 
   ```toml
+  [project]
+  dynamic = ["version"]
+
+  [tool.poetry]
+  version = "0.0.0"
+
   [tool.poetry-dynamic-versioning]
   enable = true
   ```

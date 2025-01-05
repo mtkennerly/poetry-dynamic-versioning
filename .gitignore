@@ -4,6 +4,7 @@ __pycache__/
 .env/
 .idea/
 .mypy_cache/
+.poetry/
 .pytest_cache/
 .ruff_cache/
 .tox/

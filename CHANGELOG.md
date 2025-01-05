@@ -1,3 +1,16 @@
+## Unreleased
+
+* Added:
+  * CLI: When pyproject.toml contains the `project` section,
+    the `enable` command will add the required fields for Poetry 2.0.0+.
+* Fixed:
+  * For compatibility with Poetry 2.0.0,
+    adjusted Poetry constraint from `^1.2.0` to `>=1.2.0`.
+  * For compatibility with Poetry 2.0.0,
+    when inserting the dynamic version into pyproject.toml with PEP 621 mode activated,
+    the plugin ensures not to set `project.version` and `tool.poetry.version` at the same time.
+  * An `UnboundLocalError` could happen when pyproject.toml was misconfigured.
+
 ## v1.4.1 (2024-09-10)
 
 * Fixed:

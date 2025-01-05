@@ -17,9 +17,8 @@ jobs:
           poetry install
           poetry run pre-commit run --all-files --show-diff-on-failure
 
-  test:
+  test-poetry-v1:
     runs-on: ubuntu-latest
-    continue-on-error: ${{ matrix.experimental }}
     strategy:
       fail-fast: false
       matrix:
@@ -38,19 +37,14 @@ jobs:
           - '1.6.1'
           - '1.7.1'
           - '1.8.4'
-        experimental: [false]
-        unlocked: [false]
+        unlocked:
+          - false
         include:
-          - python-version: '3.11'
-            poetry-version: 'git+https://github.com/python-poetry/poetry.git@main'
-            experimental: true
           - python-version: '3.12'
             poetry-version: '1.8.4'
-            experimental: false
             unlocked: true
           - python-version: '3.13'
             poetry-version: '1.8.4'
-            experimental: false
             unlocked: true
     steps:
       - uses: actions/checkout@v4
@@ -59,19 +53,87 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - if: ${{ startsWith(matrix.poetry-version, 'git') }}
+      - if: ${{ matrix.unlocked }}
         run: |
+          rm poetry.lock
+      - run: |
+          pip install pipx
+          pipx install poetry==${{ matrix.poetry-version }}
+          pipx install invoke
+
+          # We could use `poetry install --extras plugin`,
+          # but Poetry may decide to install a different version than `matrix.poetry-version`.
+          poetry install
+          poetry run pip install poetry==${{ matrix.poetry-version }}
+          invoke test --pipx
+
+  test-poetry-v2:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version:
+          - '3.9'
+          - '3.10'
+          - '3.11'
+        poetry-version:
+          - '2.0.0'
+        unlocked:
+          - false
+        include:
+          - python-version: '3.12'
+            poetry-version: '2.0.0'
+            unlocked: true
+          - python-version: '3.13'
+            poetry-version: '2.0.0'
+            unlocked: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: |
           echo "USE_PEP621=1" >> $GITHUB_ENV
       - if: ${{ matrix.unlocked }}
         run: |
           rm poetry.lock
       - run: |
           pip install pipx
-          pipx install ${{ startsWith(matrix.poetry-version, 'git') && matrix.poetry-version || format('poetry=={0}', matrix.poetry-version) }}
+          pipx install poetry==${{ matrix.poetry-version }}
           pipx install invoke
 
           # We could use `poetry install --extras plugin`,
           # but Poetry may decide to install a different version than `matrix.poetry-version`.
           poetry install
-          poetry run pip install ${{ startsWith(matrix.poetry-version, 'git') && matrix.poetry-version || format('poetry=={0}', matrix.poetry-version) }}
+          poetry run pip install poetry==${{ matrix.poetry-version }}
+          invoke test --pipx
+
+  test-poetry-dev:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version:
+          - '3.11'
+        poetry-version:
+          - 'git+https://github.com/python-poetry/poetry.git@main'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: |
+          echo "USE_PEP621=1" >> $GITHUB_ENV
+      - run: |
+          pip install pipx
+          pipx install ${{ matrix.poetry-version }}
+          pipx install invoke
+
+          poetry install
+          poetry run pip install ${{ matrix.poetry-version }}
           invoke test --pipx

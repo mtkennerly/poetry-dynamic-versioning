@@ -25,6 +25,10 @@ class Key:
     build_system = "build-system"
     requires = "requires"
     build_backend = "build-backend"
+    project = "project"
+    poetry = "poetry"
+    dynamic = "dynamic"
+    version = "version"
 
 
 class Command:
@@ -119,5 +123,20 @@ def _enable_in_doc(doc: tomlkit.TOMLDocument) -> tomlkit.TOMLDocument:
         doc[Key.build_system] = build_system_table
     else:
         doc[Key.build_system].update(build_system_table)  # type: ignore
+
+    # Poetry 2.0.0+
+    if doc.get(Key.project) is not None:
+        if doc[Key.project].get(Key.version) is not None:
+            del doc[Key.project][Key.version]
+
+        if doc[Key.project].get(Key.dynamic) is None:
+            doc[Key.project][Key.dynamic] = [Key.version]
+        else:
+            doc[Key.project][Key.dynamic].append(Key.version)
+
+        if doc[Key.tool].get(Key.poetry) is None:
+            doc[Key.tool][Key.poetry] = tomlkit.table().add(Key.version, "0.0.0")
+        else:
+            doc[Key.tool][Key.poetry][Key.version] = "0.0.0"
 
     return doc
