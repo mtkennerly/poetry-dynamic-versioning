@@ -427,3 +427,17 @@ In addition to those:
   poetry export -f requirements.txt -o requirements.txt --without-hashes
   pip wheel -r requirements.txt
   ```
+* Regarding PEP 621 support:
+
+  The plugin supports the PEP 621 mode of Poetry 2.0.0+ (`[project]`)
+  as well as the classic mode of older Poetry versions (`[tool.poetry]`).
+  Which mode the plugin uses depends on how your pyproject.toml is configured:
+
+  * For the plugin to use the PEP 621 mode, your pyproject.toml must:
+    * specify `project.name`
+    * specify `project.dynamic` to contain `"version"`
+    * not specify `project.version`
+    * specify `tool.poetry.version` (a placeholder like `"0.0.0"` is fine)
+  * For the plugin to use the classic mode, your pyproject.toml must:
+    * not meet the criteria for the PEP 621 mode
+    * specify `tool.poetry.name`
