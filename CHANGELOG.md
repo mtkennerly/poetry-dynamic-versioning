@@ -1,4 +1,4 @@
-## Unreleased
+## v1.5.0 (2025-01-05)
 
 * Added:
   * CLI: When pyproject.toml contains the `project` section,
