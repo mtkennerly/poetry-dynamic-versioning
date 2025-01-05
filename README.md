@@ -433,11 +433,11 @@ In addition to those:
   as well as the classic mode of older Poetry versions (`[tool.poetry]`).
   Which mode the plugin uses depends on how your pyproject.toml is configured:
 
+  * For the plugin to use the classic mode, your pyproject.toml must:
+    * specify `tool.poetry.name`
   * For the plugin to use the PEP 621 mode, your pyproject.toml must:
+    * not specify `tool.poetry.name`
+    * specify `tool.poetry.version` (a placeholder like `"0.0.0"` is fine)
     * specify `project.name`
     * specify `project.dynamic` to contain `"version"`
     * not specify `project.version`
-    * specify `tool.poetry.version` (a placeholder like `"0.0.0"` is fine)
-  * For the plugin to use the classic mode, your pyproject.toml must:
-    * not meet the criteria for the PEP 621 mode
-    * specify `tool.poetry.name`
