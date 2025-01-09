@@ -15,6 +15,7 @@ from typing import Mapping, MutableMapping, Optional, Sequence, Tuple, Union
 
 import jinja2
 import tomlkit
+import tomlkit.items
 from dunamai import (
     bump_version,
     check_version,
@@ -131,14 +132,14 @@ class _ProjectState:
         original_version: Optional[str],
         version: str,
         mode: _Mode,
-        dynamic_index: Optional[int],
+        dynamic_array: Optional[tomlkit.items.Array],
         substitutions: Optional[MutableMapping[Path, str]] = None,
     ) -> None:
         self.path = path
         self.original_version = original_version
         self.version = version
         self.mode = mode
-        self.dynamic_index = dynamic_index
+        self.dynamic_array = dynamic_array
         self.substitutions = {} if substitutions is None else substitutions  # type: MutableMapping[Path, str]
 
 
@@ -663,11 +664,11 @@ def _get_and_apply_version(
     if classic:
         name = pyproject["tool"]["poetry"]["name"]
         original = pyproject["tool"]["poetry"]["version"]
-        dynamic_index = None
+        dynamic_array = None
     elif pep621:
         name = pyproject["project"]["name"]
         original = pyproject["tool"]["poetry"]["version"]
-        dynamic_index = pyproject["project"]["dynamic"].index("version")
+        dynamic_array = pyproject["project"]["dynamic"].copy()
     else:
         return None
 
@@ -688,12 +689,12 @@ def _get_and_apply_version(
 
     if classic and name is not None and original is not None:
         mode = _Mode.Classic
-        _state.projects[name] = _ProjectState(pyproject_path, original, version, mode, dynamic_index)
+        _state.projects[name] = _ProjectState(pyproject_path, original, version, mode, dynamic_array)
         if io:
             _apply_version(name, version, instance, config, pyproject_path, mode, retain)
     elif pep621 and name is not None:
         mode = _Mode.Pep621
-        _state.projects[name] = _ProjectState(pyproject_path, original, version, mode, dynamic_index)
+        _state.projects[name] = _ProjectState(pyproject_path, original, version, mode, dynamic_array)
         if io:
             _apply_version(name, version, instance, config, pyproject_path, mode, retain)
 
@@ -725,9 +726,8 @@ def _revert_version(retain: bool = False) -> None:
             if state.original_version is not None:
                 pyproject["tool"]["poetry"]["version"] = state.original_version  # type: ignore
         elif state.mode == _Mode.Pep621:
-            if state.dynamic_index is not None:
-                index = state.dynamic_index
-                pyproject["project"]["dynamic"].insert(index, "version")  # type: ignore
+            if state.dynamic_array is not None:
+                pyproject["project"]["dynamic"] = state.dynamic_array
             if "version" in pyproject["project"]:  # type: ignore
                 pyproject["project"].pop("version")  # type: ignore
             if state.original_version is not None:
