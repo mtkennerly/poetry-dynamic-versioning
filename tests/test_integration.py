@@ -286,8 +286,13 @@ def test_pep621_with_dynamic_version():
 def test_pep621_with_dynamic_version_and_cleanup():
     version = dunamai.Version.from_git().serialize()
 
+    contents_before = DUMMY_PEP621_PYPROJECT.read_bytes().decode("utf-8")
+
     run("poetry build", where=DUMMY_PEP621)
-    pyproject = tomlkit.parse(DUMMY_PEP621_PYPROJECT.read_bytes().decode("utf-8"))
+    contents_after = DUMMY_PEP621_PYPROJECT.read_bytes().decode("utf-8")
+    assert contents_before == contents_after
+
+    pyproject = tomlkit.parse(contents_after)
     assert "version" not in pyproject["project"]
     assert "version" in pyproject["project"]["dynamic"]
     assert '__version__ = "0.0.0"' in (DUMMY_PEP621 / "project_pep621" / "__init__.py").read_bytes().decode("utf-8")
