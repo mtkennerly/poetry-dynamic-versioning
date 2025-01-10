@@ -1,4 +1,4 @@
-## Unreleased
+## v1.5.2 (2025-01-09)
 
 * Fixed:
   * The formatting of `project.dynamic` and `tool.poetry.version`
