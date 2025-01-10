@@ -441,3 +441,8 @@ In addition to those:
     * specify `project.name`
     * specify `project.dynamic` to contain `"version"`
     * not specify `project.version`
+
+  Note that, in PEP 621 mode,
+  the plugin must temporarily remove and then re-add the `tool.poetry.version` key.
+  This can result in the key shifting to the bottom of its table.
+  Please put the key at the bottom preemptively to avoid any conflicts.

@@ -635,7 +635,6 @@ def _apply_version(
 
 
 def _get_and_apply_version(
-    pyproject: Optional[Mapping] = None,
     pyproject_path: Optional[Path] = None,
     retain: bool = False,
     force: bool = False,
@@ -646,8 +645,9 @@ def _get_and_apply_version(
         if pyproject_path is None:
             raise RuntimeError("Unable to find pyproject.toml")
 
-    if pyproject is None:
-        pyproject = tomlkit.parse(pyproject_path.read_bytes().decode("utf-8"))
+    # The actual type is `tomlkit.TOMLDocument`, which is important to preserve formatting,
+    # but it also causes a lot of type-checking noise.
+    pyproject = tomlkit.parse(pyproject_path.read_bytes().decode("utf-8"))  # type: Mapping
 
     classic = "tool" in pyproject and "poetry" in pyproject["tool"] and "name" in pyproject["tool"]["poetry"]
     pep621 = (

@@ -1,3 +1,10 @@
+## Unreleased
+
+* Fixed:
+  * The formatting of `project.dynamic` and `tool.poetry.version`
+    could be changed when triggering the plugin via `poetry dynamic-versioning` or `pip install`
+    (but not via `poetry build` or `poetry-dynamic-versioning`).
+
 ## v1.5.1 (2025-01-09)
 
 * Fixed:
