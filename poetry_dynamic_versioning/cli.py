@@ -9,7 +9,9 @@ import tomlkit
 
 from poetry_dynamic_versioning import (
     _get_and_apply_version,
+    _get_config,
     _get_pyproject_path,
+    _get_version,
     _state,
     _validate_config,
 )
@@ -34,7 +36,9 @@ class Key:
 class Command:
     dv = "dynamic-versioning"
     enable = "enable"
+    show = "show"
     dv_enable = "{} {}".format(dv, enable)
+    dv_show = "{} {}".format(dv, show)
 
 
 class Help:
@@ -47,6 +51,7 @@ class Help:
         "Update pyproject.toml to enable the plugin using a typical configuration."
         " The output may not be suitable for more complex use cases."
     )
+    show = "Print the version without changing any files."
 
 
 def get_parser() -> argparse.ArgumentParser:
@@ -54,6 +59,7 @@ def get_parser() -> argparse.ArgumentParser:
 
     subparsers = parser.add_subparsers(dest="cmd", title="subcommands")
     subparsers.add_parser(Command.enable, help=Help.enable)
+    subparsers.add_parser(Command.show, help=Help.show)
 
     return parser
 
@@ -140,3 +146,15 @@ def _enable_in_doc(doc: tomlkit.TOMLDocument) -> tomlkit.TOMLDocument:
             doc[Key.tool][Key.poetry][Key.version] = "0.0.0"
 
     return doc
+
+
+def show() -> None:
+    pyproject_path = _get_pyproject_path()
+    if pyproject_path is None:
+        raise RuntimeError("Unable to find pyproject.toml")
+
+    pyproject = tomlkit.parse(pyproject_path.read_bytes().decode("utf-8"))
+    config = _get_config(pyproject)
+    version = _get_version(config)
+
+    print(version[0])

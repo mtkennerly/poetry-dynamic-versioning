@@ -61,7 +61,7 @@ def _should_apply(command: str) -> bool:
     if override is not None:
         return command in override.split(",")
     else:
-        return command not in ["run", "shell", cli.Command.dv, cli.Command.dv_enable]
+        return command not in ["run", "shell", cli.Command.dv, cli.Command.dv_enable, cli.Command.dv_show]
 
 
 def _should_apply_with_io(command: str) -> bool:
@@ -127,6 +127,20 @@ class DynamicVersioningEnableCommand(Command):
         return 0
 
 
+class DynamicVersioningShowCommand(Command):
+    name = cli.Command.dv_show
+    description = cli.Help.show
+
+    def __init__(self, application: Application):
+        super().__init__()
+        self._application = application
+
+    def handle(self) -> int:
+        _state.cli_mode = True
+        cli.show()
+        return 0
+
+
 class DynamicVersioningPlugin(ApplicationPlugin):
     def __init__(self):
         self._application = None
@@ -137,6 +151,9 @@ class DynamicVersioningPlugin(ApplicationPlugin):
         application.command_loader.register_factory(cli.Command.dv, lambda: DynamicVersioningCommand(application))
         application.command_loader.register_factory(
             cli.Command.dv_enable, lambda: DynamicVersioningEnableCommand(application)
+        )
+        application.command_loader.register_factory(
+            cli.Command.dv_show, lambda: DynamicVersioningShowCommand(application)
         )
 
         try:

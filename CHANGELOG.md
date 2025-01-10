@@ -1,3 +1,8 @@
+## Unreleased
+
+* Added:
+  * CLI: `show` command to print the version without changing any files.
+
 ## v1.5.2 (2025-01-09)
 
 * Fixed:

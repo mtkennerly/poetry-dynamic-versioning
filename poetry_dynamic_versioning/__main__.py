@@ -15,6 +15,8 @@ def main() -> None:
             cli.apply(standalone=True)
         elif args.cmd == cli.Command.enable:
             cli.enable()
+        elif args.cmd == cli.Command.show:
+            cli.show()
     except Exception as e:
         print("Error: {}".format(e), file=sys.stderr)
         sys.exit(1)
