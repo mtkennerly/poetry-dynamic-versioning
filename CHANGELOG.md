@@ -1,3 +1,9 @@
+## Unreleased
+
+* Fixed:
+  * Array formatting was not preserved when changing `project.dynamic` in pyproject.toml.
+    ([Contributed by edgarrmondragon](https://github.com/mtkennerly/poetry-dynamic-versioning/pull/207))
+
 ## v1.5.0 (2025-01-05)
 
 * Added:
