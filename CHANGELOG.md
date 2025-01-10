@@ -1,4 +1,4 @@
-## Unreleased
+## v1.6.0 (2025-01-10)
 
 * Added:
   * CLI: `show` command to print the version without changing any files.
