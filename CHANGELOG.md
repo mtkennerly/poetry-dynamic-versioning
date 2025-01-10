@@ -1,4 +1,4 @@
-## Unreleased
+## v1.5.1 (2025-01-09)
 
 * Fixed:
   * Array formatting was not preserved when changing `project.dynamic` in pyproject.toml.
