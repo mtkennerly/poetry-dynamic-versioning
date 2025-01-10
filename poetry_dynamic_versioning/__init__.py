@@ -668,7 +668,7 @@ def _get_and_apply_version(
     elif pep621:
         name = pyproject["project"]["name"]
         original = pyproject["tool"]["poetry"]["version"]
-        dynamic_array = pyproject["project"]["dynamic"].copy()
+        dynamic_array = pyproject["project"]["dynamic"]
     else:
         return None
 

@@ -1,6 +1,8 @@
 [project]
 name = "project-pep621"
-dynamic = ["version"]
+dynamic = [
+    "version",  # a comment that should be preserved
+]
 
 [tool.poetry]
 # The plugin itself doesn't need this, but Poetry does:
