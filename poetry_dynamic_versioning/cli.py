@@ -137,7 +137,7 @@ def _enable_in_doc(doc: tomlkit.TOMLDocument) -> tomlkit.TOMLDocument:
 
         if doc[Key.project].get(Key.dynamic) is None:
             doc[Key.project][Key.dynamic] = [Key.version]
-        else:
+        elif Key.version not in doc[Key.project][Key.dynamic]:
             doc[Key.project][Key.dynamic].append(Key.version)
 
         if doc[Key.tool].get(Key.poetry) is None:
