@@ -1,3 +1,9 @@
+## Unreleased
+
+* Fixed:
+  * The `enable` command would add `"version"` to `project.dynamic` even if it was already present.
+    ([Contributed by waketzheng](https://github.com/mtkennerly/poetry-dynamic-versioning/pull/214))
+
 ## v1.6.0 (2025-01-10)
 
 * Added:
