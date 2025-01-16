@@ -10,6 +10,7 @@ import tomlkit
 from poetry_dynamic_versioning import (
     _get_and_apply_version,
     _get_config,
+    _get_override_version,
     _get_pyproject_path,
     _get_version,
     _state,
@@ -31,6 +32,7 @@ class Key:
     poetry = "poetry"
     dynamic = "dynamic"
     version = "version"
+    name = "name"
 
 
 class Command:
@@ -110,7 +112,10 @@ def enable() -> None:
     pyproject_path.write_bytes(tomlkit.dumps(config).encode("utf-8"))
 
 
-def _enable_in_doc(doc: tomlkit.TOMLDocument) -> tomlkit.TOMLDocument:
+def _enable_in_doc(doc: tomlkit.TOMLDocument, env: Optional[Mapping] = None) -> tomlkit.TOMLDocument:
+    name = doc.get(Key.project, {}).get(Key.name) or doc.get(Key.tool, {}).get(Key.poetry, {}).get(Key.name)
+    placeholder_version = _get_override_version(name, env) or "0.0.0"
+
     pdv_table = tomlkit.table().add(Key.enable, True)
     tool_table = tomlkit.table().add(Key.pdv, pdv_table)
 
@@ -141,9 +146,9 @@ def _enable_in_doc(doc: tomlkit.TOMLDocument) -> tomlkit.TOMLDocument:
             doc[Key.project][Key.dynamic].append(Key.version)
 
         if doc[Key.tool].get(Key.poetry) is None:
-            doc[Key.tool][Key.poetry] = tomlkit.table().add(Key.version, "0.0.0")
-        else:
-            doc[Key.tool][Key.poetry][Key.version] = "0.0.0"
+            doc[Key.tool][Key.poetry] = tomlkit.table().add(Key.version, placeholder_version)
+        elif doc[Key.tool][Key.poetry].get(Key.version) is None:
+            doc[Key.tool][Key.poetry][Key.version] = placeholder_version
 
     return doc
 

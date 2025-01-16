@@ -250,6 +250,92 @@ def test__enable_in_doc__out_of_order_tables():
     )
 
 
+def test__enable_in_doc__project_with_version():
+    doc = tomlkit.parse(
+        textwrap.dedent(
+            """
+                [project]
+                version = "1.2.3"
+            """
+        )
+    )
+    updated = cli._enable_in_doc(doc)
+    assert tomlkit.dumps(updated) == textwrap.dedent(
+        """
+            [project]
+            dynamic = ["version"]
+
+            [tool]
+            [tool.poetry-dynamic-versioning]
+            enable = true
+
+            [tool.poetry]
+            version = "0.0.0"
+
+            [build-system]
+            requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning>=1.0.0,<2.0.0"]
+            build-backend = "poetry_dynamic_versioning.backend"
+        """
+    )
+
+
+def test__enable_in_doc__project_with_version_override():
+    doc = tomlkit.parse(
+        textwrap.dedent(
+            """
+                [project]
+            """
+        )
+    )
+    updated = cli._enable_in_doc(doc, env={plugin._BYPASS_ENV: "1.2.3"})
+    assert tomlkit.dumps(updated) == textwrap.dedent(
+        """
+            [project]
+            dynamic = ["version"]
+
+            [tool]
+            [tool.poetry-dynamic-versioning]
+            enable = true
+
+            [tool.poetry]
+            version = "1.2.3"
+
+            [build-system]
+            requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning>=1.0.0,<2.0.0"]
+            build-backend = "poetry_dynamic_versioning.backend"
+        """
+    )
+
+
+def test__enable_in_doc__project_with_dynamic():
+    doc = tomlkit.parse(
+        textwrap.dedent(
+            """
+                [project]
+                dynamic = ["version", "dependencies"]
+            """
+        )
+    )
+    updated = cli._enable_in_doc(doc)
+    assert tomlkit.dumps(updated) == textwrap.dedent(
+        """
+            [project]
+            dynamic = ["version", "dependencies"]
+
+            [tool]
+            [tool.poetry-dynamic-versioning]
+            enable = true
+
+            [tool.poetry]
+            version = "0.0.0"
+
+            [build-system]
+            requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning>=1.0.0,<2.0.0"]
+            build-backend = "poetry_dynamic_versioning.backend"
+        """
+    )
+
+
 def test__substitute_version_in_text__integers_only():
     content = textwrap.dedent(
         """

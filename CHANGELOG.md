@@ -1,8 +1,13 @@
 ## Unreleased
 
+* Added:
+  * The `enable` command now supports the bypass/override environment variables
+    to use a different placeholder version than 0.0.0.
 * Fixed:
-  * The `enable` command would add `"version"` to `project.dynamic` even if it was already present.
+  * The `enable` command would add `"version"` to `project.dynamic` even if it were already present.
     ([Contributed by waketzheng](https://github.com/mtkennerly/poetry-dynamic-versioning/pull/214))
+  * The `enable` command would set `tool.poetry.version` to `"0.0.0"`
+    even if the field were already present with a different value.
 
 ## v1.6.0 (2025-01-10)
 
