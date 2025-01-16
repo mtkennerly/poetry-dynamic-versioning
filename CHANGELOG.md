@@ -1,4 +1,4 @@
-## Unreleased
+## v1.7.0 (2025-01-15)
 
 * Added:
   * The `enable` command now supports the bypass/override environment variables
