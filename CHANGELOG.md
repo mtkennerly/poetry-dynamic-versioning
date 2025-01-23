@@ -1,4 +1,4 @@
-## Unreleased
+## v1.7.1 (2025-01-22)
 
 * Fixed:
   * There was an intermittent `ValueError` in PEP 621 mode,
