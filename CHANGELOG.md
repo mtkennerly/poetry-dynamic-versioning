@@ -1,3 +1,10 @@
+## Unreleased
+
+* Fixed:
+  * There was an intermittent `ValueError` in PEP 621 mode,
+    related to trying to remove `"version"` from `project.dynamic`
+    when it had already been removed.
+
 ## v1.7.0 (2025-01-15)
 
 * Added:

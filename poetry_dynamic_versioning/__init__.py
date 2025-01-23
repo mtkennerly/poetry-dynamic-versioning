@@ -594,9 +594,11 @@ def _apply_version(
     if mode == _Mode.Classic:
         pyproject["tool"]["poetry"]["version"] = version  # type: ignore
     elif mode == _Mode.Pep621:
-        pyproject["project"]["dynamic"].remove("version")  # type: ignore
+        if "version" in pyproject["project"]["dynamic"]:  # type: ignore
+            pyproject["project"]["dynamic"].remove("version")  # type: ignore
         pyproject["project"]["version"] = version  # type: ignore
-        pyproject["tool"]["poetry"].pop("version")  # type: ignore
+        if "version" in pyproject["tool"]["poetry"]:  # type: ignore
+            pyproject["tool"]["poetry"].pop("version")  # type: ignore
 
     # Disable the plugin in case we're building a source distribution,
     # which won't have access to the VCS info at install time.
@@ -727,7 +729,7 @@ def _revert_version(retain: bool = False) -> None:
                 pyproject["tool"]["poetry"]["version"] = state.original_version  # type: ignore
         elif state.mode == _Mode.Pep621:
             if state.dynamic_array is not None:
-                pyproject["project"]["dynamic"] = state.dynamic_array
+                pyproject["project"]["dynamic"] = state.dynamic_array  # type: ignore
             if "version" in pyproject["project"]:  # type: ignore
                 pyproject["project"].pop("version")  # type: ignore
             if state.original_version is not None:
