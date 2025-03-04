@@ -1,3 +1,10 @@
+## Unreleased
+
+* Fixed:
+  * Compatibility with other plugins (such as `poetry-monoranger-plugin`)
+    that replace the `ConsoleCommandEvent.command.poetry` instance.
+    ([Contributed by stevapple](https://github.com/mtkennerly/poetry-dynamic-versioning/pull/222))
+
 ## v1.7.1 (2025-01-22)
 
 * Fixed:
