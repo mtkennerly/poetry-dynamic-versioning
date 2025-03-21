@@ -1,5 +1,8 @@
 ## Unreleased
 
+* Added:
+  * The `bump` config may now be set to a table,
+    which supports an `index` field.
 * Fixed:
   * Compatibility with other plugins (such as `poetry-monoranger-plugin`)
     that replace the `ConsoleCommandEvent.command.poetry` instance.

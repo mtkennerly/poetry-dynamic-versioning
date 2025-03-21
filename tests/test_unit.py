@@ -47,6 +47,20 @@ def test__get_config_from_path__with_plugin_customizations():
     assert config["tag-dir"] == "alt/tags"
 
 
+def test__get_config__bump():
+    config = plugin._get_config({"tool": {"poetry-dynamic-versioning": {"bump": True}}})
+    bump = plugin._BumpConfig.from_config(config["bump"])
+    assert bump.enable is True
+    assert bump.index == -1
+    assert not plugin._validate_config(config)
+
+    config = plugin._get_config({"tool": {"poetry-dynamic-versioning": {"bump": {"enable": True, "index": -2}}}})
+    bump = plugin._BumpConfig.from_config(config["bump"])
+    assert bump.enable is True
+    assert bump.index == -2
+    assert not plugin._validate_config(config)
+
+
 def test__get_version__defaults(config):
     assert plugin._get_version(config)[0] == Version.from_git().serialize()
 

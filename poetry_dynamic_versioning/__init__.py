@@ -87,6 +87,14 @@ if sys.version_info >= (3, 8):
         },
     )
 
+    _Bump = TypedDict(
+        "_Bump",
+        {
+            "enable": bool,
+            "index": int,
+        },
+    )
+
     _Config = TypedDict(
         "_Config",
         {
@@ -103,7 +111,7 @@ if sys.version_info >= (3, 8):
             "format": Optional[str],
             "format-jinja": Optional[str],
             "format-jinja-imports": Sequence[_JinjaImport],
-            "bump": bool,
+            "bump": Union[bool, _Bump],
             "tagged-metadata": bool,
             "full-commit": bool,
             "tag-branch": Optional[str],
@@ -193,6 +201,19 @@ class _FolderConfig:
         ]
 
         return [main, *extra]
+
+
+class _BumpConfig:
+    def __init__(self, enable: bool, index: int):
+        self.enable = enable
+        self.index = index
+
+    @staticmethod
+    def from_config(config: Union[bool, _Bump]) -> "_BumpConfig":
+        if isinstance(config, bool):
+            return _BumpConfig(config, -1)
+        else:
+            return _BumpConfig(config["enable"], config["index"])
 
 
 def _default_config() -> Mapping:
@@ -369,8 +390,10 @@ def _render_jinja(version: Version, template: str, config: _Config, extra: Optio
     if extra is None:
         extra = {}
 
-    if config["bump"] and version.distance > 0:
-        version = version.bump()
+    bump_config = _BumpConfig.from_config(config["bump"])
+
+    if bump_config.enable and version.distance > 0:
+        version = version.bump(index=bump_config.index)
     default_context = {
         "base": version.base,
         "version": version,
@@ -509,12 +532,17 @@ def _get_version(config: _Config, name: Optional[str] = None) -> Tuple[str, Vers
         if style is not None:
             check_version(serialized, style)
     else:
-        serialized = version.serialize(
+        bump_config = _BumpConfig.from_config(config["bump"])
+        if bump_config.enable:
+            updated = version.bump(index=bump_config.index, smart=True)
+        else:
+            updated = version
+
+        serialized = updated.serialize(
             metadata=config["metadata"],
             dirty=config["dirty"],
             format=config["format"],
             style=style,
-            bump=config["bump"],
             tagged_metadata=config["tagged-metadata"],
         )
 

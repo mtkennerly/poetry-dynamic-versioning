@@ -224,11 +224,23 @@ In your pyproject.toml file, you may configure the following options:
   * `latest-tag` (boolean, default: false):
     If true, then only check the latest tag for a version,
     rather than looking through all the tags until a suitable one is found to match the `pattern`.
-  * `bump` (boolean, default: false):
-    If true, then increment the last part of the version `base` by 1,
+  * `bump` (boolean or table, default: false):
+    If enabled, then increment the last part of the version `base` by 1,
     unless the `stage` is set,
     in which case increment the `revision` by 1 or set it to a default of 2 if there was no `revision`.
     Does nothing when on a commit with a version tag.
+
+    One of:
+
+    * When set to a boolean, true means enable bumping, with other settings as default.
+    * When set to a table, these fields are allowed:
+      * `enable` (boolean, default: false):
+        If true, enable bumping.
+      * `index` (integer, default: -1):
+        Numerical position to increment in the base.
+        This follows Python indexing rules, so positive numbers start from
+        the left side and count up from 0, while negative numbers start from
+        the right side and count down from -1.
 
     Example, if there have been 3 commits since the `v1.3.1` tag:
     * PEP 440 with `bump = false`: `1.3.1.post3.dev0+28c1684`
