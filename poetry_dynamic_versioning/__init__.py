@@ -119,6 +119,7 @@ if sys.version_info >= (3, 8):
             "strict": bool,
             "fix-shallow-repository": bool,
             "ignore-untracked": bool,
+            "commit-length": Optional[int],
             "from-file": _FromFile,
         },
     )
@@ -251,6 +252,7 @@ def _default_config() -> Mapping:
                 "strict": False,
                 "fix-shallow-repository": False,
                 "ignore-untracked": False,
+                "commit-length": None,
                 "from-file": {
                     "source": None,
                     "pattern": None,
@@ -394,6 +396,14 @@ def _render_jinja(version: Version, template: str, config: _Config, extra: Optio
 
     if bump_config.enable and version.distance > 0:
         version = version.bump(index=bump_config.index)
+
+    def base_part(index: int) -> int:
+        parts = version.base.split(".")
+        try:
+            return int(parts[index])
+        except Exception:
+            return 0
+
     default_context = {
         "base": version.base,
         "version": version,
@@ -405,6 +415,9 @@ def _render_jinja(version: Version, template: str, config: _Config, extra: Optio
         "branch": version.branch,
         "branch_escaped": _escape_branch(version.branch),
         "timestamp": _format_timestamp(version.timestamp),
+        "major": base_part(0),
+        "minor": base_part(1),
+        "patch": base_part(2),
         "env": os.environ,
         "bump_version": bump_version,
         "tagged_metadata": version.tagged_metadata,
@@ -493,6 +506,7 @@ def _get_version_from_dunamai(
         strict=config["strict"] if strict is None else strict,
         pattern_prefix=config["pattern-prefix"],
         ignore_untracked=config["ignore-untracked"],
+        commit_length=config["commit-length"],
     )
 
 

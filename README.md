@@ -147,6 +147,9 @@ In your pyproject.toml file, you may configure the following options:
     * `{branch}`
     * `{branch_escaped}` which omits any non-letter/number characters
     * `{timestamp}` of the current commit, which expands to YYYYmmddHHMMSS as UTC
+    * `{major}` (first part of `base` split on `.`, or 0)
+    * `{minor}` (second part of `base` split on `.`, or 0)
+    * `{patch}` (third part of `base` split on `.`, or 0)
 
     Example: `v{base}+{distance}.{commit}`
   * `format-jinja` (string, default: unset):
@@ -168,6 +171,9 @@ In your pyproject.toml file, you may configure the following options:
     * `branch` (string or None)
     * `branch_escaped` (string or None)
     * `timestamp` (string or None)
+    * `major` (integer)
+    * `minor` (integer)
+    * `patch` (integer)
 
     Available functions:
 
@@ -261,6 +267,8 @@ In your pyproject.toml file, you may configure the following options:
     Currently, this only supports Git and will run `git fetch --unshallow`.
   * `ignore-untracked` (boolean, default: false):
     If true, ignore untracked files when determining whether the repository is dirty.
+  * `commit-length` (integer, default: unset):
+    Use this many characters from the start of the full commit hash.
 * `[tool.poetry-dynamic-versioning.substitution]`:
   Insert the dynamic version into additional files other than just pyproject.toml.
   These changes will be reverted when the plugin deactivates.

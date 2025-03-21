@@ -3,6 +3,8 @@
 * Added:
   * The `bump` config may now be set to a table,
     which supports an `index` field.
+  * `commit-length` option to set a fixed length for commit hashes.
+  * `{major}`, `{minor}`, and `{patch}` format placeholders.
 * Fixed:
   * Compatibility with other plugins (such as `poetry-monoranger-plugin`)
     that replace the `ConsoleCommandEvent.command.poetry` instance.
