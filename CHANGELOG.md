@@ -1,4 +1,4 @@
-## Unreleased
+## v1.8.0 (2025-03-20)
 
 * Added:
   * The `bump` config may now be set to a table,
@@ -9,6 +9,8 @@
   * Compatibility with other plugins (such as `poetry-monoranger-plugin`)
     that replace the `ConsoleCommandEvent.command.poetry` instance.
     ([Contributed by stevapple](https://github.com/mtkennerly/poetry-dynamic-versioning/pull/222))
+* Changed:
+  * Updated Dunamai to 1.23.0+ for the latest features.
 
 ## v1.7.1 (2025-01-22)
 
