@@ -1,4 +1,4 @@
-## Unreleased
+## v1.8.1 (2025-03-24)
 
 * Fixed:
   * `NameError` exception with Python 3.7.
