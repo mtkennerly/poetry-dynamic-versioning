@@ -1,3 +1,8 @@
+## Unreleased
+
+* Fixed:
+  * `NameError` exception with Python 3.7.
+
 ## v1.8.0 (2025-03-20)
 
 * Added:

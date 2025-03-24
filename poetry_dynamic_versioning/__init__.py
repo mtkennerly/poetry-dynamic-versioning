@@ -124,9 +124,14 @@ if sys.version_info >= (3, 8):
         },
     )
 else:
-
-    class _Config(Mapping):
-        pass
+    _SubstitutionPattern = Mapping
+    _SubstitutionFolder = Mapping
+    _Substitution = Mapping
+    _File = Mapping
+    _JinjaImport = Mapping
+    _FromFile = Mapping
+    _Bump = Mapping
+    _Config = Mapping
 
 
 class _Mode(Enum):
