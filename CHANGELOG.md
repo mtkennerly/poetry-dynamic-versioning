@@ -1,3 +1,8 @@
+## Unreleased
+
+* Fixed:
+  * Possible `object has no attribute 'poetry'` error in some projects.
+
 ## v1.8.1 (2025-03-24)
 
 * Fixed:

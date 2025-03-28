@@ -311,3 +311,11 @@ def test_pep621_without_dynamic_version():
     pyproject = tomlkit.parse(DUMMY_PEP621_PYPROJECT.read_bytes().decode("utf-8"))
     assert "version" not in pyproject["project"]
     assert '__version__ = "0.0.0"' in (DUMMY_PEP621 / "project_pep621" / "__init__.py").read_bytes().decode("utf-8")
+
+
+def test__command_interop():
+    # Just make sure these don't fail with the plugin installed.
+    folders = [ROOT, ROOT / "tests" / "dependency-dynamic"]
+
+    for folder in folders:
+        run("poetry list", where=folder)

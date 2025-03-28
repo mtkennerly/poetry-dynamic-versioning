@@ -179,7 +179,12 @@ class DynamicVersioningPlugin(ApplicationPlugin):
 
         io = _should_apply_with_io(event.command.name)
 
-        _apply_version_via_plugin(event.command.poetry, io=io)
+        if hasattr(event.command, "poetry"):
+            poetry_instance = event.command.poetry
+        else:
+            poetry_instance = self._application.poetry
+
+        _apply_version_via_plugin(poetry_instance, io=io)
         _patch_dependency_versions(io)
 
     def _revert_version(self, event: ConsoleCommandEvent, kind: str, dispatcher: EventDispatcher) -> None:
