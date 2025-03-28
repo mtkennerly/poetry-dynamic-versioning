@@ -1,4 +1,4 @@
-## Unreleased
+## v1.8.2 (2025-03-28)
 
 * Fixed:
   * Possible `object has no attribute 'poetry'` error in some projects.
