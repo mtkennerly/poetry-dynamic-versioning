@@ -111,7 +111,7 @@ def docs(ctx):
         "--version",
         version,
         "--author",
-        '"Matthew T. Kennerly (mtkennerly)"',
+        "Matthew T. Kennerly (mtkennerly)",
         "--url",
         "https://github.com/mtkennerly/poetry-dynamic-versioning",
         "--format",
