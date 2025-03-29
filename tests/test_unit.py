@@ -279,7 +279,6 @@ def test__enable_in_doc__project_with_version():
             [project]
             dynamic = ["version"]
 
-            [tool]
             [tool.poetry-dynamic-versioning]
             enable = true
 
@@ -307,7 +306,6 @@ def test__enable_in_doc__project_with_version_override():
             [project]
             dynamic = ["version"]
 
-            [tool]
             [tool.poetry-dynamic-versioning]
             enable = true
 
@@ -336,7 +334,6 @@ def test__enable_in_doc__project_with_dynamic():
             [project]
             dynamic = ["version", "dependencies"]
 
-            [tool]
             [tool.poetry-dynamic-versioning]
             enable = true
 
