@@ -105,7 +105,7 @@ def docs(ctx):
         "--function",
         "get_parser",
         "--project-name",
-        "poetry-dynamic-versioning",
+        "poetry-dynamic-versioning - Dynamic versioning plugin for Poetry",
         "--prog",
         "poetry-dynamic-versioning",
         "--version",
