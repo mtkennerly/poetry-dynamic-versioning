@@ -1,5 +1,4 @@
 import os
-import shlex
 import shutil
 from pathlib import Path
 
@@ -121,4 +120,8 @@ def docs(ctx):
         "--manual-title",
         "poetry-dynamic-versioning",
     ]
-    ctx.run(shlex.join(args))
+
+    # Join manually to avoid issues with single quotes on Windows using `shlex.join`
+    joined = " ".join(arg if " " not in arg else f'"{arg}"' for arg in args)
+
+    ctx.run(joined)
