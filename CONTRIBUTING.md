@@ -29,3 +29,9 @@ Commands defined in `tasks.py`:
   invoke test
   ```
   [Git Bash](https://git-scm.com) is recommended for Windows.
+
+## Release
+* Run `invoke prerelease`
+* Verify the changes and `git add` them
+* Run `invoke release`
+* Create a release on GitHub for the new tag and attach the artifacts from `dist`
