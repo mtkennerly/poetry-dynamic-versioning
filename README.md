@@ -227,6 +227,12 @@ In your pyproject.toml file, you may configure the following options:
     then the format will be validated against the style's rules.
     If `style` is unset, the default output format will follow PEP 440,
     but a custom `format` will only be validated if `style` is set explicitly.
+
+    Regardless of the style you choose,
+    the dynamic version is ultimately subject to Poetry's validation as well,
+    and Poetry is designed around PEP 440 versions.
+    Poetry can usually understand SemVer/etc input,
+    but sometimes, Poetry may reject an otherwise valid version format.
   * `latest-tag` (boolean, default: false):
     If true, then only check the latest tag for a version,
     rather than looking through all the tags until a suitable one is found to match the `pattern`.
