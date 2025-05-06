@@ -5,7 +5,7 @@ import shutil
 import subprocess
 import tarfile
 from pathlib import Path
-from typing import Optional, Sequence, Tuple
+from typing import List, Optional, Sequence, Tuple
 
 import dunamai
 import pytest
@@ -76,6 +76,15 @@ def uninstall_plugin() -> None:
         run("poetry self remove poetry-dynamic-versioning", codes=[0, 1])
 
 
+def get_poetry_version() -> List[int]:
+    _, msg = run("poetry --version")
+    result = re.search(r"(\d+(\.\d+)+)", msg.strip())
+    if result is not None:
+        parts = result.group(1).split(".")
+        return [int(x) for x in parts]
+    return []
+
+
 @pytest.fixture(scope="module", autouse=True)
 def before_all():
     uninstall_plugin()
@@ -140,6 +149,9 @@ def test_invalid_config_for_vcs():
     run("poetry build", where=DUMMY, codes=[1])
 
 
+@pytest.mark.skipif(
+    [1, 7] <= get_poetry_version() < [2], reason="virtualenv: error: unrecognized arguments: --wheel=bundle"
+)
 def test_keep_pyproject_modifications():
     package = "cachy"
     # Using --optional to avoid actually installing the package
@@ -213,6 +225,9 @@ def test_cli_mode_plus_build_will_disable_plugin():
         assert parsed["tool"]["poetry-dynamic-versioning"]["enable"] is False
 
 
+@pytest.mark.skipif(
+    [1, 7] <= get_poetry_version() < [2], reason="virtualenv: error: unrecognized arguments: --wheel=bundle"
+)
 def test_dependency_versions():
     run("poetry install", where=DUMMY)
     _, out = run("poetry run pip list --format freeze", where=DUMMY)

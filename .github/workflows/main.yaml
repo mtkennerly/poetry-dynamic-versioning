@@ -23,9 +23,10 @@ jobs:
       fail-fast: false
       matrix:
         python-version:
-          # As of 2024-06-26, Poetry has started failing to install on 3.7:
-          # `TypeError: Expected maxsize to be an integer or None`
-          - '3.8'
+          # * As of 2024-06-26, Poetry has started failing to install on 3.7:
+          #   `TypeError: Expected maxsize to be an integer or None`
+          # * As of 2025-05-06, Poetry has started failing to install on 3.8:
+          #   `TypeError: 'ABCMeta' object is not subscriptable`
           - '3.9'
           - '3.10'
           - '3.11'
