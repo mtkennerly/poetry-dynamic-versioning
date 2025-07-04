@@ -1,4 +1,4 @@
-## Unreleased
+## v1.9.0 (2025-07-04)
 
 * Added:
   * Option `tool.poetry-dynamic-versioning.commit-prefix`.
