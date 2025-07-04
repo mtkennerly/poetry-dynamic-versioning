@@ -120,6 +120,8 @@ if sys.version_info >= (3, 8):
             "fix-shallow-repository": bool,
             "ignore-untracked": bool,
             "commit-length": Optional[int],
+            "commit-prefix": Optional[str],
+            "escape-with": Optional[str],
             "from-file": _FromFile,
         },
     )
@@ -258,6 +260,8 @@ def _default_config() -> Mapping:
                 "fix-shallow-repository": False,
                 "ignore-untracked": False,
                 "commit-length": None,
+                "commit-prefix": None,
+                "escape-with": None,
                 "from-file": {
                     "source": None,
                     "pattern": None,
@@ -563,6 +567,8 @@ def _get_version(config: _Config, name: Optional[str] = None) -> Tuple[str, Vers
             format=config["format"],
             style=style,
             tagged_metadata=config["tagged-metadata"],
+            commit_prefix=config["commit-prefix"],
+            escape_with=config["escape-with"],
         )
 
     return (serialized, version)

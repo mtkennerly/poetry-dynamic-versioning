@@ -266,6 +266,12 @@ In your pyproject.toml file, you may configure the following options:
   * `full-commit` (boolean, default: false):
     If true, get the full commit hash instead of the short form.
     This is only used for Git and Mercurial.
+  * `commit-length` (integer, default: unset):
+    Use this many characters from the start of the full commit hash.
+  * `commit-prefix` (string, default: unset):
+    Add this prefix to the commit ID when serializing.
+    This can be helpful when an all-numeric commit would be misinterpreted.
+    For example, "g" is a common prefix for Git commits.
   * `strict` (boolean, default: false):
     If true, then fail instead of falling back to 0.0.0 when there are no tags.
   * `fix-shallow-repository` (boolean, default: false):
@@ -273,8 +279,9 @@ In your pyproject.toml file, you may configure the following options:
     Currently, this only supports Git and will run `git fetch --unshallow`.
   * `ignore-untracked` (boolean, default: false):
     If true, ignore untracked files when determining whether the repository is dirty.
-  * `commit-length` (integer, default: unset):
-    Use this many characters from the start of the full commit hash.
+  * `escape-with` (string, default: unset):
+    When escaping, replace invalid characters with this substitution.
+    The default is simply to remove invalid characters.
 * `[tool.poetry-dynamic-versioning.substitution]`:
   Insert the dynamic version into additional files other than just pyproject.toml.
   These changes will be reverted when the plugin deactivates.

@@ -1,3 +1,11 @@
+## Unreleased
+
+* Added:
+  * Option `tool.poetry-dynamic-versioning.commit-prefix`.
+  * Option `tool.poetry-dynamic-versioning.escape-with`.
+* Changed:
+  * Updated Dunamai to 1.25.0+ for the latest features.
+
 ## v1.8.2 (2025-03-28)
 
 * Fixed:
