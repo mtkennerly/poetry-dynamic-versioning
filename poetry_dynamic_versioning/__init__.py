@@ -766,7 +766,7 @@ def _revert_version(retain: bool = False) -> None:
             persistent = []
             for file, file_info in config["files"].items():
                 if file_info["persistent-substitution"]:
-                    persistent.append(state.path.parent.joinpath(file))
+                    persistent.append(state.path.parent.joinpath(file).resolve())
 
             for file, content in state.substitutions.items():
                 if file in persistent:
