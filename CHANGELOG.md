@@ -1,4 +1,4 @@
-## Unreleased
+## v1.9.1 (2025-07-08)
 
 * Fixed:
   * File paths in `tool.poetry-dynamic-versioning.files` were not resolved
