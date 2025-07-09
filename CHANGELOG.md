@@ -1,3 +1,11 @@
+## Unreleased
+
+* Fixed:
+  * File paths in `tool.poetry-dynamic-versioning.files` were not resolved
+    the same way as paths in `tool.poetry-dynamic-versioning.substitution.files`,
+    which could cause incorrect behavior with different styles of relative paths.
+    ([Contributed by egelja](https://github.com/mtkennerly/poetry-dynamic-versioning/pull/238))
+
 ## v1.9.0 (2025-07-04)
 
 * Added:
