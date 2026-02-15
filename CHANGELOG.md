@@ -1,8 +1,10 @@
-## Unreleased
+## v1.10.0 (2026-02-14)
 
 * Added:
   * Option `tool.poetry-dynamic-versioning.highest-tag`,
     to select the numerically highest version even if it is not the chronologically latest tag.
+* Changed:
+  * Updated Dunamai to 1.26.0+ for the latest features.
 
 ## v1.9.1 (2025-07-08)
 
