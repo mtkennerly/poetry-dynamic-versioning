@@ -104,6 +104,7 @@ if sys.version_info >= (3, 8):
             "pattern": Optional[str],
             "pattern-prefix": Optional[str],
             "latest-tag": bool,
+            "highest-tag": bool,
             "substitution": _Substitution,
             "files": Mapping[str, _File],
             "style": Optional[str],
@@ -234,6 +235,7 @@ def _default_config() -> Mapping:
                 "pattern": None,
                 "pattern-prefix": None,
                 "latest-tag": False,
+                "highest-tag": False,
                 "substitution": {
                     "files": ["*.py", "*/__init__.py", "*/__version__.py", "*/_version.py"],
                     "patterns": [
@@ -509,6 +511,7 @@ def _get_version_from_dunamai(
         vcs=vcs,
         pattern=pattern,
         latest_tag=config["latest-tag"],
+        highest_tag=config["highest-tag"],
         tag_dir=config["tag-dir"],
         tag_branch=config["tag-branch"],
         full_commit=config["full-commit"],

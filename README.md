@@ -236,6 +236,8 @@ In your pyproject.toml file, you may configure the following options:
   * `latest-tag` (boolean, default: false):
     If true, then only check the latest tag for a version,
     rather than looking through all the tags until a suitable one is found to match the `pattern`.
+  * `highest-tag` (boolean, default: false):
+    If true, then select the numerically highest version, even if it is not the chronologically latest tag.
   * `bump` (boolean or table, default: false):
     If enabled, then increment the last part of the version `base` by 1,
     unless the `stage` is set,

@@ -1,3 +1,9 @@
+## Unreleased
+
+* Added:
+  * Option `tool.poetry-dynamic-versioning.highest-tag`,
+    to select the numerically highest version even if it is not the chronologically latest tag.
+
 ## v1.9.1 (2025-07-08)
 
 * Fixed:
