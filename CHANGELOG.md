@@ -1,3 +1,9 @@
+## Unreleased
+
+* Fixed:
+  * `0.1.2a3` would result in `__version_tuple__ = (0, 1, "2a3")`,
+    rather than the expected `__version_tuple__ = (0, 1, 2, "a3")`.
+
 ## v1.10.0 (2026-02-14)
 
 * Added:

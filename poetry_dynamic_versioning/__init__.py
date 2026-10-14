@@ -616,15 +616,32 @@ def _substitute_version_in_text(version: str, content: str, patterns: Sequence[_
             insert = version
         elif pattern.mode == "tuple":
             parts = []
+
             split = version.split("+", 1)
-            split = [*re.split(r"[-.]", split[0]), *split[1:]]
-            for part in split:
+            primary = re.split(r"[-.]", split[0])
+            metadata = split[1:]
+
+            for part in primary:
                 if part == "":
                     continue
                 try:
                     parts.append(str(int(part)))
                 except ValueError:
+                    result = re.match(r"(\d+)(\D+(.*))", part)
+                    if result is not None:
+                        parts.append(str(int(result.group(1))))
+                        parts.append('"{}"'.format(result.group(2)))
+                    else:
+                        parts.append('"{}"'.format(part))
+            for part in metadata:
+                if part == "":
+                    continue
+                try:
+                    parts.append(str(int(part)))
+                except ValueError:
+                    # Metadata formats are less predictable, so don't split by digit/letter.
                     parts.append('"{}"'.format(part))
+
             insert = ", ".join(parts)
             if len(parts) == 1:
                 insert += ","

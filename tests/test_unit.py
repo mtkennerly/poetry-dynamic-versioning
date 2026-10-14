@@ -392,3 +392,47 @@ def test__substitute_version_in_text__mixed():
         plugin._default_config()["tool"]["poetry-dynamic-versioning"]["substitution"]["patterns"]
     )
     assert plugin._substitute_version_in_text(version, content, patterns) == output
+
+
+def test__substitute_version_in_text__digit_letter_digit_in_single_segment():
+    content = textwrap.dedent(
+        """
+            __version__: str = "0.0.0"
+            __version__ = "0.0.0"
+            __version_tuple__ = (0, 0, 0)
+        """
+    )
+    output = textwrap.dedent(
+        """
+            __version__: str = "0.1.2a3.dev5"
+            __version__ = "0.1.2a3.dev5"
+            __version_tuple__ = (0, 1, 2, "a3", "dev5")
+        """
+    )
+    version = "0.1.2a3.dev5"
+    patterns = plugin._SubPattern.from_config(
+        plugin._default_config()["tool"]["poetry-dynamic-versioning"]["substitution"]["patterns"]
+    )
+    assert plugin._substitute_version_in_text(version, content, patterns) == output
+
+
+def test__substitute_version_in_text__digit_letter_in_single_segment():
+    content = textwrap.dedent(
+        """
+            __version__: str = "0.0.0"
+            __version__ = "0.0.0"
+            __version_tuple__ = (0, 0, 0)
+        """
+    )
+    output = textwrap.dedent(
+        """
+            __version__: str = "0.1.2a.dev5"
+            __version__ = "0.1.2a.dev5"
+            __version_tuple__ = (0, 1, 2, "a", "dev5")
+        """
+    )
+    version = "0.1.2a.dev5"
+    patterns = plugin._SubPattern.from_config(
+        plugin._default_config()["tool"]["poetry-dynamic-versioning"]["substitution"]["patterns"]
+    )
+    assert plugin._substitute_version_in_text(version, content, patterns) == output
