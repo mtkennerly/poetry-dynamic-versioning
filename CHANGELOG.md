@@ -1,4 +1,4 @@
-## Unreleased
+## v1.10.1 (2026-10-14)
 
 * Fixed:
   * `0.1.2a3` would result in `__version_tuple__ = (0, 1, "2a3")`,
